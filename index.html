@@ -2,238 +2,882 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kards蒙蒂大不列颠及北爱尔兰联合直属卡梅伦高地人团🇬🇧🇬🇧🇬🇧</title>
     <style>
-        /* 背景 */
-        .bg-container {
-            width: 100vw;
-            height: 100vh;
-            background-image: url("picture/Image.png");
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: cover;
-            position: relative;
-        }
-        /* 按钮容器 */
-        .btn-group {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            z-index: 10;
-        }
-        /* 菜单按钮类 */
-        .menu-btn {
-            display: block;
-            width: 300px;
-            height: 60px;
-            background-color: #55585a;
-            font-size: 25px;
-            color: #fff;
-            text-decoration: none;
-            text-align: center;
-            line-height: 60px;
-            margin-bottom: 10px;
-            border: none;
-            cursor: pointer;
-        }
-        .menu-btn:hover {
-            background-color: #ff6700;
-        }
-
-         /*签到面板*/
-        .sign-panel {
-            display: none;
-            width: 300px;
-            background: #2b2b2b;
-            padding: 15px;
-            border-radius: 4px;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-        /*昵称输入框*/
-        .sign-input {
-            width: 275px;
-            height: 40px;
-            padding: 0 12px;
-            font-size: 15px;
-            background: #3a3a3a;
-            border: 1px solid #555;
-            border-radius: 4px;
-            color: #fff;
-            margin-bottom: 10px;
-            outline: none;
-        }
-        .sign-input:focus {
-            border-color: #ff6700;
-        }
-        /*确认签到按钮*/
-        .sign-confirm-btn {
-            width: 300px;
-            height: 40px;
-            line-height: 40px;
-            text-align: center;
-            background: #ff6700;
-            color: #fff;
-            font-size: 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-bottom: 12px;
-        }
-        .sign-confirm-btn:hover {
-            background: #ff8533;
-        }
-        .sign-confirm-btn:disabled {
-            background: #666;
-            cursor: not-allowed;
-        }
-        /*签到人数统计*/
-        .sign-count {
-            font-size: 13px;
-            color: #ccc;
-            margin-bottom: 8px;
-        }
-        /*签到名单列表*/
-        .sign-list {
-            max-height: 180px;
-            overflow-y: auto;
-            background: #333;
-            border-radius: 4px;
-            padding: 8px;
-            font-size: 13px;
-            line-height: 22px;
-        }
-        .sign-item {
-            padding: 2px 6px;
-            border-bottom: 1px solid #444;
-        }
-        .sign-item:last-child {
-            border-bottom: none;
-        }
-        .empty-tip {
-            color: #777;
-            text-align: center;
-        }
-        /* 群公告面板 */
-        .notice-panel {
-            display: none;
-            width: 300px;
-            background: #2b2b2b;
-            padding: 15px;
-            border-radius: 4px;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-        .notice-title {
-            font-size: 16px;
-            font-weight: normal;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #444;
-            color: #ff6700;
-        }
-        .bg-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-        }
-        .corner-img {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 240px;
-            height: 302px;
-            z-index: 9;
-            object-fit: contain;
-        }
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+.bg-container {
+    width: 100%;
+    height: 100%;
+    background-image: url("picture/Image.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    position: relative;
+}
+.author-text {
+    position: absolute;
+    bottom: 40px;
+    right: 60px;
+    color: #ffffff;
+    font-size: 32px;
+    z-index: 8;
+}
+.btn-group {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+}
+.menu-btn {
+    display: block;
+    width: 200px;
+    height: 50px;
+    background-color: #55585a;
+    font-size: 20px;
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    line-height: 50px;
+    margin-bottom: 10px;
+    border: none;
+    cursor: pointer;
+}
+.menu-btn:hover {
+    background-color: #ff6700;
+}
+.sign-panel {
+    display: none;
+    width: 200px;
+    background: #2b2b2b;
+    padding: 12px;
+    border-radius: 4px;
+    color: #fff;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+.sign-input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 15px;
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #fff;
+    margin-bottom: 10px;
+    outline: none;
+}
+.sign-confirm-btn {
+    width: 100%;
+    height: 40px;
+    background: #ff6700;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 12px;
+}
+.sign-count {
+    font-size: 13px;
+    color: #ccc;
+}
+.sign-list {
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #333;
+    padding: 8px;
+    font-size: 13px;
+}
+.notice-modal-mask {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9997;
+    align-items: center;
+    justify-content: center;
+}
+.notice-modal-box {
+    width: 90%;
+    max-width: 520px;
+    background: #2b2b2b;
+    color: #fff;
+    border-radius: 6px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.notice-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #444;
+}
+.notice-close-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 24px;
+    cursor: pointer;
+}
+#rotateTip {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000c;
+    color: #fff;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    text-align: center;
+    padding: 20px;
+}
+#adminPwdMask {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+.admin-trigger-inner {
+    background: #fff;
+    color: #111;
+    padding: 22px;
+    border-radius: 6px;
+    width: 320px;
+    max-width: 90%;
+    box-sizing: border-box;
+}
+.pwd-input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 42px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 12px;
+    margin: 12px 0;
+    font-size: 16px;
+}
+.admin-btn-row {
+    display: flex;
+    gap: 10px;
+}
+.admin-confirm,.admin-close {
+    flex: 1;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.admin-confirm {
+    background: #ff6700;
+    color: white;
+}
+.admin-close {
+    background: #555;
+    color: white;
+}
+#clearSignBtn {
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+#clearSignBtn.active {
+    display: block;
+}
+.deck-panel {
+    display: none;
+    width: 360px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: #2b2b2b;
+    color: #fff;
+    padding: 14px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+.deck-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #3a3a3a;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+}
+.deck-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+.deck-item {
+    border: 1px solid #444;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 4px;
+}
+.deck-item.top-deck{
+    border:2px solid #ff6700;
+    background:#382c24;
+}
+.deck-btn-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.deck-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.btn-copy {background:#4488dd;color:#fff;}
+.btn-del-own {background:#dd8822;color:#fff;}
+.btn-del-admin {background:#dd3333;color:#fff;}
+.btn-set-top{background:#22bb55;color:#fff;}
+.admin-notice-area {
+    margin-top: 12px;
+    display: none;
+}
+.admin-notice-area.active {
+    display: block;
+}
+textarea.notice-edit {
+    width: 100%;
+    min-height: 100px;
+    background: #3a3a3a;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 8px;
+    box-sizing: border-box;
+}
+.upload-img-preview {
+    max-width: 100%;
+    max-height: 220px;
+    margin: 6px 0;
+    border-radius: 4px;
+}
+.corner-img {
+    width: 240px;
+    height: 302px;
+    z-index: 9;
+    object-fit: contain;
+    cursor: pointer;
+}
+/*维护模式遮罩*/
+#maintainMask{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#000;
+    z-index:99999;
+    color:#fff;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    text-align:center;
+    padding:20px;
+}
+/*投票弹窗*/
+.poll-mask{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    z-index:9998;
+    align-items:center;
+    justify-content:center;
+}
+.poll-box{
+    width:90%;
+    max-width:500px;
+    background:#2b2b2b;
+    color:#fff;
+    border-radius:6px;
+    padding:20px;
+    box-sizing:border-box;
+    max-height:85vh;
+    overflow-y:auto;
+}
+.poll-close{
+    float:right;
+    font-size:24px;
+    background:none;
+    border:none;
+    color:#aaa;
+    cursor:pointer;
+}
+.poll-option-item{
+    padding:10px;
+    border:1px solid #555;
+    margin:6px 0;
+    border-radius:4px;
+    cursor:pointer;
+}
+.poll-option-item:hover{
+    background:#444;
+}
+.poll-img{
+    max-width:100%;
+    border-radius:4px;
+    margin:10px 0;
+}
     </style>
 </head>
 <body>
-<div class="bg-container">
-    <img class="corner-img" src="picture/erweima.png">
-    <div class="btn-group">
-        <a class="menu-btn" href="https://karsenal.netlify.app/">kards军械库</a>
-        <a class="menu-btn" id="signToggleBtn" href="#">签到</a>
-        <div class="sign-panel" id="signPanel">
-            <input type="text" class="sign-input" id="nicknameInput" placeholder="请输入你的群昵称">
-            <button class="sign-confirm-btn" id="confirmSignBtn">确认签到</button>
-            <div class="sign-count">今日已签到：<span id="signCount">0</span> 人</div>
-            <div class="sign-list" id="signList">
-                <div class="empty-tip">暂无签到记录</div>
-            </div>
-        </div>
-        <a class="menu-btn" id="noticeToggleBtn" href="#">群公告</a>
-        <div class="notice-panel" id="noticePanel">
-            <h4 class="notice-title">📢公告</h4>
-            <div class="notice-content">
-                <p>从现在开始，日快大玉严禁任何人在群里发布违规信息，一经发现迅速处理。</p>
-            </div>
-        </div>
-        <a class="menu-btn" href="https://ohminecraftlauncher.github.io/DIY/">DIY</a>
-        <a class="menu-btn" href="https://docs.qq.com/smartsheet/DSXFGZ29MYkRIaWdt?tab=t00i2h&viewId=vLxuFi">添加卡组</a>
-        <a class="menu-btn" href="https://docs.qq.com/smartsheet/DSXFGZ29MYkRIaWdt?u=79bb71d3e6b74be8846037fd903fe94c&tab=t00i2h&viewId=vxGXNc">查看已有卡组</a>
+    <div id="maintainMask">
+        <h1>站点正在更新维护中</h1>
+        <p>请稍后再来访问本网站</p>
+        <div style="margin-top:20px"><input class="pwd-input" id="bypassMaintainPwd" placeholder="管理员密码可绕过维护"></div>
+        <button class="menu-btn" id="bypassMaintainBtn">管理员绕过维护</button>
     </div>
-</div>
-    <script>
-        const signToggleBtn = document.getElementById('signToggleBtn');
-        const signPanel = document.getElementById('signPanel');
-        const confirmSignBtn = document.getElementById('confirmSignBtn');
-        const nicknameInput = document.getElementById('nicknameInput');
-        const signCountEl = document.getElementById('signCount');
-        const signListEl = document.getElementById('signList');
-        const today = new Date().toISOString().split('T')[0];
-        const STORAGE_KEY = 'group_sign_' + today;
 
-        signToggleBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (signPanel.style.display === 'block') {
-                signPanel.style.display = 'none';
-            } else {
-                signPanel.style.display = 'block';
-                renderSignList();
+    <div id="rotateTip">请把手机横向旋转，获得最佳浏览体验</div>
+
+    <div class="notice-modal-mask" id="noticeModalMask">
+        <div class="notice-modal-box">
+            <div class="notice-modal-header">
+                <h4>📢公告</h4>
+                <button class="notice-close-btn" id="noticeCloseBtn">×</button>
+            </div>
+            <div id="noticeShowContent"></div>
+            <div class="admin-notice-area" id="adminNoticeWrap">
+                <textarea class="notice-edit" id="noticeEditInput"></textarea>
+                <div style="display:flex;gap:8px;margin-top:8px;">
+                    <button class="menu-btn" style="width:auto;height:36px;line-height:36px;font-size:14px;" id="saveNoticeBtn">保存公告</button>
+                    <button class="menu-btn" style="width:auto;height:36px;line-height:36px;font-size:14px;background:#c0392b;" id="clearNoticeBtn">清空公告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPwdMask">
+        <div class="admin-trigger-inner">
+            <h3>请输入密码</h3>
+            <input class="pwd-input" id="secretPwdInput" type="password" placeholder="管理员密码">
+            <div class="admin-btn-row">
+                <button class="admin-confirm" id="pwdConfirm">确认</button>
+                <button class="admin-close" id="pwdMaskClose">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="poll-mask" id="pollMask">
+        <div class="poll-box" id="pollBox"></div>
+    </div>
+
+    <div class="bg-container">
+        <div class="author-text">作者：生而峥嵘</div>
+        <div style="position:absolute;top:10px;right:32.5px;text-align:right;">
+            <img class="corner-img" src="picture/erweima.png">
+            <div id="adminTipText" style="color:#4cd964;font-weight:bold;font-size:14px;display:none;margin-top:4px;">✅已获得管理员权限</div>
+        </div>
+
+        <div class="btn-group">
+            <a class="menu-btn" href="https://karsenal.netlify.app/">kards军械库</a>
+            <a class="menu-btn" id="signToggleBtn" href="#">签到</a>
+            <div class="sign-panel" id="signPanel">
+                <input type="text" class="sign-input" id="nicknameInput" placeholder="输入群昵称">
+                <button class="sign-confirm-btn" id="confirmSignBtn">确认签到</button>
+                <div class="sign-count">今日已签到：<span id="signCount">0</span> 人</div>
+                <div class="sign-list" id="signList"></div>
+                <button class="menu-btn" id="clearSignBtn">清空今日签到</button>
+            </div>
+            <a class="menu-btn" id="noticeToggleBtn" href="#">群公告</a>
+            <a class="menu-btn" id="deckToggleBtn" href="#">卡组管理</a>
+            <div class="deck-panel" id="deckPanel">
+                <h4>添加新卡组</h4>
+                <input class="deck-input" id="deckNameInput" placeholder="卡组名称（必填）">
+                <textarea class="deck-input deck-textarea" id="deckCodeInput" placeholder="粘贴卡组代码（代码 / 上传图片二选一）"></textarea>
+                <input type="file" id="deckImageInput" accept="image/*" class="deck-input">
+                <img id="uploadImgPreview" class="upload-img-preview" style="display:none;">
+                <button class="menu-btn" style="width:100%;height:40px;line-height:40px;" id="addDeckBtn">提交卡组</button>
+                <hr style="border-color:#444;margin:12px 0;">
+                <h4>卡组列表</h4>
+                <div id="deckListWrap"></div>
+            </div>
+            <a class="menu-btn" id="pollToggleBtn" href="#">参与投票</a>
+            <a class="menu-btn" href="https://ohminecraftlauncher.github.io/DIY/">DIY卡牌</a>
+            <button class="menu-btn" id="maintainSwitchBtn" style="display:none;">切换维护模式</button>
+        </div>
+    </div>
+
+<script>
+    const API_BASE = "https://kards‑mengdi.bai13704793508.workers.dev/api";
+    let userId = localStorage.getItem("local_user_id");
+    if(!userId){
+        userId = crypto.randomUUID();
+        localStorage.setItem("local_user_id",userId);
+    }
+
+    const ADMIN_PWD = 'mengdi12345678';
+    let isAdmin = false;
+    let qrClickCount = 0;
+    let signBtnClickCount = 0;
+    let triggerTimer = null;
+    const TIME_LIMIT = 10000;
+
+    const qrImg = document.querySelector('.corner-img');
+    const adminPwdMask = document.getElementById('adminPwdMask');
+    const secretPwdInput = document.getElementById('secretPwdInput');
+    const pwdConfirm = document.getElementById('pwdConfirm');
+    const pwdMaskClose = document.getElementById('pwdMaskClose');
+    const clearSignBtn = document.getElementById('clearSignBtn');
+    const signToggleBtn = document.getElementById('signToggleBtn');
+    const maintainMask = document.getElementById('maintainMask');
+    const bypassMaintainPwd = document.getElementById('bypassMaintainPwd');
+    const bypassMaintainBtn = document.getElementById('bypassMaintainBtn');
+    const maintainSwitchBtn = document.getElementById('maintainSwitchBtn');
+    const adminTipText = document.getElementById("adminTipText");
+
+    //维护模式处理
+    async function checkMaintain(){
+        try{
+            const res = await fetch(`${API_BASE}/get-maintain`);
+            const json = await res.json();
+            if(json.maintain===true && !isAdmin){
+                maintainMask.style.display="flex";
+            }else{
+                maintainMask.style.display="none";
             }
-        });
-        function renderSignList() {
-            const signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            signCountEl.textContent = signData.length;
-            if (signData.length === 0) {
-                signListEl.innerHTML = '<div class="empty-tip">暂无签到记录</div>';
-                return;
-            }
-            let html = '';
-            signData.forEach((item, index) => {
-                html += `<div class="sign-item">${index + 1}. ${item.nickname} - ${item.time}</div>`;
-            });
-            signListEl.innerHTML = html;
+        }catch(err){
+            maintainMask.style.display="none";
         }
-        confirmSignBtn.addEventListener('click', function() {
-            const nickname = nicknameInput.value.trim();
-            if (!nickname) {
-                alert('请输入群昵称');
-                return;
-            }
-            let signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            const exist = signData.some(item => item.nickname === nickname);
-            if (exist) {
-                alert('你今天已经签到过了');
-                return;
-            }
-            const now = new Date();
-            const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            signData.push({ nickname: nickname, time: time });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(signData));
-            renderSignList();
-            confirmSignBtn.disabled = true;
-            confirmSignBtn.textContent = '签到成功';
-            nicknameInput.value = '';
+    }
+    bypassMaintainBtn.onclick = ()=>{
+        if(bypassMaintainPwd.value.trim()===ADMIN_PWD){
+            isAdmin=true;
+            adminTipText.style.display="block";
+            maintainMask.style.display="none";
+            alert("管理员绕过维护成功");
+            clearSignBtn.classList.add('active');
+            maintainSwitchBtn.style.display="block";
+        }else alert("密码错误");
+    }
+    maintainSwitchBtn.onclick = async ()=>{
+        if(!confirm("确定切换维护模式状态?"))return;
+        const res=await fetch(`${API_BASE}/toggle-maintain`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json","X-Admin-Secret":ADMIN_PWD}
         });
-        const noticeToggleBtn = document.getElementById('noticeToggleBtn');
-        const noticePanel = document.getElementById('noticePanel');
-        noticeToggleBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            noticePanel.style.display = noticePanel.style.display === 'block' ? 'none' : 'block';
-        });
+        await res.json();
+        checkMaintain();
+    }
+
+    function resetTriggerState() {
+        qrClickCount = 0;
+        signBtnClickCount = 0;
+        clearTimeout(triggerTimer);
+        triggerTimer = null;
+    }
+    function checkTriggerComplete() {
+        if (qrClickCount >= 5 && signBtnClickCount >= 3) {
+            resetTriggerState();
+            adminPwdMask.style.display = 'flex';
+            secretPwdInput.value = '';
+        }
+    }
+    qrImg.addEventListener('click', function() {
+        if(isAdmin) return;
+        if(!triggerTimer) triggerTimer = setTimeout(resetTriggerState, TIME_LIMIT);
+        qrClickCount++;
+        checkTriggerComplete();
+    });
+    signToggleBtn.addEventListener('click', function() {
+        if(isAdmin) return;
+        if(!triggerTimer) triggerTimer = setTimeout(resetTriggerState, TIME_LIMIT);
+        signBtnClickCount++;
+        checkTriggerComplete();
+    });
+    pwdMaskClose.addEventListener('click', ()=>adminPwdMask.style.display='none');
+    pwdConfirm.addEventListener('click', ()=>{
+        const inputPwd = secretPwdInput.value.trim();
+        if(inputPwd === ADMIN_PWD){
+            isAdmin = true;
+            alert('✅已获得管理员权限');
+            adminPwdMask.style.display = 'none';
+            clearSignBtn.classList.add('active');
+            maintainSwitchBtn.style.display="block";
+            adminTipText.style.display="block";
+            loadDeckList();
+        }else{
+            alert('❌密码错误');
+        }
+    });
+
+    //签到（本地localStorage）
+    const signPanel = document.getElementById('signPanel');
+    const confirmSignBtn = document.getElementById('confirmSignBtn');
+    const nicknameInput = document.getElementById('nicknameInput');
+    const signCountEl = document.getElementById('signCount');
+    const signList = document.getElementById('signList');
+    const today = new Date().toISOString().split('T')[0];
+    const STORAGE_KEY = 'group_sign_' + today;
+
+    signToggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        signPanel.style.display = signPanel.style.display === 'block' ? 'none' : 'block';
+    });
+    function renderSignList() {
+        let signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        signCountEl.textContent = signData.length;
+    }
+    confirmSignBtn.addEventListener('click', function() {
+        let nickname = nicknameInput.value.trim();
+        if (!nickname) {alert('请输入群昵称');return;}
+        let signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        if(signData.some(x=>x.name===nickname)){alert('你今天已经签过到了');return;}
+        let now = new Date();
+        let timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        signData.push({name:nickname,time:timeStr});
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(signData));
         renderSignList();
-    </script>
+        confirmSignBtn.disabled=true;
+        confirmSignBtn.textContent='签到成功';
+        nicknameInput.value='';
+    });
+    clearSignBtn.addEventListener('click',()=>{
+        if(!confirm('确定清空今日签到？'))return;
+        localStorage.removeItem(STORAGE_KEY);
+        renderSignList();
+    });
+
+    //公告
+    const noticeToggleBtn = document.getElementById('noticeToggleBtn');
+    const noticeModalMask = document.getElementById('noticeModalMask');
+    const noticeCloseBtn = document.getElementById('noticeCloseBtn');
+    const noticeShowContent = document.getElementById("noticeShowContent");
+    const adminNoticeWrap = document.getElementById("adminNoticeWrap");
+    const noticeEditInput = document.getElementById("noticeEditInput");
+    const saveNoticeBtn = document.getElementById("saveNoticeBtn");
+    const clearNoticeBtn = document.getElementById("clearNoticeBtn");
+
+    async function loadNotice(){
+        try{
+            const res = await fetch(`${API_BASE}/get-notice`);
+            const json = await res.json();
+            noticeShowContent.innerHTML = json.notice||"<p>暂无公告</p>";
+            noticeEditInput.value = json.notice||"";
+            adminNoticeWrap.classList.toggle("active", isAdmin);
+        }catch(e){
+            noticeShowContent.innerHTML="<p>加载公告失败</p>";
+        }
+    }
+    noticeToggleBtn.addEventListener('click', e=>{
+        e.preventDefault();
+        noticeModalMask.style.display='flex';
+        loadNotice();
+    });
+    noticeCloseBtn.addEventListener('click',()=>noticeModalMask.style.display='none');
+    noticeModalMask.addEventListener('click',e=>{if(e.target===noticeModalMask)noticeModalMask.style.display='none'});
+
+    saveNoticeBtn.addEventListener("click",async ()=>{
+        if(!isAdmin){
+            alert("无管理员权限");
+            return;
+        }
+        const res = await fetch(`${API_BASE}/edit-notice`,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "X-Admin-Secret":ADMIN_PWD
+            },
+            body:JSON.stringify({content:noticeEditInput.value})
+        });
+        const j=await res.json();
+        j.ok?(alert("公告已保存"),loadNotice()):alert(j.msg||"保存失败");
+    });
+
+    clearNoticeBtn.addEventListener("click",async ()=>{
+        if(!isAdmin){
+            alert("无管理员权限");
+            return;
+        }
+        if(!confirm("确定清空公告，不可恢复？")) return;
+        const res = await fetch(`${API_BASE}/edit-notice`,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "X-Admin-Secret":ADMIN_PWD
+            },
+            body:JSON.stringify({content:""})
+        });
+        const j = await res.json();
+        j.ok?(alert("公告已清空"),loadNotice()):alert(j.msg||"清空失败");
+    });
+
+    //卡组 新增置顶
+    const deckToggleBtn = document.getElementById("deckToggleBtn");
+    const deckPanel = document.getElementById("deckPanel");
+    const deckNameInput = document.getElementById("deckNameInput");
+    const deckCodeInput = document.getElementById("deckCodeInput");
+    const addDeckBtn = document.getElementById("addDeckBtn");
+    const deckListWrap = document.getElementById("deckListWrap");
+    const deckImageInput = document.getElementById("deckImageInput");
+    const uploadImgPreview = document.getElementById("uploadImgPreview");
+    let selectedImageFile = null;
+
+    deckToggleBtn.addEventListener("click",e=>{
+        e.preventDefault();
+        deckPanel.style.display = deckPanel.style.display==="block"?"none":"block";
+        if(deckPanel.style.display==="block") loadDeckList();
+    });
+
+    deckImageInput.onchange = function(e){
+        const file = e.target.files[0];
+        selectedImageFile = file||null;
+        if(file){
+            const reader = new FileReader();
+            reader.onload = ev=>{
+                uploadImgPreview.src = ev.target.result;
+                uploadImgPreview.style.display = "block";
+            }
+            reader.readAsDataURL(file);
+        }else{
+            uploadImgPreview.style.display = "none";
+        }
+    };
+
+    async function loadDeckList(){
+        try{
+            const res = await fetch(`${API_BASE}/get-decks`);
+            const json = await res.json();
+            deckListWrap.innerHTML = "";
+            if(!json.list||json.list.length===0){
+                deckListWrap.innerHTML="<div>暂无卡组</div>";
+                return;
+            }
+            //置顶卡组排最前面
+            const topList = json.list.filter(d=>d.isTop);
+            const normalList = json.list.filter(d=>!d.isTop);
+            const allList = [...topList,...normalList];
+
+            allList.forEach(deck=>{
+                const isOwner = deck.uploader_id === userId;
+                const div = document.createElement("div");
+                div.className="deck-item"+(deck.isTop?" top-deck":"");
+                div.innerHTML=`
+                    <strong>${escapeHtml(deck.name)} ${deck.isTop?"【置顶】":""}</strong>
+                    <pre style="font-size:12px;color:#ccc;max-height:120px;overflow:auto;">${escapeHtml(deck.code)}</pre>
+                    <div class="deck-btn-row">
+                        <button class="deck-btn btn-copy" onclick="copyDeckCode(${JSON.stringify(deck.code).replace(/"/g,'&quot;')})">复制代码</button>
+                        ${isOwner?`<button class="deck-btn btn-del-own" onclick="deleteDeck(${deck.id})">删除我的卡组</button>`:""}
+                        ${isAdmin?`
+                            <button class="deck-btn btn-del-admin" onclick="deleteDeck(${deck.id})">管理员删除</button>
+                            <button class="deck-btn btn-set-top" onclick="toggleDeckTop(${deck.id},${deck.isTop})">${deck.isTop?"取消置顶":"设为置顶"}</button>
+                        `:""}
+                    </div>
+                `;
+                deckListWrap.appendChild(div);
+            })
+        }catch(err){
+            deckListWrap.innerHTML="<div>加载卡组失败，请检查后端</div>";
+        }
+    }
+
+    window.copyDeckCode = async function(text){
+        await navigator.clipboard.writeText(text);
+        alert("已复制卡组代码");
+    }
+    window.deleteDeck = async function(deckId){
+        if(!confirm("确定删除这条卡组？")) return;
+        const res = await fetch(`${API_BASE}/del-deck`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({deck_id:deckId,uploader_id:userId})
+        });
+        const j = await res.json();
+        j.ok?(alert("删除成功"),loadDeckList()):alert(j.msg||"删除失败");
+    }
+    window.toggleDeckTop = async function(deckId,nowTop){
+        const res=await fetch(`${API_BASE}/deck-set-top`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json","X-Admin-Secret":ADMIN_PWD},
+            body:JSON.stringify({deck_id:deckId,isTop:!nowTop})
+        })
+        const j=await res.json();
+        j.ok?loadDeckList():alert(j.msg||"操作失败");
+    }
+
+    addDeckBtn.addEventListener("click",async ()=>{
+        const name = deckNameInput.value.trim();
+        const code = deckCodeInput.value.trim();
+        if (!name) {
+            alert("卡组名称必填");
+            return;
+        }
+        if (!code && !selectedImageFile) {
+            alert("卡组代码或者卡组图片至少填写一项");
+            return;
+        }
+        const res = await fetch(`${API_BASE}/save-deck`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({name,code,uploader_id:userId})
+        });
+        const j = await res.json();
+        if(j.ok){
+            alert("卡组提交成功");
+            deckNameInput.value="";
+            deckCodeInput.value="";
+            deckImageInput.value = '';
+            selectedImageFile = null;
+            uploadImgPreview.style.display = "none";
+            loadDeckList();
+        }else{
+            alert(j.msg||"提交失败");
+        }
+    });
+
+    function escapeHtml(str){
+        if(!str)return "";
+        return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    //投票模块
+    const pollToggleBtn = document.getElementById("pollToggleBtn");
+    const pollMask = document.getElementById("pollMask");
+    const pollBox = document.getElementById("pollBox");
+
+    pollToggleBtn.addEventListener("click",async e=>{
+        e.preventDefault();
+        pollMask.style.display="flex";
+        await renderPoll();
+    })
+    pollMask.addEventListener("click",e=>{if(e.target===pollMask) pollMask.style.display="none";})
+
+    async function renderPoll(){
+        try{
+            const res=await fetch(`${API_BASE}/get-poll`);
+            const poll = await res.json();
+            if(!poll||!poll.title){
+                //无投票，管理员弹出创建表单
+                if(isAdmin){
+                    pollBox.innerHTML=`
+                    <button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button>
+                    <h3>创建新投票</h3>
+                    <input class="deck-input" id="pollTitle" placeholder="投票标题">
+                    <textarea class="deck-input deck-textarea" id="pollDesc" placeholder="投票描述内容"></textarea>
+                    <input class="deck-input" id="pollEndTime" placeholder="截止时间 yyyy-MM-dd HH:mm">
+                    <textarea class="deck-input deck-textarea" id="pollOptions" placeholder="选项每行一条"></textarea>
+                    <button class="menu-btn" id="createPollBtn">确认创建投票</button>
+                    `;
+                    document.getElementById("createPollBtn").onclick = submitCreatePoll;
+                }else{
+                    pollBox.innerHTML=`<button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button><h3>暂无进行中的投票</h3>`;
+                }
+                return;
+            }
+            //存在投票
+            const nowTs = Date.now();
+            const endTs = new Date(poll.endTime).getTime();
+            const isEnd = nowTs>endTs;
+            const userVoted = poll.voterIds&&poll.voterIds.includes(userId);
+
+            let html=`<button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button>
+            <h3>${escapeHtml(poll.title)}</h3>
+            <div>${escapeHtml(poll.desc||"")}</div>
+            ${poll.imgUrl?`<img class="poll-img" src="${escapeHtml(poll.imgUrl)}">`:""}
+            <p>截止：${poll.endTime} ${isEnd?"【投票已结束】":""}</p>
+            `;
+            if(isEnd||userVoted){
+                //展示统计结果
+                html+=`<h4>投票统计结果</h4>`;
+                poll.options.forEach((opt,idx)=>{
+                    const cnt = poll.counts[idx]||0;
+                    html+=`<div class="poll-option-item">${escapeHtml(opt)} ：${cnt}票</div>`
+                })
+            }else{
+                //可投票
+                poll.options.forEach((opt,idx)=>{
+                    html+=`<div class="poll-option-item" onclick="submitVote(${idx})">${escapeHtml(opt)}</div>`
+                })
+            }
+            if(isAdmin&&!isEnd){
+                html+=`<hr><button class="menu-btn" onclick="closePollAdmin()">管理员关闭投票</button>`
+            }
+            pollBox.innerHTML = html;
+        }catch(err){
+            pollBox.innerHTML=`<button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button><h3>后端请求失败，部署网页+worker后投票功能可用</h3>`;
+        }
+    }
+    window.submitVote=async function(optIndex){
+        const res=await fetch(`${API_BASE}/vote-submit`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({opt:optIndex,uid:userId})
+        })
+        const j=await res.json();
+        j.ok?renderPoll():alert(j.msg||"投票失败");
+    }
+    window.closePollAdmin=async function(){
+        if(!confirm("确定关闭该投票？"))return;
+        const res=await fetch(`${API_BASE}/poll-close`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json","X-Admin-Secret":ADMIN_PWD}
+        })
+        await res.json();
+        renderPoll();
+    }
+    async function submitCreatePoll(){
+        const title = document.getElementById("pollTitle").value.trim();
+        const desc = document.getElementById("pollDesc").value.trim();
+        const endTime = document.getElementById("pollEndTime").value.trim();
+        const optText = document.getElementById("pollOptions").value.trim();
+        if(!title||!endTime||!optText){
+            alert("标题、截止时间、选项不能为空");
+            return;
+        }
+        const options = optText.split("\n").filter(s=>s.trim());
+        if(options.length<2){
+            alert("至少2个投票选项");
+            return;
+        }
+        const payload = {title,desc,endTime,options};
+        const res=await fetch(`${API_BASE}/poll-create`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json","X-Admin-Secret":ADMIN_PWD},
+            body:JSON.stringify(payload)
+        })
+        const j=await res.json();
+        j.ok?renderPoll():alert(j.msg||"创建失败");
+    }
+
+    //旋转提示修复防抖
+    let rotateTimer = null;
+    function checkOrientation() {
+        clearTimeout(rotateTimer);
+        rotateTimer = setTimeout(()=>{
+            const tip = document.getElementById('rotateTip');
+            const isLandscape = window.innerWidth > window.innerHeight;
+            tip.style.display = isLandscape ? 'none' : 'flex';
+        },250);
+    }
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', async ()=>{
+        checkOrientation();
+        renderSignList();
+        await checkMaintain();
+    });
+</script>
 </body>
 </html>
