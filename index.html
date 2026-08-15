@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Kards蒙蒂大不列颠及北爱尔兰联合直属卡梅伦高地人团🇬🇧🇬🇧🇬🇧</title>
+    <style>
+        /* 背景 */
+        .bg-container {
+            width: 100vw;
+            height: 100vh;
+            background-image: url("picture/Image.png");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            position: relative;
+        }
+        /* 按钮容器 */
+        .btn-group {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 10;
+        }
+        /* 菜单按钮类 */
+        .menu-btn {
+            display: block;
+            width: 300px;
+            height: 60px;
+            background-color: #55585a;
+            font-size: 25px;
+            color: #fff;
+            text-decoration: none;
+            text-align: center;
+            line-height: 60px;
+            margin-bottom: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .menu-btn:hover {
+            background-color: #ff6700;
+        }
+
+         /*签到面板*/
+        .sign-panel {
+            display: none;
+            width: 300px;
+            background: #2b2b2b;
+            padding: 15px;
+            border-radius: 4px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        /*昵称输入框*/
+        .sign-input {
+            width: 275px;
+            height: 40px;
+            padding: 0 12px;
+            font-size: 15px;
+            background: #3a3a3a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #fff;
+            margin-bottom: 10px;
+            outline: none;
+        }
+        .sign-input:focus {
+            border-color: #ff6700;
+        }
+        /*确认签到按钮*/
+        .sign-confirm-btn {
+            width: 300px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background: #ff6700;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        .sign-confirm-btn:hover {
+            background: #ff8533;
+        }
+        .sign-confirm-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        /*签到人数统计*/
+        .sign-count {
+            font-size: 13px;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
+        /*签到名单列表*/
+        .sign-list {
+            max-height: 180px;
+            overflow-y: auto;
+            background: #333;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 13px;
+            line-height: 22px;
+        }
+        .sign-item {
+            padding: 2px 6px;
+            border-bottom: 1px solid #444;
+        }
+        .sign-item:last-child {
+            border-bottom: none;
+        }
+        .empty-tip {
+            color: #777;
+            text-align: center;
+        }
+        /* 群公告面板 */
+        .notice-panel {
+            display: none;
+            width: 300px;
+            background: #2b2b2b;
+            padding: 15px;
+            border-radius: 4px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .notice-title {
+            font-size: 16px;
+            font-weight: normal;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #444;
+            color: #ff6700;
+        }
+        .bg-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        .corner-img {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 240px;
+            height: 302px;
+            z-index: 9;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+<div class="bg-container">
+    <img class="corner-img" src="picture/erweima.png">
+    <div class="btn-group">
+        <a class="menu-btn" href="https://karsenal.netlify.app/">kards军械库</a>
+        <a class="menu-btn" id="signToggleBtn" href="#">签到</a>
+        <div class="sign-panel" id="signPanel">
+            <input type="text" class="sign-input" id="nicknameInput" placeholder="请输入你的群昵称">
+            <button class="sign-confirm-btn" id="confirmSignBtn">确认签到</button>
+            <div class="sign-count">今日已签到：<span id="signCount">0</span> 人</div>
+            <div class="sign-list" id="signList">
+                <div class="empty-tip">暂无签到记录</div>
+            </div>
+        </div>
+        <a class="menu-btn" id="noticeToggleBtn" href="#">群公告</a>
+        <div class="notice-panel" id="noticePanel">
+            <h4 class="notice-title">📢公告</h4>
+            <div class="notice-content">
+                <p>从现在开始，日快大玉严禁任何人在群里发布违规信息，一经发现迅速处理。</p>
+            </div>
+        </div>
+        <a class="menu-btn" href="https://ohminecraftlauncher.github.io/DIY/">DIY</a>
+        <a class="menu-btn" href="https://docs.qq.com/smartsheet/DSXFGZ29MYkRIaWdt?tab=t00i2h&viewId=vLxuFi">添加卡组</a>
+        <a class="menu-btn" href="https://docs.qq.com/smartsheet/DSXFGZ29MYkRIaWdt?u=79bb71d3e6b74be8846037fd903fe94c&tab=t00i2h&viewId=vxGXNc">查看已有卡组</a>
+    </div>
+</div>
+    <script>
+        const signToggleBtn = document.getElementById('signToggleBtn');
+        const signPanel = document.getElementById('signPanel');
+        const confirmSignBtn = document.getElementById('confirmSignBtn');
+        const nicknameInput = document.getElementById('nicknameInput');
+        const signCountEl = document.getElementById('signCount');
+        const signListEl = document.getElementById('signList');
+        const today = new Date().toISOString().split('T')[0];
+        const STORAGE_KEY = 'group_sign_' + today;
+
+        signToggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (signPanel.style.display === 'block') {
+                signPanel.style.display = 'none';
+            } else {
+                signPanel.style.display = 'block';
+                renderSignList();
+            }
+        });
+        function renderSignList() {
+            const signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            signCountEl.textContent = signData.length;
+            if (signData.length === 0) {
+                signListEl.innerHTML = '<div class="empty-tip">暂无签到记录</div>';
+                return;
+            }
+            let html = '';
+            signData.forEach((item, index) => {
+                html += `<div class="sign-item">${index + 1}. ${item.nickname} - ${item.time}</div>`;
+            });
+            signListEl.innerHTML = html;
+        }
+        confirmSignBtn.addEventListener('click', function() {
+            const nickname = nicknameInput.value.trim();
+            if (!nickname) {
+                alert('请输入群昵称');
+                return;
+            }
+            let signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            const exist = signData.some(item => item.nickname === nickname);
+            if (exist) {
+                alert('你今天已经签到过了');
+                return;
+            }
+            const now = new Date();
+            const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            signData.push({ nickname: nickname, time: time });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(signData));
+            renderSignList();
+            confirmSignBtn.disabled = true;
+            confirmSignBtn.textContent = '签到成功';
+            nicknameInput.value = '';
+        });
+        const noticeToggleBtn = document.getElementById('noticeToggleBtn');
+        const noticePanel = document.getElementById('noticePanel');
+        noticeToggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            noticePanel.style.display = noticePanel.style.display === 'block' ? 'none' : 'block';
+        });
+        renderSignList();
+    </script>
+</body>
+</html>
