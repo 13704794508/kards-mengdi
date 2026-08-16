@@ -406,8 +406,8 @@ textarea.notice-edit {
             <div class="deck-panel" id="deckPanel">
                 <h4>添加新卡组</h4>
                 <input class="deck-input" id="deckNameInput" placeholder="卡组名称（必填）">
-                <textarea class="deck-input deck-textarea" id="deckCodeInput" placeholder="粘贴卡组代码（代码 / 上传图片二选一）"></textarea>
-                <input type="file" id="deckImageInput" accept="image/*" class="deck-input">
+                <textarea class="deck-input deck-textarea" id="deckCodeInput" placeholder="粘贴卡组代码"></textarea>
+                <input type="file" id="deckImageInput" accept="image/*" class="deck-input" style="display:none;">
                 <img id="uploadImgPreview" class="upload-img-preview" style="display:none;">
                 <button class="menu-btn" style="width:100%;height:40px;line-height:40px;" id="addDeckBtn">提交卡组</button>
                 <hr style="border-color:#444;margin:12px 0;">
@@ -421,7 +421,7 @@ textarea.notice-edit {
     </div>
 
 <script>
-    const API_BASE = "https://kards-mengdi.bai13704793508.workers.dev/api";
+    const API_BASE = "https://mengdi.de5.net";
     let userId = localStorage.getItem("local_user_id");
     if(!userId){
         userId = crypto.randomUUID();
@@ -451,7 +451,7 @@ textarea.notice-edit {
     //维护模式处理
     async function checkMaintain(){
         try{
-            const res = await fetch(`${API_BASE}/get-maintain`);
+            const res = await fetch(`${API_BASE}/api/get-maintain`);
             const json = await res.json();
             if(json.maintain===true && !isAdmin){
                 maintainMask.style.display="flex";
@@ -474,7 +474,7 @@ textarea.notice-edit {
     }
     maintainSwitchBtn.onclick = async ()=>{
         if(!confirm("确定切换维护模式状态?"))return;
-        const res=await fetch(`${API_BASE}/toggle-maintain`,{
+        const res=await fetch(`${API_BASE}/api/toggle-maintain`,{
             method:"POST",
             headers:{"Content-Type":"application/json","X-Admin-Secret":ADMIN_PWD}
         });
@@ -572,7 +572,7 @@ textarea.notice-edit {
 
     async function loadNotice(){
         try{
-            const res = await fetch(`${API_BASE}/get-notice`);
+            const res = await fetch(`${API_BASE}/api/get-notice`);
             const json = await res.json();
             noticeShowContent.innerHTML = json.notice||"<p>暂无公告</p>";
             noticeEditInput.value = json.notice||"";
@@ -594,7 +594,7 @@ textarea.notice-edit {
             alert("无管理员权限");
             return;
         }
-        const res = await fetch(`${API_BASE}/edit-notice`,{
+        const res = await fetch(`${API_BASE}/api/edit-notice`,{
             method:"POST",
             headers:{
                 "Content-Type":"application/json",
@@ -612,7 +612,7 @@ textarea.notice-edit {
             return;
         }
         if(!confirm("确定清空公告，不可恢复？")) return;
-        const res = await fetch(`${API_BASE}/edit-notice`,{
+        const res = await fetch(`${API_BASE}/api/edit-notice`,{
             method:"POST",
             headers:{
                 "Content-Type":"application/json",
@@ -624,16 +624,13 @@ textarea.notice-edit {
         j.ok?(alert("公告已清空"),loadNotice()):alert(j.msg||"清空失败");
     });
 
-    //卡组 新增置顶
+    //卡组
     const deckToggleBtn = document.getElementById("deckToggleBtn");
     const deckPanel = document.getElementById("deckPanel");
     const deckNameInput = document.getElementById("deckNameInput");
     const deckCodeInput = document.getElementById("deckCodeInput");
     const addDeckBtn = document.getElementById("addDeckBtn");
     const deckListWrap = document.getElementById("deckListWrap");
-    const deckImageInput = document.getElementById("deckImageInput");
-    const uploadImgPreview = document.getElementById("uploadImgPreview");
-    let selectedImageFile = null;
 
     deckToggleBtn.addEventListener("click",e=>{
         e.preventDefault();
@@ -641,31 +638,15 @@ textarea.notice-edit {
         if(deckPanel.style.display==="block") loadDeckList();
     });
 
-    deckImageInput.onchange = function(e){
-        const file = e.target.files[0];
-        selectedImageFile = file||null;
-        if(file){
-            const reader = new FileReader();
-            reader.onload = ev=>{
-                uploadImgPreview.src = ev.target.result;
-                uploadImgPreview.style.display = "block";
-            }
-            reader.readAsDataURL(file);
-        }else{
-            uploadImgPreview.style.display = "none";
-        }
-    };
-
     async function loadDeckList(){
         try{
-            const res = await fetch(`${API_BASE}/get-decks`);
+            const res = await fetch(`${API_BASE}/api/get-decks`);
             const json = await res.json();
             deckListWrap.innerHTML = "";
             if(!json.list||json.list.length===0){
                 deckListWrap.innerHTML="<div>暂无卡组</div>";
                 return;
             }
-            //置顶卡组排最前面
             const topList = json.list.filter(d=>d.isTop);
             const normalList = json.list.filter(d=>!d.isTop);
             const allList = [...topList,...normalList];
@@ -699,16 +680,20 @@ textarea.notice-edit {
     }
     window.deleteDeck = async function(deckId){
         if(!confirm("确定删除这条卡组？")) return;
-        const res = await fetch(`${API_BASE}/del-deck`,{
+        const headers = {"Content-Type":"application/json"};
+        if(isAdmin){
+            headers["X-Admin-Secret"] = ADMIN_PWD;
+        }
+        const res = await fetch(`${API_BASE}/api/del-deck`,{
             method:"POST",
-            headers:{"Content-Type":"application/json"},
+            headers: headers,
             body:JSON.stringify({deck_id:deckId,uploader_id:userId})
         });
         const j = await res.json();
         j.ok?(alert("删除成功"),loadDeckList()):alert(j.msg||"删除失败");
     }
     window.toggleDeckTop = async function(deckId,nowTop){
-        const res=await fetch(`${API_BASE}/deck-set-top`,{
+        const res=await fetch(`${API_BASE}/api/deck-set-top`,{
             method:"POST",
             headers:{"Content-Type":"application/json","X-Admin-Secret":ADMIN_PWD},
             body:JSON.stringify({deck_id:deckId,isTop:!nowTop})
@@ -724,11 +709,11 @@ textarea.notice-edit {
             alert("卡组名称必填");
             return;
         }
-        if (!code && !selectedImageFile) {
-            alert("卡组代码或者卡组图片至少填写一项");
+        if (!code) {
+            alert("卡组代码不能为空");
             return;
         }
-        const res = await fetch(`${API_BASE}/save-deck`,{
+        const res = await fetch(`${API_BASE}/api/save-deck`,{
             method:"POST",
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify({name,code,uploader_id:userId})
@@ -738,9 +723,6 @@ textarea.notice-edit {
             alert("卡组提交成功");
             deckNameInput.value="";
             deckCodeInput.value="";
-            deckImageInput.value = '';
-            selectedImageFile = null;
-            uploadImgPreview.style.display = "none";
             loadDeckList();
         }else{
             alert(j.msg||"提交失败");
@@ -766,17 +748,16 @@ textarea.notice-edit {
 
     async function renderPoll(){
         try{
-            const res=await fetch(`${API_BASE}/get-poll`);
+            const res=await fetch(`${API_BASE}/api/get-poll`);
             const poll = await res.json();
             if(!poll||!poll.title){
-                //无投票，管理员弹出创建表单
                 if(isAdmin){
                     pollBox.innerHTML=`
                     <button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button>
                     <h3>创建新投票</h3>
                     <input class="deck-input" id="pollTitle" placeholder="投票标题">
                     <textarea class="deck-input deck-textarea" id="pollDesc" placeholder="投票描述内容"></textarea>
-                    <input class="deck-input" id="pollEndTime" placeholder="截止时间 yyyy-MM-dd HH:mm">
+                    <input class="deck-input" id="pollEndTimeTs" placeholder="截止毫秒时间戳(Date.now()+86400000为一天后)">
                     <textarea class="deck-input deck-textarea" id="pollOptions" placeholder="选项每行一条"></textarea>
                     <button class="menu-btn" id="createPollBtn">确认创建投票</button>
                     `;
@@ -786,27 +767,23 @@ textarea.notice-edit {
                 }
                 return;
             }
-            //存在投票
             const nowTs = Date.now();
-            const endTs = new Date(poll.endTime).getTime();
+            const endTs = poll.endTime;
             const isEnd = nowTs>endTs;
             const userVoted = poll.voterIds&&poll.voterIds.includes(userId);
 
             let html=`<button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button>
             <h3>${escapeHtml(poll.title)}</h3>
             <div>${escapeHtml(poll.desc||"")}</div>
-            ${poll.imgUrl?`<img class="poll-img" src="${escapeHtml(poll.imgUrl)}">`:""}
-            <p>截止：${poll.endTime} ${isEnd?"【投票已结束】":""}</p>
+            <p>截止时间戳：${poll.endTime} ${isEnd?"【投票已结束】":""}</p>
             `;
             if(isEnd||userVoted){
-                //展示统计结果
                 html+=`<h4>投票统计结果</h4>`;
                 poll.options.forEach((opt,idx)=>{
                     const cnt = poll.counts[idx]||0;
                     html+=`<div class="poll-option-item">${escapeHtml(opt)} ：${cnt}票</div>`
                 })
             }else{
-                //可投票
                 poll.options.forEach((opt,idx)=>{
                     html+=`<div class="poll-option-item" onclick="submitVote(${idx})">${escapeHtml(opt)}</div>`
                 })
@@ -816,11 +793,11 @@ textarea.notice-edit {
             }
             pollBox.innerHTML = html;
         }catch(err){
-            pollBox.innerHTML=`<button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button><h3>后端请求失败，部署网页+worker后投票功能可用</h3>`;
+            pollBox.innerHTML=`<button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button><h3>后端请求失败</h3>`;
         }
     }
     window.submitVote=async function(optIndex){
-        const res=await fetch(`${API_BASE}/vote-submit`,{
+        const res=await fetch(`${API_BASE}/api/vote-submit`,{
             method:"POST",
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify({opt:optIndex,uid:userId})
@@ -830,7 +807,7 @@ textarea.notice-edit {
     }
     window.closePollAdmin=async function(){
         if(!confirm("确定关闭该投票？"))return;
-        const res=await fetch(`${API_BASE}/poll-close`,{
+        const res=await fetch(`${API_BASE}/api/poll-close`,{
             method:"POST",
             headers:{"Content-Type":"application/json","X-Admin-Secret":ADMIN_PWD}
         })
@@ -840,10 +817,10 @@ textarea.notice-edit {
     async function submitCreatePoll(){
         const title = document.getElementById("pollTitle").value.trim();
         const desc = document.getElementById("pollDesc").value.trim();
-        const endTime = document.getElementById("pollEndTime").value.trim();
+        const endTime = Number(document.getElementById("pollEndTimeTs").value.trim());
         const optText = document.getElementById("pollOptions").value.trim();
         if(!title||!endTime||!optText){
-            alert("标题、截止时间、选项不能为空");
+            alert("标题、截止时间戳、选项不能为空");
             return;
         }
         const options = optText.split("\n").filter(s=>s.trim());
@@ -852,7 +829,7 @@ textarea.notice-edit {
             return;
         }
         const payload = {title,desc,endTime,options};
-        const res=await fetch(`${API_BASE}/poll-create`,{
+        const res=await fetch(`${API_BASE}/api/poll-create`,{
             method:"POST",
             headers:{"Content-Type":"application/json","X-Admin-Secret":ADMIN_PWD},
             body:JSON.stringify(payload)
