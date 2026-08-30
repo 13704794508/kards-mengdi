@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海龟汤 - 卡牌猜猜猜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #2b2b2b;
+            min-height: 100vh;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            background: #ff6700;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #ffffff;
+            color: #ff6700;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #ff6700;
+            letter-spacing: 4px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+            background: #2b2b2b;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #ccc;
+        }
+
+        .progress-wrapper {
+            margin-bottom: 25px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #ccc;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ff6700;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 6px;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .start-screen p {
+            margin-bottom: 30px;
+            color: #ccc;
+            font-size: 16px;
+        }
+
+        .start-btn {
+            padding: 14px 40px;
+            font-size: 18px;
+            background: #ff6700;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .start-btn:hover {
+            background: #ffffff;
+            color: #ff6700;
+        }
+
+        .hint-area {
+            margin-bottom: 25px;
+            min-height: 200px;
+        }
+
+        .hint-title {
+            font-size: 16px;
+            color: #ff6700;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .hint-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hint-item {
+            padding: 10px 14px;
+            background: #2b2b2b;
+            border-left: 3px solid #ff6700;
+            border-radius: 4px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #guessInput {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 15px;
+            background: #2b2b2b;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            color: #ffffff;
+            outline: none;
+        }
+
+        #guessInput:focus {
+            border-color: #ff6700;
+        }
+
+        .submit-btn {
+            padding: 12px 24px;
+            background: #ff6700;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #ffffff;
+            color: #ff6700;
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            color: #2b2b2b;
+            cursor: not-allowed;
+        }
+
+        .message {
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .message.error {
+            background: #2b2b2b;
+            color: #ff6700;
+            border: 1px solid #ff6700;
+            display: block;
+        }
+
+        .message.success {
+            background: #2b2b2b;
+            color: #ff6700;
+            border: 1px solid #ff6700;
+            display: block;
+        }
+
+        .message.gameover {
+            background: #2b2b2b;
+            color: #ff6700;
+            border: 1px solid #ff6700;
+            display: block;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: #2b2b2b;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 450px;
+            width: 90%;
+            border: 1px solid #ccc;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #ff6700;
+            text-align: center;
+        }
+
+        .modal ul {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .modal li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ccc;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ffffff;
+        }
+
+        .modal li:last-child {
+            border-bottom: none;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff6700;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .modal-btn:hover {
+            background: #ffffff;
+            color: #ff6700;
+        }
+
+        .restart-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff6700;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            display: none;
+            transition: background 0.3s;
+        }
+
+        .restart-btn:hover {
+            background: #ffffff;
+            color: #ff6700;
+        }
+
+        .restart-btn.show {
+            display: block;
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>海龟汤 - 卡牌猜猜猜</h1>
+        <a href="index.html" class="back-btn">返回首页</a>
+    </div>
+
+    <div class="game-container">
+        <!-- 开始界面 -->
+        <div class="start-screen" id="startScreen">
+            <p>猜出隐藏的卡牌名称</p>
+            <button class="start-btn" onclick="showRules()">开始游戏</button>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div class="game-screen" id="gameScreen">
+            <div class="progress-wrapper">
+                <div class="progress-label">
+                    <span>猜测进度</span>
+                    <span id="chanceText">10 / 10</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="hint-area">
+                <div class="hint-title">已获得的提示：</div>
+                <ul class="hint-list" id="hintList"></ul>
+            </div>
+
+            <div class="message" id="message"></div>
+
+            <div class="input-area">
+                <input type="text" id="guessInput" placeholder="输入你猜测的卡牌名称..." autocomplete="off">
+                <button class="submit-btn" id="submitBtn" onclick="submitGuess()">提交</button>
+            </div>
+
+            <button class="restart-btn" id="restartBtn" onclick="restartGame()">再来一局</button>
+        </div>
+    </div>
+
+    <!-- 规则弹窗 -->
+    <div class="modal-overlay" id="rulesModal">
+        <div class="modal">
+            <h2>游戏规则</h2>
+            <ul>
+                <li>1. 系统将随机抽取一张卡牌作为答案</li>
+                <li>2. 初始从「国家、品质、类型、花费、卡池、名称字数、功能/作用」7个维度中随机给出1个提示</li>
+                <li>3. 每次猜错，会再随机给出1个不重复的新提示，已有提示保留</li>
+                <li>4. 7个提示全部给出后，不再增加新提示</li>
+                <li>5. 你总共有10次猜测机会，机会用完则游戏失败</li>
+                <li>6. 在机会用完前猜对卡牌名称即为胜利</li>
+            </ul>
+            <button class="modal-btn" onclick="startGame()">我知道了，开始！</button>
+        </div>
+    </div>
+
+    <script>
+        // 完整卡牌数据库
+        const cards = [
+            { name: "曼彻斯特", country: "英国", quality: "金", type: "轰炸机", cost: 7, pool: "活跃", nameLength: 4, effect: "站解一体" },
+            { name: "沙尘满目", country: "英国", quality: "金", type: "指令", cost: 3, pool: "活跃", nameLength: 4, effect: "扛快，拉单位，直伤" },
+            { name: "卡梅伦团", country: "英国", quality: "银", type: "步兵", cost: 7, pool: "活跃", nameLength: 4, effect: "条件过牌" },
+            { name: "贝克街分队", country: "英国", quality: "银", type: "指令", cost: 1, pool: "预备", nameLength: 4, effect: "补资源" },
+            { name: "汉普郡团", country: "英国", quality: "铜", type: "步兵", cost: 6, pool: "活跃", nameLength: 4, effect: "护脸，补资源" },
+            { name: "土地女孩", country: "英国", quality: "铜", type: "指令", cost: 2, pool: "活跃", nameLength: 4, effect: "过牌" },
+            { name: "魅力男孩高地人团", country: "英国", quality: "铁", type: "步兵", cost: 5, pool: "预备", nameLength: 8, effect: "护脸，回血" },
+            { name: "国土警卫队", country: "英国", quality: "铁", type: "指令", cost: 1, pool: "活跃", nameLength: 5, effect: "单解，补资源" },
+            { name: "利奥波德", country: "德国", quality: "金", type: "炮兵", cost: 10, pool: "活跃", nameLength: 4, effect: "群解" },
+            { name: "战争海军", country: "德国", quality: "金", type: "指令", cost: 7, pool: "活跃", nameLength: 4, effect: "直伤，断水" },
+            { name: "Hs 129", country: "德国", quality: "银", type: "战斗机", cost: 5, pool: "活跃", nameLength: 5, effect: "站解一体" },
+            { name: "斩草除根", country: "德国", quality: "银", type: "指令", cost: 4, pool: "预备", nameLength: 4, effect: "群解" },
+            { name: "山地人营", country: "德国", quality: "铜", type: "步兵", cost: 2, pool: "活跃", nameLength: 4, effect: "抗快，条件过牌" },
+            { name: "闪电战", country: "德国", quality: "铜", type: "指令", cost: 3, pool: "活跃", nameLength: 3, effect: "加攻，减油，打爆发" },
+            { name: "第15侦察营", country: "德国", quality: "铁", type: "步兵", cost: 2, pool: "预备", nameLength: 6, effect: "补资源" },
+            { name: "抑制", country: "德国", quality: "铁", type: "指令", cost: 1, pool: "活跃", nameLength: 2, effect: "软解，条件过牌" },
+            { name: "近卫步兵第272团", country: "苏联", quality: "金", type: "步兵", cost: 8, pool: "预备", nameLength: 9, effect: "护脸，拉单位" },
+            { name: "冬季攻势", country: "苏联", quality: "金", type: "指令", cost: 7, pool: "活跃", nameLength: 4, effect: "群解" },
+            { name: "步兵第57旅", country: "苏联", quality: "银", type: "步兵", cost: 3, pool: "活跃", nameLength: 6, effect: "T-34进场战斗" },
+            { name: "血酒长空", country: "苏联", quality: "银", type: "指令", cost: 2, pool: "活跃", nameLength: 4, effect: "群解" },
+            { name: "骑兵第36师", country: "苏联", quality: "铜", type: "步兵", cost: 6, pool: "活跃", nameLength: 6, effect: "站场，给压力" },
+            { name: "机动防御", country: "苏联", quality: "铜", type: "指令", cost: 2, pool: "活跃", nameLength: 4, effect: "抗快，打脸" },
+            { name: "近卫步兵第178团", country: "苏联", quality: "铁", type: "步兵", cost: 2, pool: "活跃", nameLength: 9, effect: "护快，护脸" },
+            { name: "血红镰刀", country: "苏联", quality: "铁", type: "指令", cost: 1, pool: "活跃", nameLength: 4, effect: "补伤害，过牌" },
+            { name: "雷兵团", country: "日本", quality: "金", type: "步兵", cost: 6, pool: "活跃", nameLength: 3, effect: "群体贴膜，护脸" },
+            { name: "快速胜利", country: "日本", quality: "金", type: "指令", cost: 1, pool: "活跃", nameLength: 4, effect: "直伤" },
+            { name: "久留米联队", country: "日本", quality: "银", type: "步兵", cost: 2, pool: "活跃", nameLength: 5, effect: "抗快，护脸" },
+            { name: "光荣死亡", country: "日本", quality: "银", type: "指令", cost: 1, pool: "预备", nameLength: 4, effect: "单解，爆牌" },
+            { name: "九四式装甲车", country: "日本", quality: "铜", type: "坦克", cost: 1, pool: "活跃", nameLength: 6, effect: "补资源，单解" },
+            { name: "八纮一宇", country: "日本", quality: "铜", type: "指令", cost: 4, pool: "活跃", nameLength: 4, effect: "过牌，条件回费" },
+            { name: "九二式重装甲车", country: "日本", quality: "铁", type: "坦克", cost: 1, pool: "活跃", nameLength: 7, effect: "快攻" },
+            { name: "扩张", country: "日本", quality: "铁", type: "指令", cost: 1, pool: "活跃", nameLength: 2, effect: "过牌" },
+            { name: "霹雳师", country: "美国", quality: "金", type: "步兵", cost: 3, pool: "活跃", nameLength: 3, effect: "过牌，控顶" },
+            { name: "胜利进军", country: "美国", quality: "金", type: "指令", cost: 5, pool: "预备", nameLength: 4, effect: "群体减油，回血" },
+            { name: "龙卷师", country: "美国", quality: "银", type: "步兵", cost: 6, pool: "活跃", nameLength: 3, effect: "补资源" },
+            { name: "轰炸机黑手党", country: "美国", quality: "银", type: "指令", cost: 4, pool: "预备", nameLength: 6, effect: "补资源，群解" },
+            { name: "第5游骑兵营", country: "美国", quality: "铜", type: "步兵", cost: 4, pool: "活跃", nameLength: 6, effect: "站场，给压力" },
+            { name: "燃烧弹", country: "美国", quality: "铜", type: "指令", cost: 4, pool: "预备", nameLength: 3, effect: "单解" },
+            { name: "M4谢尔曼", country: "美国", quality: "铁", type: "坦克", cost: 4, pool: "活跃", nameLength: 5, effect: "过牌，站场" },
+            { name: "供应链", country: "美国", quality: "铁", type: "指令", cost: 2, pool: "预备", nameLength: 3, effect: "过牌" }
+        ];
+
+        // 7个提示维度配置
+        const dimensions = [
+            { key: "country", label: "国家" },
+            { key: "quality", label: "品质" },
+            { key: "type", label: "类型" },
+            { key: "cost", label: "花费" },
+            { key: "pool", label: "卡池" },
+            { key: "nameLength", label: "名称字数" },
+            { key: "effect", label: "功能/作用" }
+        ];
+
+        // 游戏状态变量
+        let targetCard = null;
+        let usedHintIndexes = [];
+        let remainingChances = 10;
+        let isGameEnded = false;
+
+        // 显示规则弹窗
+        function showRules() {
+            document.getElementById('rulesModal').classList.add('active');
+        }
+
+        // 正式开始游戏
+        function startGame() {
+            document.getElementById('rulesModal').classList.remove('active');
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameScreen').classList.add('active');
+            
+            // 随机抽取目标卡牌
+            targetCard = cards[Math.floor(Math.random() * cards.length)];
+            usedHintIndexes = [];
+            remainingChances = 10;
+            isGameEnded = false;
+
+            // 清空提示列表，给出第一个提示
+            document.getElementById('hintList').innerHTML = '';
+            giveRandomHint();
+            updateProgressBar();
+            
+            // 重置输入和状态
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessInput').focus();
+            document.getElementById('message').className = 'message';
+            document.getElementById('message').textContent = '';
+            document.getElementById('restartBtn').classList.remove('show');
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        // 随机给出一个不重复的提示
+        function giveRandomHint() {
+            if (usedHintIndexes.length >= dimensions.length) return;
+
+            // 筛选未使用的维度索引
+            const availableIndexes = [];
+            for (let i = 0; i < dimensions.length; i++) {
+                if (!usedHintIndexes.includes(i)) {
+                    availableIndexes.push(i);
+                }
+            }
+
+            // 随机选一个
+            const randomIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+            usedHintIndexes.push(randomIndex);
+
+            // 构造提示文本并添加到页面
+            const dim = dimensions[randomIndex];
+            const hintValue = targetCard[dim.key];
+            const hintText = `【${dim.label}】${hintValue}`;
+
+            const li = document.createElement('li');
+            li.className = 'hint-item';
+            li.textContent = hintText;
+            document.getElementById('hintList').appendChild(li);
+        }
+
+        // 更新进度条和剩余次数显示
+        function updateProgressBar() {
+            const usedChances = 10 - remainingChances;
+            const percent = (usedChances / 10) * 100;
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('chanceText').textContent = `${remainingChances} / 10`;
+        }
+
+        // 提交猜测
+        function submitGuess() {
+            if (isGameEnded) return;
+
+            const input = document.getElementById('guessInput').value.trim();
+            if (!input) {
+                showMessage('请输入卡牌名称', 'error');
+                return;
+            }
+
+            if (input === targetCard.name) {
+                // 猜对
+                isGameEnded = true;
+                showMessage(`🎉 恭喜猜对了！答案就是「${targetCard.name}」`, 'success');
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('restartBtn').classList.add('show');
+            } else {
+                // 猜错，扣除机会
+                remainingChances--;
+                updateProgressBar();
+
+                if (remainingChances <= 0) {
+                    // 机会用完，游戏结束
+                    isGameEnded = true;
+                    showMessage(`💀 机会用完了！正确答案是「${targetCard.name}」`, 'gameover');
+                    document.getElementById('submitBtn').disabled = true;
+                    document.getElementById('restartBtn').classList.add('show');
+                } else {
+                    // 尝试给出新提示
+                    const beforeCount = usedHintIndexes.length;
+                    giveRandomHint();
+                    
+                    if (usedHintIndexes.length > beforeCount) {
+                        showMessage(`❌ 猜错了！获得新提示，还剩 ${remainingChances} 次机会`, 'error');
+                    } else {
+                        showMessage(`❌ 猜错了！所有提示已给出，还剩 ${remainingChances} 次机会`, 'error');
+                    }
+                }
+            }
+
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessInput').focus();
+        }
+
+        // 显示消息提示
+        function showMessage(text, type) {
+            const msgEl = document.getElementById('message');
+            msgEl.textContent = text;
+            msgEl.className = 'message ' + type;
+        }
+
+        // 重新开始游戏
+        function restartGame() {
+            document.getElementById('hintList').innerHTML = '';
+            startGame();
+        }
+
+        // 回车键提交
+        document.getElementById('guessInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitGuess();
+            }
+        });
+    </script>
+</body>
+</html>
