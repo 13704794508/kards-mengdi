@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>装甲列车·卡牌对战</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:"Microsoft YaHei",sans-serif}
 #stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:50% 50%;background:#f3ecd9;overflow:hidden;box-shadow:0 0 40px #000}
 .screen{position:absolute;inset:0;display:none}
@@ -56,14 +56,14 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 #pips span{width:19px;height:19px;border:2px solid #6b5b45;background:#fff;border-radius:4px}
 #pips span.on{background:#d3a013}
 .slotbtn{width:100%;height:100%;border:none;background:transparent;font-family:inherit;font-size:22px;font-weight:bold;color:#4a4030;cursor:pointer;border-radius:6px}
-.slotbtn.end,.slotbtn.tut,.slotbtn.gear,.slotbtn.menu{background:#4a7ba6;color:#fff}
-.slotbtn.end:hover,.slotbtn.tut:hover,.slotbtn.gear:hover,.slotbtn.menu:hover{background:#4a7ba6}
+.slotbtn.end,.slotbtn.tut,.slotbtn.gear,.slotbtn.menu{background:#3d6b9e;color:#fff}
+.slotbtn.end:hover,.slotbtn.tut:hover,.slotbtn.gear:hover,.slotbtn.menu:hover{background:#305581}
 .slotbtn:disabled{opacity:.45;cursor:default}
 #turnd{position:absolute;left:560px;top:210px;width:480px;text-align:center;font-size:36px;font-weight:bold;color:#5a4c34;pointer-events:none}
 #hint{position:absolute;left:560px;top:290px;width:480px;text-align:center;font-size:20px;color:#a05a10;font-weight:bold;pointer-events:none;min-height:56px}
 #train{position:absolute;z-index:30;transition:left .13s linear,top .13s linear;pointer-events:none;filter:drop-shadow(0 4px 5px rgba(0,0,0,.45))}
 #train img{width:100%;height:100%}
-.tmark{position:absolute;left:50%;top:-30px;transform:translateX(-50%);color:#c0392b;font-weight:bold;font-size:16px;background:rgba(255,255,255,.92);border:2px solid #c0392b;border-radius:14px;padding:1px 9px;white-space:nowrap;z-index:5;animation:bob 1s ease-in-out infinite}
+.tmark{position:absolute;left:50%;top:-30px;transform:translateX(-50%);color:#305581;font-weight:bold;font-size:16px;background:rgba(255,255,255,.92);border:2px solid #3d6b9e;border-radius:14px;padding:1px 9px;white-space:nowrap;z-index:5;animation:bob 1s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-7px)}}
 .hcard{position:absolute;width:150px;height:211px;transition:left .25s,top .22s,transform .18s,opacity .25s;cursor:pointer;z-index:20}
 .hcard .picw{width:100%;height:100%;border-radius:8px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,.35);background:#fff}
@@ -72,11 +72,11 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 .hcard.sel{transform:translateY(-85px);z-index:60!important}
 .hcard.sel .picw{box-shadow:0 0 0 4px #d3a013,0 10px 18px rgba(0,0,0,.4)}
 .hcard.kong{transform:translateY(-85px)}
-.hcard.kong .picw{box-shadow:0 0 0 4px #2f6fd3,0 10px 18px rgba(0,0,0,.4)}
+.hcard.kong .picw{box-shadow:0 0 0 4px #3d6b9e,0 10px 18px rgba(0,0,0,.4)}
 .hcard.ksel{transform:translateY(-110px) scale(1.13);z-index:65!important}
-.hcard.ksel .picw{box-shadow:0 0 0 5px #2f6fd3,0 12px 20px rgba(0,0,0,.45)}
-#kongbtn{position:absolute;display:none;z-index:70;width:150px;padding:10px 0;background:#2f6fd3;color:#fff;font-family:inherit;font-size:20px;font-weight:bold;border:2px solid #1d4f9e;border-radius:8px;cursor:pointer}
-#kongbtn:hover{background:#245bb3}
+.hcard.ksel .picw{box-shadow:0 0 0 5px #3d6b9e,0 12px 20px rgba(0,0,0,.45)}
+#kongbtn{position:absolute;display:none;z-index:70;width:150px;padding:10px 0;background:#3d6b9e;color:#fff;font-family:inherit;font-size:20px;font-weight:bold;border:2px solid #305581;border-radius:8px;cursor:pointer}
+#kongbtn:hover{background:#305581}
 .picw{position:relative;width:100%;height:100%}
 .picw img{width:100%;height:100%;object-fit:contain;display:block}
 .picw .fb{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;font-size:14px;color:#4a4030;background:#e8dfc0;padding:5px;line-height:1.4}
@@ -97,7 +97,7 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 .mrow{display:flex;align-items:center;gap:14px;margin:14px 0;font-size:21px;color:#4a4030}
 .mrow input[type=range]{flex:1;height:26px}
 #trainsel{display:flex;gap:10px}
-#trainsel .picw{width:60px;height:85px;border:3px solid #b9ad8e;border-radius:6px;cursor:pointer;background:#fff}
+#trainsel .picw{width:112px;height:158px;border:4px solid #b9ad8e;border-radius:6px;cursor:pointer;background:#fff}
 #trainsel .picw.on{border-color:#d3a013}
 .mrow2{display:flex;gap:20px;justify-content:center;margin-top:16px}
 /* 菜单加大 */
@@ -107,7 +107,6 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 #menu-ov .mrow input[type=range]{height:32px}
 #menu-ov .gbtn{font-size:27px;padding:13px 30px}
 #menu-ov .mrow2 .gbtn{font-size:24px}
-#trainsel .picw{width:112px;height:158px;border-width:4px}
 #tut{max-width:920px;line-height:1.6;font-size:18px;color:#3c3428}
 #tut h3{margin:12px 0 4px;color:#7a2c20}
 #tut table{border-collapse:collapse;width:100%;margin:4px 0}
@@ -117,7 +116,6 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 #video-ov.on{display:flex}
 #fvid{max-width:100%;max-height:100%}
 #toast{position:absolute;left:50%;top:400px;transform:translateX(-50%);background:rgba(40,34,24,.88);color:#f3ecd9;font-size:20px;padding:9px 22px;border-radius:20px;display:none;z-index:920;pointer-events:none;white-space:nowrap}
-#rot{position:fixed;inset:0;background:#111;color:#eee;display:none;align-items:center;justify-content:center;font-size:22px;z-index:9999}
 
 /* 结算 */
 #scr-settle{background:radial-gradient(1000px 640px at 50% 38%,#3a3f4d,#14161d);color:#eee}
@@ -135,8 +133,8 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 
   <!-- 初始界面 -->
   <div class="screen active" id="scr-init" style="display:block">
-    <button class="gbtn corner" onclick="location.href='game lobby.html'">返 回</button>
-    <div id="init-title">列车作战</div>
+    <button class="gbtn corner" onclick="location.href='index.html'">返 回</button>
+    <div id="init-title">装甲列车</div>
     <div id="init-sub">—— 卡牌对战 · 第二部 ——</div>
     <div id="init-train" class="picw"><img draggable="false"><div class="fb">达努塔装甲列车</div></div>
     <button class="gbtn" id="btn-start">开始游戏</button>
@@ -198,10 +196,9 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
   <!-- 失败动画 -->
   <div id="video-ov"><video id="fvid" playsinline></video></div>
 
-  <div id="ver">v6</div>
+  <div id="ver">版本：v3.0.0</div>
   <div class="author">作者：生而峥嵘</div>
 </div>
-<div id="rot">请横屏设备以获得最佳体验 ↻</div>
 
 <script>
 /* ============ 错误横幅 ============ */
@@ -225,34 +222,34 @@ return w;}
 /* ============ 双击跳过 ============ */
 let SKIP=false,lastTap=0;
 document.getElementById('stage').addEventListener('pointerdown',()=>{
- const n=Date.now();if(n-lastTap<350)SKIP=true;lastTap=n;});
+const n=Date.now();if(n-lastTap<350)SKIP=true;lastTap=n;});
 const wait=ms=>SKIP?Promise.resolve():sleep(ms);
 
 /* ============ 数据 ============ */
 const HAND={
- kuaisu:{n:'快速胜利',c:1,cnt:1,img:['kuaisushengli.png'],d:'对敌方总部造成3点伤害。',army:0},
- wengweng:{n:'嗡嗡炸弹',c:1,cnt:3,img:['wengwengzhadan.png','wengwengzhad an.png'],d:'对敌方总部造成1点伤害，抽1张牌。',army:0},
- heyexunshi:{n:'黑夜巡视',c:2,cnt:4,img:['heiyexunshi.png'],d:'抽2张牌，选择一张手牌并将其返回卡组顶。',army:0},
- di175:{n:'第175步兵团',c:3,cnt:4,img:['di 175 bubingtuan.png'],d:'对敌方总部造成6点伤害，选择一张手牌并将其返回卡组顶。陆军。',army:1},
- he162:{n:'He 162蝾螈',c:4,cnt:1,img:['He 162rongyuan.png','He 162 rongyuan.png'],d:'对敌方总部造成2点伤害，此后每个友方回合开始时，对敌方总部造成2点伤害。',army:0},
- sidalin:{n:'斯大林管风琴',c:4,cnt:3,img:['sidalinguanfengqin.png','sidalinguanfen gqin.png'],d:'对敌方总部造成8点伤害。',army:0},
- di110:{n:'第110装甲掷弹兵团',c:5,cnt:1,img:['di 110 zhuangjiazhidanbingtuan.png'],d:'对敌方总部造成8点伤害，下一个攻击力不小于4的友方陆军造成的伤害+3。陆军。',army:1},
- jiazhan:{n:'假战',c:5,cnt:2,img:['jiazhan.png'],d:'抽牌，直至手牌数为8。',army:0},
- me163:{n:'Me 163彗星',c:6,cnt:1,img:['Me 163huixing.png'],d:'对敌方总部造成4点伤害，使用它的友方回合结束时，将本单位返回手牌。',army:0},
- baoke:{n:'豹式坦克D型',c:7,cnt:1,img:['baoshitanke D xing.png'],d:'对敌方总部造成7点伤害，再造成7点伤害。陆军。（重复也会触发增伤）',army:1},
- jianmie:{n:'歼灭',c:7,cnt:2,img:['jianmie.png'],d:'敌方随机弃掉一张场上卡。',army:0},
- b29:{n:'B-29超级堡垒',c:12,cnt:1,img:['B-29 chaojibaolei.png'],d:'对敌方总部造成15点伤害，下一个友方回合开始时，对敌方总部造成9点伤害。',army:0},
+kuaisu:{n:'快速胜利',c:1,cnt:1,img:['kuaisushengli.png'],d:'对敌方总部造成3点伤害。',army:0},
+wengweng:{n:'嗡嗡炸弹',c:1,cnt:3,img:['wengwengzhadan.png','wengwengzhad an.png'],d:'对敌方总部造成1点伤害，抽1张牌。',army:0},
+heyexunshi:{n:'黑夜巡视',c:2,cnt:4,img:['heiyexunshi.png'],d:'抽2张牌，选择一张手牌并将其返回卡组顶。',army:0},
+di175:{n:'第175步兵团',c:3,cnt:4,img:['di 175 bubingtuan.png'],d:'对敌方总部造成6点伤害，选择一张手牌并将其返回卡组顶。陆军。',army:1},
+he162:{n:'He 162蝾螈',c:4,cnt:1,img:['He 162rongyuan.png','He 162 rongyuan.png'],d:'对敌方总部造成2点伤害，此后每个友方回合开始时，对敌方总部造成2点伤害。',army:0},
+sidalin:{n:'斯大林管风琴',c:4,cnt:3,img:['sidalinguanfengqin.png','sidalinguanfen gqin.png'],d:'对敌方总部造成8点伤害。',army:0},
+di110:{n:'第110装甲掷弹兵团',c:5,cnt:1,img:['di 110 zhuangjiazhidanbingtuan.png'],d:'对敌方总部造成8点伤害，下一个攻击力不小于4的友方陆军造成的伤害+3。陆军。',army:1},
+jiazhan:{n:'假战',c:5,cnt:2,img:['jiazhan.png'],d:'抽牌，直至手牌数为8。',army:0},
+me163:{n:'Me 163彗星',c:6,cnt:1,img:['Me 163huixing.png'],d:'对敌方总部造成4点伤害，使用它的友方回合结束时，将本单位返回手牌。',army:0},
+baoke:{n:'豹式坦克D型',c:7,cnt:1,img:['baoshitanke D xing.png'],d:'对敌方总部造成7点伤害，再造成7点伤害。陆军。（重复也会触发增伤）',army:1},
+jianmie:{n:'歼灭',c:7,cnt:2,img:['jianmie.png'],d:'敌方随机弃掉一张场上卡。',army:0},
+b29:{n:'B-29超级堡垒',c:12,cnt:1,img:['B-29 chaojibaolei.png'],d:'对敌方总部造成15点伤害，下一个友方回合开始时，对敌方总部造成9点伤害。',army:0},
 };
 const FIELD={
- bisimai:{n:'KM俾斯麦号',side:'f',dmg:8,cnt:1,img:['KM bisimaihao.png']},
- tierpici:{n:'KM提尔皮茨号',side:'f',dmg:4,cnt:1,img:['KM tierpicihao.png']},
- luoma:{n:'RM罗马号',side:'f',dmg:4,cnt:2,img:['RM luomahao.png']},
- zhimindi:{n:'进攻殖民地',side:'f',dmg:3,cnt:2,img:['jingongzhimingdi.png','jingongzhiming di.png']},
- shanji:{n:'空中闪击',side:'f',dmg:3,cnt:3,img:['kongzhongshanji.png','kongzhongshan ji.png']},
- zidian:{n:'N1K-J紫电局地战',side:'f',dmg:8,cnt:1,img:['N1K-J zidianjudizhan.png']},
- jiefang:{n:'解放',side:'e',heal:6,cnt:2,img:['jiefang.png']},
- gongshi:{n:'防御工事',side:'e',heal:7,cnt:4,img:['fangyugongshi.png']},
- daoyu:{n:'岛屿防御',side:'e',heal:8,cnt:4,img:['daoyufangyu.png']},
+bisimai:{n:'KM俾斯麦号',side:'f',dmg:8,cnt:1,img:['KM bisimaihao.png']},
+tierpici:{n:'KM提尔皮茨号',side:'f',dmg:4,cnt:1,img:['KM tierpicihao.png']},
+luoma:{n:'RM罗马号',side:'f',dmg:4,cnt:2,img:['RM luomahao.png']},
+zhimindi:{n:'进攻殖民地',side:'f',dmg:3,cnt:2,img:['jingongzhimingdi.png','jingongzhiming di.png']},
+shanji:{n:'空中闪击',side:'f',dmg:3,cnt:3,img:['kongzhongshanji.png','kongzhongshan ji.png']},
+zidian:{n:'N1K-J紫电局地战',side:'f',dmg:8,cnt:1,img:['N1K-J zidianjudizhan.png']},
+jiefang:{n:'解放',side:'e',heal:6,cnt:2,img:['jiefang.png']},
+gongshi:{n:'防御工事',side:'e',heal:7,cnt:4,img:['fangyugongshi.png']},
+daoyu:{n:'岛屿防御',side:'e',heal:8,cnt:4,img:['daoyufangyu.png']},
 };
 const CARS={car1:{img:['car 1.png'],n:'达努塔装甲列车'},car2:{img:['car 2.png'],n:'BP-43装甲列车'},car3:{img:['car 3.png'],n:'BP-43装甲列车'}};
 const pcost=c=>c<=3?1:c<=6?2:c<=9?3:4;
@@ -271,7 +268,7 @@ function playFailVideo(){return new Promise(res=>{const ov=$('#video-ov'),v=$('#
 const fin=()=>{if(done)return;done=true;v.pause();ov.classList.remove('on');res();};
 v.onended=fin;v.onerror=fin;v.onclick=fin;
 v.src=encodeURI('video/shibaijiesuan.mp4');ov.classList.add('on');
-v.play().catch(fin);setTimeout(fin,90000);});}
+v.play().catch(()=>{});setTimeout(fin,90000);});}
 
 /* ============ 几何 ============ */
 const CW=96.25;
@@ -370,8 +367,7 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.opacity='1';
   setTimeout(()=>{el.style.filter='';},500);}
   syncHand();}));}
 function handClick(o){if(S.ended||S.screen!=='battle')return;
-/* 控顶模式：单击选择 → 放大 + 确认按钮；再点同一张取消 */
-if(S.kongding){
+if(S.kongding){ /* 控顶：单击选择 → 放大 + 确认按钮；再点同一张取消 */
   if(S.kongSel===o){S.kongSel=null;hideKongBtn();syncHand();return;}
   S.kongSel=o;syncHand();showKongBtn(o);return;}
 if(pumping)return;
@@ -381,7 +377,6 @@ if(S.sel===i){S.sel=-1;S.points-=p;S.used++;S.hand.splice(i,1);
   o.el.remove();syncHand();refresh();
   enqueue(()=>useEffects(o.key));}
 else{if(p>S.points){toast('指挥点不足！');return;}S.sel=i;syncHand();}}
-/* 控顶确认 */
 function kongConfirm(){const o=S.kongSel;if(!o)return;
 const i=S.hand.indexOf(o);S.hand.splice(i,1);S.deck.unshift(o.key);
 let msg='「'+HAND[o.key].n+'」已返回卡组顶';
@@ -421,14 +416,13 @@ const k=S.deck.shift();refresh();
 if(S.hand.length>=9){toast('爆牌：「'+HAND[k].n+'」被弃掉');await wait(350);return;}
 addHand(k);
 await wait(300);await stMove(HAND[k].c);if(S.ended)return;await stTrigger();}
-/* 控顶：选择 + 确认 */
 function stKong(){return new Promise(res=>{if(!S.hand.length||S.ended){res();return;}
 S.kongding=true;S.kongSel=null;setHint('【控顶】单击选择 1 张手牌，点击「确认控顶」将其返回卡组顶');syncHand();
 kongRes=()=>{S.kongding=false;S.kongSel=null;hideKongBtn();setHint('');syncHand();res();};});}
 /* 陆军牌统一入口：增伤只结算一次，但作用于该牌所有伤害段（豹D两段都+3） */
 async function armyHits(list){
 let bonus=0;
-if(S.armyBuff){S.armyBuff=false;bonus=3;toast('攻击力不小于4的友方陆军造成的伤害加3');}
+if(S.armyBuff){S.armyBuff=false;bonus=3;toast('陆军增伤 +3！全段生效');}
 for(const n of list){await stDmg(n+bonus);if(S.ended)return;await wait(220);}
 }
 async function useEffects(k){
@@ -440,7 +434,7 @@ switch(k){
   case'di175':await armyHits([6]);if(S.ended)return;await stKong();break;
   case'he162':await stDmg(2);if(S.ended)return;S.he162=true;toast('此后每个友方回合开始时造成2点伤害');break;
   case'sidalin':await stDmg(8);break;
-  case'di110':await armyHits([8]);if(S.ended)return;S.armyBuff=true;toast('下一个攻击力不小于4的友方陆军伤害+3');break;
+  case'di110':await armyHits([8]);if(S.ended)return;S.armyBuff=true;toast('下一个攻击力≥4的友方陆军伤害+3');break;
   case'jiazhan':while(S.hand.length!==8&&!S.ended){await stDraw();}break;
   case'me163':await stDmg(4);if(S.ended)return;S.me163Turn=true;toast('本友方回合结束时，Me163将返回手牌');break;
   case'baoke':await armyHits([7,7]);break;
@@ -559,10 +553,16 @@ function buildPrep(){const box=$('#train-pick');box.innerHTML='';
  $('#settle-again').onclick=startBattle;
  $('#settle-exit').onclick=toInit;
 
-/* ============ 缩放适配 ============ */
-function fit(){const s=Math.min(innerWidth/1600,innerHeight/900);
- $('#stage').style.transform=`translate(-50%,-50%) scale(${s})`;
- $('#rot').style.display=(innerHeight>innerWidth*1.05&&innerWidth<900)?'flex':'none';}
+/* ============ 缩放适配（竖屏时旋转画面，手机横过来拿即可玩） ============ */
+function fit(){
+const w=innerWidth,h=innerHeight,st=$('#stage');
+if(h>w){ // 竖屏：旋转90°铺满，横拿手机即正向
+  const s=Math.min(w/900,h/1600);
+  st.style.transform=`translate(-50%,-50%) rotate(90deg) scale(${s})`;
+}else{ // 横屏：正常等比缩放
+  const s=Math.min(w/1600,h/900);
+  st.style.transform=`translate(-50%,-50%) scale(${s})`;
+}}
 addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,250));
 
 /* ============ 启动 ============ */

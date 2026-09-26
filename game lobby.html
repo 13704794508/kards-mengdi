@@ -534,7 +534,7 @@ button{font-family:inherit;user-select:none}
       <span class="modal-title">任务</span>
       <button class="close-btn" onclick="closeModal('taskModal')">✕</button>
     </div>
-    <div class="modal-sub">点击游戏进入即算参与 1 场对局 · 每日 0 点刷新 · 云端同步</div>
+    <div class="modal-sub">点击游戏进入即算参与 1 场对局 · 每日 0 点刷新</div>
     <div class="modal-body" id="taskList"></div>
   </div>
 </div>
@@ -571,7 +571,7 @@ button{font-family:inherit;user-select:none}
       <input id="codeInput" type="text" placeholder="请输入兑换码" maxlength="20">
       <button class="redeem-go" onclick="doRedeem()">兑换</button>
     </div>
-    <div class="redeem-tip">· 请输入管理员发放的兑换码（云端验证，全设备同步）<br>· 奖励自动同步到你的账户</div>
+    <div class="redeem-tip">奖励自动同步到你的账户</div>
   </div>
 </div>
 
@@ -593,7 +593,7 @@ button{font-family:inherit;user-select:none}
 <div class="mask" id="adminModal" onclick="maskClose(event,'adminModal')">
   <div class="modal admin-modal">
     <div class="modal-head">
-      <span class="modal-title">管理员界面 · 兑换码管理（云端）</span>
+      <span class="modal-title">管理员界面 · 兑换码管理</span>
       <button class="close-btn" onclick="closeModal('adminModal')">✕</button>
     </div>
 
@@ -620,7 +620,7 @@ button{font-family:inherit;user-select:none}
       <button class="add-btn" onclick="addCode()">＋ 添加兑换码</button>
     </div>
 
-    <div class="modal-sub" style="border-bottom:1px dashed #cfc3a4">已有兑换码（存于云端 · 所有设备立即生效）</div>
+    <div class="modal-sub" style="border-bottom:1px dashed #cfc3a4">已有兑换码</div>
     <div class="modal-body code-list" id="codeList"></div>
   </div>
 </div>
@@ -821,7 +821,7 @@ async function saveProfile(){
 /* ---------- 游戏切换 ---------- */
 const GAMES=[
   {name:'海龟汤', img:'picture/game1.png', link:'game1.html', emoji:'🐢',
-   desc:'情境推理：主持人给出一段离奇的“汤面”（结果），你通过提出只能回答“是 / 否 / 无关”的问题，层层逼近真相，还原事件背后的“汤底”。考验脑洞与逻辑。'},
+   desc:'系统随机藏一张卡牌，猜它的名字. 猜对即胜利，猜错就扣 1 次机会，送你 1 条新提示,10次机会用完 → 失败，公布答案'},
   {name:'列车作战', img:'picture/game2.png', link:'game2.html', emoji:'🚄',
    desc:'策略对战：在疾驰的列车上布置兵力与火力，抵御沿途敌人的轮番进攻。合理分配资源、强化车厢防御，守住列车，抵达终点！'}
 ];
