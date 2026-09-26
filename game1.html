@@ -5,582 +5,589 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>海龟汤 - 卡牌猜猜猜</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ==========================================================
+           配色：取自《装甲列车》的米色羊皮纸风
+           深色外框 + 米色舞台 + 棕色描边 + 金色点缀 + 蓝色功能键
+           ========================================================== */
+        :root {
+            /* 背景（对应装甲列车：#101014 / #f3ecd9 / #f7f1e1 / #fffdf2） */
+            --bg-page:  #101014;
+            --bg-stage: #f3ecd9;
+            --bg-panel: #f7f1e1;
+            --bg-card:  #fffdf2;
+            --bg-btn:   #efe6cf;
+
+            /* 文字四级（对应 #3a3226 / #4a4030 / #7a6f56 / #8a8069） */
+            --text-1: #3a3226;
+            --text-2: #4a4030;
+            --text-3: #7a6f56;
+            --text-4: #8a8069;
+
+            /* 边框（对应 #b9ad8e / #6b5b45） */
+            --border:        #b9ad8e;
+            --border-strong: #6b5b45;
+
+            /* 金色主色（对应选中高亮 #d3a013 / #a67c00） */
+            --gold:      #d3a013;
+            --gold-deep: #a67c00;
+            --gold-soft: rgba(211, 160, 19, .25);
+
+            /* 功能色（对应蓝色功能键 / 绿色可出牌 / 红色系） */
+            --blue: #2f6fd3;  --blue-deep: #245bb3;  --blue-border: #1d4f9e;
+            --green: #3fa34d; --green-deep: #2a6e35; --green-bg: #e4f1e4;
+            --red: #c0392b;   --red-deep: #7a2c20;   --red-border: #8c3b2e; --red-bg: #f3d9cf;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::selection { background: var(--gold-soft); }
 
         body {
             font-family: "Microsoft YaHei", sans-serif;
-            background: #2b2b2b;
+            background: var(--bg-page);
+            color: var(--text-1);
             min-height: 100vh;
-            color: #ffffff;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 30px 16px 48px;
         }
 
-        .header {
+        /* ===== 米色舞台（对应装甲列车的 #stage） ===== */
+        .stage {
+            position: relative;
             width: 100%;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            max-width: 640px;
+            background: radial-gradient(900px 520px at 50% 10%, #fbf6e7, #f3ecd9 55%, #ece2c8);
+            border: 2px solid var(--border-strong);
+            border-radius: 14px;
+            box-shadow: 0 0 40px #000;
+            padding: 30px 30px 34px;
         }
 
-        .back-btn {
-            padding: 8px 16px;
-            background: #ff6700;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
+        /* ===== 按钮系统（对应 .gbtn） ===== */
+        .gbtn {
+            display: inline-block;
+            border: 2px solid var(--border-strong);
+            background: var(--bg-btn);
+            color: var(--text-1);
+            font-size: 16px;
+            font-weight: bold;
+            padding: 9px 22px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-family: inherit;
+            box-shadow: 0 2px 0 var(--border-strong);
             text-decoration: none;
-            transition: background-color 0.3s ease;
+            transition: filter .15s, transform .1s, box-shadow .1s;
         }
+        .gbtn:hover { filter: brightness(1.05); }
+        .gbtn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--border-strong); }
+        .gbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        .gbtn:disabled { opacity: .45; cursor: default; transform: none; }
 
-        .back-btn:hover {
-            background: #ffffff;
-            color: #ff6700;
+        /* 金色主按钮：开始 / 再来一局 */
+        .gbtn.primary {
+            background: linear-gradient(180deg, #e9b92e, var(--gold));
+            border-color: var(--gold-deep);
+            box-shadow: 0 3px 0 var(--gold-deep);
         }
+        /* 蓝色功能键：提交（对应装甲列车的结束回合/菜单） */
+        .gbtn.action {
+            background: var(--blue);
+            border-color: var(--blue-border);
+            color: #fff;
+            box-shadow: 0 3px 0 var(--blue-border);
+        }
+        .gbtn.action:hover:not(:disabled) { background: var(--blue-deep); }
 
+        .corner { position: absolute; left: 16px; top: 14px; z-index: 10; }
+        .btn-start   { font-size: 20px; padding: 13px 56px; letter-spacing: 4px; text-indent: 4px; }
+        .btn-submit  { padding: 11px 26px; }
+        .btn-restart { display: none; width: 100%; font-size: 17px; }
+        .btn-restart.show { display: block; }
+        .modal-btn   { width: 100%; }
+
+        /* ===== 标题（对应装甲列车初始界面大标题风格） ===== */
+        .title-block { text-align: center; margin-bottom: 26px; }
         h1 {
-            font-size: 32px;
-            color: #ff6700;
-            letter-spacing: 4px;
+            font-size: 34px;
+            letter-spacing: 12px;
+            text-indent: 12px;
+            color: var(--text-2);
+            text-shadow: 0 1px 0 #fff;
+        }
+        .subtitle {
+            margin-top: 8px;
+            font-size: 14px;
+            letter-spacing: 5px;
+            text-indent: 5px;
+            color: var(--text-4);
         }
 
-        .game-container {
-            width: 100%;
-            max-width: 600px;
-            background: #2b2b2b;
-            border-radius: 12px;
-            padding: 30px;
-            border: 1px solid #ccc;
-        }
-
-        .progress-wrapper {
-            margin-bottom: 25px;
-        }
-
+        /* ===== 进度条 ===== */
+        .progress-wrapper { margin-bottom: 22px; }
         .progress-label {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
-            font-size: 14px;
-            color: #ccc;
+            font-size: 13px;
+            color: var(--text-3);
         }
-
+        #chanceText { color: var(--gold-deep); font-weight: bold; font-variant-numeric: tabular-nums; }
         .progress-bar {
-            width: 100%;
-            height: 12px;
-            background: #ccc;
-            border-radius: 6px;
+            height: 14px;
+            background: #e8dfc6;
+            border: 1.5px solid var(--border);
+            border-radius: 999px;
             overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
-            background: #ff6700;
             width: 0%;
-            transition: width 0.5s ease;
-            border-radius: 6px;
+            background: linear-gradient(90deg, #e9b92e, var(--gold));
+            transition: width .45s cubic-bezier(.22, 1, .36, 1), background .45s;
         }
+        /* 机会吃紧时进度条变红 */
+        .progress-fill.danger { background: linear-gradient(90deg, #e0654f, var(--red)); }
 
-        .start-screen {
-            text-align: center;
-            padding: 40px 0;
-        }
-
-        .start-screen p {
-            margin-bottom: 30px;
-            color: #ccc;
-            font-size: 16px;
-        }
-
-        .start-btn {
-            padding: 14px 40px;
-            font-size: 18px;
-            background: #ff6700;
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .start-btn:hover {
-            background: #ffffff;
-            color: #ff6700;
-        }
-
-        .hint-area {
-            margin-bottom: 25px;
-            min-height: 200px;
-        }
-
-        .hint-title {
-            font-size: 16px;
-            color: #ff6700;
-            margin-bottom: 12px;
-            font-weight: bold;
-        }
-
+        /* ===== 提示区（对应格子卡片风格） ===== */
+        .hint-area { margin-bottom: 20px; min-height: 130px; }
+        .hint-title { font-size: 14px; font-weight: bold; color: var(--text-3); margin-bottom: 10px; }
+        .hint-title b { color: var(--gold-deep); }
         .hint-list {
             list-style: none;
             display: flex;
             flex-direction: column;
             gap: 8px;
+            counter-reset: hint;
         }
-
         .hint-item {
-            padding: 10px 14px;
-            background: #2b2b2b;
-            border-left: 3px solid #ff6700;
-            border-radius: 4px;
-            font-size: 15px;
-            border: 1px solid #ccc;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .input-area {
+            counter-increment: hint;
             display: flex;
+            align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
+            padding: 10px 14px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--gold);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-2);
+            box-shadow: 0 1px 0 rgba(107, 91, 69, .15);
+            animation: slideIn .35s ease both;
+        }
+        .hint-item::before {
+            content: counter(hint);
+            flex: none;
+            width: 22px;
+            height: 22px;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-1);
+            background: var(--gold);
+            border: 1.5px solid var(--gold-deep);
+            border-radius: 5px;
         }
 
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 消息：三种状态三种配色（均取自装甲列车） ===== */
+        .message {
+            display: none;
+            padding: 11px 14px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            animation: slideIn .3s ease;
+        }
+        /* 猜错：红系（对应 .gbtn.red） */
+        .message.error {
+            display: block;
+            background: var(--red-bg);
+            border: 2px solid var(--red-border);
+            color: var(--red-deep);
+        }
+        /* 胜利：绿系（对应可出牌绿框） */
+        .message.success {
+            display: block;
+            background: var(--green-bg);
+            border: 2px solid var(--green);
+            color: var(--green-deep);
+        }
+        /* 游戏结束：深底红字（对应结算页失败样式） */
+        .message.gameover {
+            display: block;
+            background: linear-gradient(160deg, #2b2f3a, #171a21);
+            border: 2px solid #8c3b2e;
+            color: #e05545;
+        }
+
+        /* ===== 输入区 ===== */
+        .input-area { display: flex; gap: 10px; margin-bottom: 16px; }
         #guessInput {
             flex: 1;
-            padding: 12px 16px;
+            min-width: 0;
+            padding: 11px 15px;
             font-size: 15px;
-            background: #2b2b2b;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            color: #ffffff;
+            font-family: inherit;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-1);
             outline: none;
+            transition: border-color .2s, box-shadow .2s;
         }
-
+        #guessInput::placeholder { color: #b0a685; }
         #guessInput:focus {
-            border-color: #ff6700;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-soft);
+        }
+        #guessInput:disabled { opacity: .55; }
+
+        /* ===== 开始界面 ===== */
+        .start-screen { text-align: center; padding: 34px 0 30px; }
+        .start-icon { font-size: 52px; margin-bottom: 14px; }
+        .start-screen p {
+            margin-bottom: 26px;
+            color: var(--text-3);
+            font-size: 15px;
+            line-height: 1.9;
         }
 
-        .submit-btn {
-            padding: 12px 24px;
-            background: #ff6700;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
+        .game-screen { display: none; }
+        .game-screen.active { display: block; animation: slideIn .3s ease; }
 
-        .submit-btn:hover {
-            background: #ffffff;
-            color: #ff6700;
-        }
-
-        .submit-btn:disabled {
-            background: #ccc;
-            color: #2b2b2b;
-            cursor: not-allowed;
-        }
-
-        .message {
-            text-align: center;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .message.error {
-            background: #2b2b2b;
-            color: #ff6700;
-            border: 1px solid #ff6700;
-            display: block;
-        }
-
-        .message.success {
-            background: #2b2b2b;
-            color: #ff6700;
-            border: 1px solid #ff6700;
-            display: block;
-        }
-
-        .message.gameover {
-            background: #2b2b2b;
-            color: #ff6700;
-            border: 1px solid #ff6700;
-            display: block;
-        }
-
-        /* 弹窗样式 */
+        /* ===== 规则弹窗（对应 .ov + .panel） ===== */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
+            inset: 0;
+            background: rgba(0, 0, 0, .55);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            padding: 20px;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s;
+            transition: opacity .25s, visibility .25s;
         }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
 
         .modal {
-            background: #2b2b2b;
-            padding: 30px;
+            background: var(--bg-panel);
+            border: 3px solid var(--border-strong);
             border-radius: 12px;
-            max-width: 450px;
-            width: 90%;
-            border: 1px solid #ccc;
-            transform: scale(0.9);
-            transition: transform 0.3s;
+            padding: 26px 30px;
+            max-width: 470px;
+            width: 100%;
+            box-shadow: 0 10px 34px #000;
+            transform: translateY(12px) scale(.96);
+            transition: transform .25s;
         }
-
-        .modal-overlay.active .modal {
-            transform: scale(1);
-        }
+        .modal-overlay.active .modal { transform: none; }
 
         .modal h2 {
-            margin-bottom: 20px;
-            color: #ff6700;
             text-align: center;
+            color: var(--text-2);
+            font-size: 22px;
+            letter-spacing: 8px;
+            text-indent: 8px;
+            margin-bottom: 16px;
         }
-
-        .modal ul {
-            list-style: none;
-            margin-bottom: 25px;
-        }
-
+        .modal ul { list-style: none; margin-bottom: 20px; }
         .modal li {
-            padding: 8px 0;
-            border-bottom: 1px solid #ccc;
+            padding: 9px 2px;
+            border-bottom: 1px solid #9a8f76;
             font-size: 14px;
-            line-height: 1.6;
-            color: #ffffff;
+            line-height: 1.7;
+            color: var(--text-2);
         }
+        .modal li:last-child { border-bottom: none; }
 
-        .modal li:last-child {
-            border-bottom: none;
-        }
-
-        .modal-btn {
-            width: 100%;
-            padding: 12px;
-            background: #ff6700;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        .modal-btn:hover {
-            background: #ffffff;
-            color: #ff6700;
-        }
-
-        .restart-btn {
-            width: 100%;
-            padding: 12px;
-            background: #ff6700;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            display: none;
-            transition: background-color 0.3s ease;
-        }
-
-        .restart-btn:hover {
-            background: #ffffff;
-            color: #ff6700;
-        }
-
-        .restart-btn.show {
-            display: block;
-        }
-
-        .game-screen {
-            display: none;
-        }
-
-        .game-screen.active {
-            display: block;
+        /* ===== 响应式 ===== */
+        @media (max-width: 480px) {
+            body { padding: 14px 10px 28px; }
+            .stage { padding: 24px 16px 26px; }
+            h1 { font-size: 26px; letter-spacing: 7px; text-indent: 7px; }
+            .input-area { flex-direction: column; }
+            .btn-submit { width: 100%; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>海龟汤 - 卡牌猜猜猜</h1>
-        <a href="index.html" class="back-btn">返回首页</a>
+<div class="stage">
+    <a href="game lobby.html" class="gbtn corner">返 回</a>
+
+    <div class="title-block">
+        <h1>海龟汤</h1>
+        <div class="subtitle">—— 卡牌猜猜猜 ——</div>
     </div>
 
-    <div class="game-container">
-        <!-- 开始界面 -->
-        <div class="start-screen" id="startScreen">
-            <p>猜出隐藏的卡牌名称</p>
-            <button class="start-btn" onclick="showRules()">开始游戏</button>
-        </div>
-
-        <!-- 游戏界面 -->
-        <div class="game-screen" id="gameScreen">
-            <div class="progress-wrapper">
-                <div class="progress-label">
-                    <span>猜测进度</span>
-                    <span id="chanceText">10 / 10</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
-
-            <div class="hint-area">
-                <div class="hint-title">已获得的提示：</div>
-                <ul class="hint-list" id="hintList"></ul>
-            </div>
-
-            <div class="message" id="message"></div>
-
-            <div class="input-area">
-                <input type="text" id="guessInput" placeholder="输入你猜测的卡牌名称..." autocomplete="off">
-                <button class="submit-btn" id="submitBtn" onclick="submitGuess()">提交</button>
-            </div>
-
-            <button class="restart-btn" id="restartBtn" onclick="restartGame()">再来一局</button>
-        </div>
+    <!-- 开始界面 -->
+    <div class="start-screen" id="startScreen">
+        <div class="start-icon">🃏</div>
+        <p>系统随机抽取一张神秘卡牌<br>10 次机会内，根据提示猜出它的名字</p>
+        <button class="gbtn primary btn-start" id="startBtn">开始游戏</button>
     </div>
 
-    <!-- 规则弹窗 -->
-    <div class="modal-overlay" id="rulesModal">
-        <div class="modal">
-            <h2>游戏规则</h2>
-            <ul>
-                <li>1. 系统将随机抽取一张卡牌作为答案</li>
-                <li>2. 初始从「国家、品质、类型、花费、卡池、名称字数、功能/作用」7个维度中随机给出1个提示</li>
-                <li>3. 每次猜错，会再随机给出1个不重复的新提示，已有提示保留</li>
-                <li>4. 7个提示全部给出后，不再增加新提示</li>
-                <li>5. 你总共有10次猜测机会，机会用完则游戏失败</li>
-                <li>6. 在机会用完前猜对卡牌名称即为胜利</li>
-            </ul>
-            <button class="modal-btn" onclick="startGame()">我知道了，开始！</button>
+    <!-- 游戏界面 -->
+    <div class="game-screen" id="gameScreen">
+        <div class="progress-wrapper">
+            <div class="progress-label">
+                <span>猜测进度</span>
+                <span id="chanceText">剩余 10 / 10</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
         </div>
+
+        <div class="hint-area">
+            <div class="hint-title" id="hintTitle">已获得的提示：</div>
+            <ul class="hint-list" id="hintList"></ul>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="input-area">
+            <input type="text" id="guessInput" placeholder="输入你猜测的卡牌名称..." autocomplete="off">
+            <button class="gbtn action btn-submit" id="submitBtn">提 交</button>
+        </div>
+
+        <button class="gbtn primary btn-restart" id="restartBtn">再来一局</button>
     </div>
+</div>
 
-    <script>
-        // 完整卡牌数据库
-        const cards = [
-            { name: "曼彻斯特", country: "英国", quality: "金", type: "轰炸机", cost: 7, pool: "活跃", nameLength: 4, effect: "站解一体" },
-            { name: "沙尘满目", country: "英国", quality: "金", type: "指令", cost: 3, pool: "活跃", nameLength: 4, effect: "扛快，拉单位，直伤" },
-            { name: "卡梅伦团", country: "英国", quality: "银", type: "步兵", cost: 7, pool: "活跃", nameLength: 4, effect: "条件过牌" },
-            { name: "贝克街分队", country: "英国", quality: "银", type: "指令", cost: 1, pool: "预备", nameLength: 4, effect: "补资源" },
-            { name: "汉普郡团", country: "英国", quality: "铜", type: "步兵", cost: 6, pool: "活跃", nameLength: 4, effect: "护脸，补资源" },
-            { name: "土地女孩", country: "英国", quality: "铜", type: "指令", cost: 2, pool: "活跃", nameLength: 4, effect: "过牌" },
-            { name: "魅力男孩高地人团", country: "英国", quality: "铁", type: "步兵", cost: 5, pool: "预备", nameLength: 8, effect: "护脸，回血" },
-            { name: "国土警卫队", country: "英国", quality: "铁", type: "指令", cost: 1, pool: "活跃", nameLength: 5, effect: "单解，补资源" },
-            { name: "利奥波德", country: "德国", quality: "金", type: "炮兵", cost: 10, pool: "活跃", nameLength: 4, effect: "群解" },
-            { name: "战争海军", country: "德国", quality: "金", type: "指令", cost: 7, pool: "活跃", nameLength: 4, effect: "直伤，断水" },
-            { name: "Hs 129", country: "德国", quality: "银", type: "战斗机", cost: 5, pool: "活跃", nameLength: 5, effect: "站解一体" },
-            { name: "斩草除根", country: "德国", quality: "银", type: "指令", cost: 4, pool: "预备", nameLength: 4, effect: "群解" },
-            { name: "山地人营", country: "德国", quality: "铜", type: "步兵", cost: 2, pool: "活跃", nameLength: 4, effect: "抗快，条件过牌" },
-            { name: "闪电战", country: "德国", quality: "铜", type: "指令", cost: 3, pool: "活跃", nameLength: 3, effect: "加攻，减油，打爆发" },
-            { name: "第15侦察营", country: "德国", quality: "铁", type: "步兵", cost: 2, pool: "预备", nameLength: 6, effect: "补资源" },
-            { name: "抑制", country: "德国", quality: "铁", type: "指令", cost: 1, pool: "活跃", nameLength: 2, effect: "软解，条件过牌" },
-            { name: "近卫步兵第272团", country: "苏联", quality: "金", type: "步兵", cost: 8, pool: "预备", nameLength: 9, effect: "护脸，拉单位" },
-            { name: "冬季攻势", country: "苏联", quality: "金", type: "指令", cost: 7, pool: "活跃", nameLength: 4, effect: "群解" },
-            { name: "步兵第57旅", country: "苏联", quality: "银", type: "步兵", cost: 3, pool: "活跃", nameLength: 6, effect: "T-34进场战斗" },
-            { name: "血酒长空", country: "苏联", quality: "银", type: "指令", cost: 2, pool: "活跃", nameLength: 4, effect: "群体贴膜" },
-            { name: "骑兵第36师", country: "苏联", quality: "铜", type: "步兵", cost: 6, pool: "活跃", nameLength: 6, effect: "站场，给压力" },
-            { name: "机动防御", country: "苏联", quality: "铜", type: "指令", cost: 2, pool: "活跃", nameLength: 4, effect: "抗快，打脸" },
-            { name: "近卫步兵第178团", country: "苏联", quality: "铁", type: "步兵", cost: 2, pool: "活跃", nameLength: 9, effect: "护快，护脸" },
-            { name: "血红镰刀", country: "苏联", quality: "铁", type: "指令", cost: 1, pool: "活跃", nameLength: 4, effect: "补伤害，过牌" },
-            { name: "雷兵团", country: "日本", quality: "金", type: "步兵", cost: 6, pool: "活跃", nameLength: 3, effect: "群体贴膜，护脸" },
-            { name: "快速胜利", country: "日本", quality: "金", type: "指令", cost: 1, pool: "活跃", nameLength: 4, effect: "直伤" },
-            { name: "久留米联队", country: "日本", quality: "银", type: "步兵", cost: 2, pool: "活跃", nameLength: 5, effect: "抗快，护脸" },
-            { name: "光荣死亡", country: "日本", quality: "银", type: "指令", cost: 1, pool: "预备", nameLength: 4, effect: "单解，爆牌" },
-            { name: "九四式装甲车", country: "日本", quality: "铜", type: "坦克", cost: 1, pool: "活跃", nameLength: 6, effect: "补资源，单解" },
-            { name: "八纮一宇", country: "日本", quality: "铜", type: "指令", cost: 4, pool: "活跃", nameLength: 4, effect: "过牌，条件回费" },
-            { name: "九二式重装甲车", country: "日本", quality: "铁", type: "坦克", cost: 1, pool: "活跃", nameLength: 7, effect: "快攻" },
-            { name: "扩张", country: "日本", quality: "铁", type: "指令", cost: 1, pool: "活跃", nameLength: 2, effect: "过牌" },
-            { name: "霹雳师", country: "美国", quality: "金", type: "步兵", cost: 3, pool: "活跃", nameLength: 3, effect: "过牌，控顶" },
-            { name: "胜利进军", country: "美国", quality: "金", type: "指令", cost: 5, pool: "预备", nameLength: 4, effect: "群体减油，回血" },
-            { name: "龙卷师", country: "美国", quality: "银", type: "步兵", cost: 6, pool: "活跃", nameLength: 3, effect: "补资源" },
-            { name: "轰炸机黑手党", country: "美国", quality: "银", type: "指令", cost: 4, pool: "预备", nameLength: 6, effect: "补资源，群解" },
-            { name: "第5游骑兵营", country: "美国", quality: "铜", type: "步兵", cost: 4, pool: "活跃", nameLength: 6, effect: "站场，给压力" },
-            { name: "燃烧弹", country: "美国", quality: "铜", type: "指令", cost: 4, pool: "预备", nameLength: 3, effect: "单解" },
-            { name: "M4谢尔曼", country: "美国", quality: "铁", type: "坦克", cost: 4, pool: "活跃", nameLength: 5, effect: "过牌，站场" },
-            { name: "供应链", country: "美国", quality: "铁", type: "指令", cost: 2, pool: "预备", nameLength: 3, effect: "过牌" }
-        ];
+<!-- 规则弹窗 -->
+<div class="modal-overlay" id="rulesModal">
+    <div class="modal" role="dialog" aria-modal="true">
+        <h2>游戏规则</h2>
+        <ul>
+            <li>1. 系统将随机抽取一张卡牌作为答案</li>
+            <li>2. 初始从「国家、品质、类型、花费、卡池、名称字数、功能/作用」7个维度中随机给出1个提示</li>
+            <li>3. 每次猜错，会再随机给出1个不重复的新提示，已有提示保留</li>
+            <li>4. 7个提示全部给出后，不再增加新提示</li>
+            <li>5. 你总共有10次猜测机会，机会用完则游戏失败</li>
+            <li>6. 在机会用完前猜对卡牌名称即为胜利</li>
+        </ul>
+        <button class="gbtn action modal-btn" id="rulesConfirmBtn">我知道了，开始！</button>
+    </div>
+</div>
 
-        // 7个提示维度配置
-        const dimensions = [
-            { key: "country", label: "国家" },
-            { key: "quality", label: "品质" },
-            { key: "type", label: "类型" },
-            { key: "cost", label: "花费" },
-            { key: "pool", label: "卡池" },
-            { key: "nameLength", label: "名称字数" },
-            { key: "effect", label: "功能/作用" }
-        ];
+<script>
+(() => {
+    'use strict';
 
-        // 游戏状态变量
-        let targetCard = null;
-        let usedHintIndexes = [];
-        let remainingChances = 10;
-        let isGameEnded = false;
+    /* ================= 配置常量 ================= */
+    const MAX_CHANCES = 10;
 
-        // 显示规则弹窗
-        function showRules() {
-            document.getElementById('rulesModal').classList.add('active');
+    const DIMENSIONS = [
+        { key: 'country',    label: '国家' },
+        { key: 'quality',    label: '品质' },
+        { key: 'type',       label: '类型' },
+        { key: 'cost',       label: '花费' },
+        { key: 'pool',       label: '卡池' },
+        { key: 'nameLength', label: '名称字数' },
+        { key: 'effect',     label: '功能/作用' }
+    ];
+
+    /* ================= 卡牌数据（nameLength 自动计算） ================= */
+    const CARDS = [
+        { name: "曼彻斯特", country: "英国", quality: "金", type: "轰炸机", cost: 7, pool: "活跃", effect: "站解一体" },
+        { name: "沙尘满目", country: "英国", quality: "金", type: "指令", cost: 3, pool: "活跃", effect: "扛快，拉单位，直伤" },
+        { name: "卡梅伦团", country: "英国", quality: "银", type: "步兵", cost: 7, pool: "活跃", effect: "条件过牌" },
+        { name: "贝克街分队", country: "英国", quality: "银", type: "指令", cost: 1, pool: "预备", effect: "补资源" },
+        { name: "汉普郡团", country: "英国", quality: "铜", type: "步兵", cost: 6, pool: "活跃", effect: "护脸，补资源" },
+        { name: "土地女孩", country: "英国", quality: "铜", type: "指令", cost: 2, pool: "活跃", effect: "过牌" },
+        { name: "魅力男孩高地人团", country: "英国", quality: "铁", type: "步兵", cost: 5, pool: "预备", effect: "护脸，回血" },
+        { name: "国土警卫队", country: "英国", quality: "铁", type: "指令", cost: 1, pool: "活跃", effect: "单解，补资源" },
+        { name: "利奥波德", country: "德国", quality: "金", type: "炮兵", cost: 10, pool: "活跃", effect: "群解" },
+        { name: "战争海军", country: "德国", quality: "金", type: "指令", cost: 7, pool: "活跃", effect: "直伤，断水" },
+        { name: "Hs 129", country: "德国", quality: "银", type: "战斗机", cost: 5, pool: "活跃", effect: "站解一体" },
+        { name: "斩草除根", country: "德国", quality: "银", type: "指令", cost: 4, pool: "预备", effect: "群解" },
+        { name: "山地人营", country: "德国", quality: "铜", type: "步兵", cost: 2, pool: "活跃", effect: "抗快，条件过牌" },
+        { name: "闪电战", country: "德国", quality: "铜", type: "指令", cost: 3, pool: "活跃", effect: "加攻，减油，打爆发" },
+        { name: "第15侦察营", country: "德国", quality: "铁", type: "步兵", cost: 2, pool: "预备", effect: "补资源" },
+        { name: "抑制", country: "德国", quality: "铁", type: "指令", cost: 1, pool: "活跃", effect: "软解，条件过牌" },
+        { name: "近卫步兵第272团", country: "苏联", quality: "金", type: "步兵", cost: 8, pool: "预备", effect: "护脸，拉单位" },
+        { name: "冬季攻势", country: "苏联", quality: "金", type: "指令", cost: 7, pool: "活跃", effect: "群解" },
+        { name: "步兵第57旅", country: "苏联", quality: "银", type: "步兵", cost: 3, pool: "活跃", effect: "T-34进场战斗" },
+        { name: "血洒长空", country: "苏联", quality: "银", type: "指令", cost: 2, pool: "活跃", effect: "群体贴膜" },
+        { name: "骑兵第36师", country: "苏联", quality: "铜", type: "步兵", cost: 6, pool: "活跃", effect: "站场，给压力" },
+        { name: "机动防御", country: "苏联", quality: "铜", type: "指令", cost: 2, pool: "活跃", effect: "抗快，打脸" },
+        { name: "近卫步兵第178团", country: "苏联", quality: "铁", type: "步兵", cost: 2, pool: "活跃", effect: "护快，护脸" },
+        { name: "血红镰刀", country: "苏联", quality: "铁", type: "指令", cost: 1, pool: "活跃", effect: "补伤害，过牌" },
+        { name: "雷兵团", country: "日本", quality: "金", type: "步兵", cost: 6, pool: "活跃", effect: "群体贴膜，护脸" },
+        { name: "快速胜利", country: "日本", quality: "金", type: "指令", cost: 1, pool: "活跃", effect: "直伤" },
+        { name: "久留米联队", country: "日本", quality: "银", type: "步兵", cost: 2, pool: "活跃", effect: "抗快，护脸" },
+        { name: "光荣死亡", country: "日本", quality: "银", type: "指令", cost: 1, pool: "预备", effect: "单解，爆牌" },
+        { name: "九四式装甲车", country: "日本", quality: "铜", type: "坦克", cost: 1, pool: "活跃", effect: "补资源，单解" },
+        { name: "八纮一宇", country: "日本", quality: "铜", type: "指令", cost: 4, pool: "活跃", effect: "过牌，条件回费" },
+        { name: "九二式重装甲车", country: "日本", quality: "铁", type: "坦克", cost: 1, pool: "活跃", effect: "快攻" },
+        { name: "扩张", country: "日本", quality: "铁", type: "指令", cost: 1, pool: "活跃", effect: "过牌" },
+        { name: "霹雳师", country: "美国", quality: "金", type: "步兵", cost: 3, pool: "活跃", effect: "过牌，控顶" },
+        { name: "胜利进军", country: "美国", quality: "金", type: "指令", cost: 5, pool: "预备", effect: "群体减油，回血" },
+        { name: "龙卷师", country: "美国", quality: "银", type: "步兵", cost: 6, pool: "活跃", effect: "补资源" },
+        { name: "轰炸机黑手党", country: "美国", quality: "银", type: "指令", cost: 4, pool: "预备", effect: "补资源，群解" },
+        { name: "第5游骑兵营", country: "美国", quality: "铜", type: "步兵", cost: 4, pool: "活跃", effect: "站场，给压力" },
+        { name: "燃烧弹", country: "美国", quality: "铜", type: "指令", cost: 4, pool: "预备", effect: "单解" },
+        { name: "M4谢尔曼", country: "美国", quality: "铁", type: "坦克", cost: 4, pool: "活跃", effect: "过牌，站场" },
+        { name: "供应链", country: "美国", quality: "铁", type: "指令", cost: 2, pool: "预备", effect: "过牌" }
+    ].map(card => ({ ...card, nameLength: card.name.replace(/\s/g, "").length }));
+
+    /* ================= DOM 引用缓存 ================= */
+    const $ = (id) => document.getElementById(id);
+    const dom = {
+        startScreen:  $('startScreen'),
+        gameScreen:   $('gameScreen'),
+        hintList:     $('hintList'),
+        hintTitle:    $('hintTitle'),
+        message:      $('message'),
+        guessInput:   $('guessInput'),
+        submitBtn:    $('submitBtn'),
+        restartBtn:   $('restartBtn'),
+        progressFill: $('progressFill'),
+        chanceText:   $('chanceText'),
+        rulesModal:   $('rulesModal')
+    };
+
+    /* ================= 游戏状态 ================= */
+    const state = {
+        targetCard: null,
+        hintQueue: [],   // 预洗牌的提示维度队列
+        remaining: MAX_CHANCES,
+        ended: false
+    };
+
+    /* ================= 工具函数 ================= */
+    const shuffle = (arr) => {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    };
+    // 忽略空格 + 大小写（支持输 hs129 猜中 Hs 129）
+    const normalize = (str) => str.replace(/\s+/g, "").toLowerCase();
+
+    /* ================= 游戏流程 ================= */
+    function showRules() {
+        dom.rulesModal.classList.add('active');
+    }
+
+    function startGame() {
+        dom.rulesModal.classList.remove('active');
+        dom.startScreen.style.display = 'none';
+        dom.gameScreen.classList.add('active');
+
+        state.targetCard = CARDS[Math.floor(Math.random() * CARDS.length)];
+        state.hintQueue = shuffle(DIMENSIONS.map((_, i) => i));
+        state.remaining = MAX_CHANCES;
+        state.ended = false;
+
+        dom.hintList.innerHTML = '';
+        dom.message.className = 'message';
+        dom.message.textContent = '';
+        dom.guessInput.value = '';
+        dom.guessInput.disabled = false;
+        dom.submitBtn.disabled = false;
+        dom.restartBtn.classList.remove('show');
+
+        giveHint();
+        updateProgress();
+        dom.guessInput.focus();
+    }
+
+    function giveHint() {
+        if (!state.hintQueue.length) return;
+
+        const dim = DIMENSIONS[state.hintQueue.pop()];
+        const li = document.createElement('li');
+        li.className = 'hint-item';
+        li.textContent = `【${dim.label}】${state.targetCard[dim.key]}`;
+        dom.hintList.appendChild(li);
+
+        const given = DIMENSIONS.length - state.hintQueue.length;
+        dom.hintTitle.innerHTML = `已获得的提示 <b>（${given}/${DIMENSIONS.length}）</b>：`;
+    }
+
+    function updateProgress() {
+        const used = MAX_CHANCES - state.remaining;
+        const pct = (used / MAX_CHANCES) * 100;
+        dom.progressFill.style.width = pct + '%';
+        dom.progressFill.classList.toggle('danger', pct >= 60);
+        dom.chanceText.textContent = `剩余 ${state.remaining} / ${MAX_CHANCES}`;
+    }
+
+    function submitGuess() {
+        if (state.ended) return;
+
+        const input = dom.guessInput.value.trim();
+        if (!input) {
+            showMessage('请输入卡牌名称', 'error');
+            return;
         }
 
-        // 正式开始游戏
-        function startGame() {
-            document.getElementById('rulesModal').classList.remove('active');
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('gameScreen').classList.add('active');
-            
-            // 随机抽取目标卡牌
-            targetCard = cards[Math.floor(Math.random() * cards.length)];
-            usedHintIndexes = [];
-            remainingChances = 10;
-            isGameEnded = false;
+        if (normalize(input) === normalize(state.targetCard.name)) {
+            endGame(`🎉 恭喜猜对了！答案就是「${state.targetCard.name}」`, 'success');
+        } else {
+            state.remaining--;
+            updateProgress();
 
-            // 清空提示列表，给出第一个提示
-            document.getElementById('hintList').innerHTML = '';
-            giveRandomHint();
-            updateProgressBar();
-            
-            // 重置输入和状态
-            document.getElementById('guessInput').value = '';
-            document.getElementById('guessInput').focus();
-            document.getElementById('message').className = 'message';
-            document.getElementById('message').textContent = '';
-            document.getElementById('restartBtn').classList.remove('show');
-            document.getElementById('submitBtn').disabled = false;
-        }
-
-        // 随机给出一个不重复的提示
-        function giveRandomHint() {
-            if (usedHintIndexes.length >= dimensions.length) return;
-
-            // 筛选未使用的维度索引
-            const availableIndexes = [];
-            for (let i = 0; i < dimensions.length; i++) {
-                if (!usedHintIndexes.includes(i)) {
-                    availableIndexes.push(i);
-                }
-            }
-
-            // 随机选一个
-            const randomIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
-            usedHintIndexes.push(randomIndex);
-
-            // 构造提示文本并添加到页面
-            const dim = dimensions[randomIndex];
-            const hintValue = targetCard[dim.key];
-            const hintText = `【${dim.label}】${hintValue}`;
-
-            const li = document.createElement('li');
-            li.className = 'hint-item';
-            li.textContent = hintText;
-            document.getElementById('hintList').appendChild(li);
-        }
-
-        // 更新进度条和剩余次数显示
-        function updateProgressBar() {
-            const usedChances = 10 - remainingChances;
-            const percent = (usedChances / 10) * 100;
-            document.getElementById('progressFill').style.width = percent + '%';
-            document.getElementById('chanceText').textContent = `${remainingChances} / 10`;
-        }
-
-        // 提交猜测
-        function submitGuess() {
-            if (isGameEnded) return;
-
-            const input = document.getElementById('guessInput').value.trim();
-            if (!input) {
-                showMessage('请输入卡牌名称', 'error');
-                return;
-            }
-
-            if (input === targetCard.name) {
-                // 猜对
-                isGameEnded = true;
-                showMessage(`🎉 恭喜猜对了！答案就是「${targetCard.name}」`, 'success');
-                document.getElementById('submitBtn').disabled = true;
-                document.getElementById('restartBtn').classList.add('show');
+            if (state.remaining <= 0) {
+                endGame(`💀 机会用完了！正确答案是「${state.targetCard.name}」`, 'gameover');
             } else {
-                // 猜错，扣除机会
-                remainingChances--;
-                updateProgressBar();
-
-                if (remainingChances <= 0) {
-                    // 机会用完，游戏结束
-                    isGameEnded = true;
-                    showMessage(`💀 机会用完了！正确答案是「${targetCard.name}」`, 'gameover');
-                    document.getElementById('submitBtn').disabled = true;
-                    document.getElementById('restartBtn').classList.add('show');
-                } else {
-                    // 尝试给出新提示
-                    const beforeCount = usedHintIndexes.length;
-                    giveRandomHint();
-                    
-                    if (usedHintIndexes.length > beforeCount) {
-                        showMessage(`❌ 猜错了！获得新提示，还剩 ${remainingChances} 次机会`, 'error');
-                    } else {
-                        showMessage(`❌ 猜错了！所有提示已给出，还剩 ${remainingChances} 次机会`, 'error');
-                    }
-                }
+                const hasNewHint = state.hintQueue.length > 0;
+                giveHint();
+                showMessage(
+                    hasNewHint
+                        ? `❌ 猜错了！获得新提示，还剩 ${state.remaining} 次机会`
+                        : `❌ 猜错了！所有提示已给出，还剩 ${state.remaining} 次机会`,
+                    'error'
+                );
             }
-
-            document.getElementById('guessInput').value = '';
-            document.getElementById('guessInput').focus();
         }
 
-        // 显示消息提示
-        function showMessage(text, type) {
-            const msgEl = document.getElementById('message');
-            msgEl.textContent = text;
-            msgEl.className = 'message ' + type;
-        }
+        dom.guessInput.value = '';
+        if (!state.ended) dom.guessInput.focus();
+    }
 
-        // 重新开始游戏
-        function restartGame() {
-            document.getElementById('hintList').innerHTML = '';
-            startGame();
-        }
+    function endGame(text, type) {
+        state.ended = true;
+        showMessage(text, type);
+        dom.guessInput.disabled = true;
+        dom.submitBtn.disabled = true;
+        dom.restartBtn.classList.add('show');
+    }
 
-        // 回车键提交
-        document.getElementById('guessInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                submitGuess();
-            }
-        });
-    </script>
+    function showMessage(text, type) {
+        dom.message.textContent = text;
+        dom.message.className = `message ${type}`;
+    }
+
+    /* ================= 事件绑定 ================= */
+    $('startBtn').addEventListener('click', showRules);
+    $('rulesConfirmBtn').addEventListener('click', startGame);
+    dom.submitBtn.addEventListener('click', submitGuess);
+    dom.restartBtn.addEventListener('click', startGame);
+
+    dom.guessInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitGuess();
+    });
+
+    // 点击遮罩空白处关闭规则弹窗
+    dom.rulesModal.addEventListener('click', (e) => {
+        if (e.target === dom.rulesModal) dom.rulesModal.classList.remove('active');
+    });
+})();
+</script>
 </body>
 </html>

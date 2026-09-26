@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>装甲列车·卡牌对战</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:"Microsoft YaHei",sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:50% 50%;background:#f3ecd9;overflow:hidden;box-shadow:0 0 40px #000}
+.screen{position:absolute;inset:0;display:none}
+.screen.active{display:block}
+.author{position:absolute;right:12px;bottom:6px;font-size:15px;color:#8a8069;z-index:3000;pointer-events:none}
+#ver{position:absolute;left:12px;bottom:6px;font-size:13px;color:#8a8069;z-index:3000;pointer-events:none}
+#errbar{position:absolute;left:0;top:0;right:0;background:#c0392b;color:#fff;font-size:14px;padding:6px 12px;z-index:99998;display:none;white-space:pre-wrap;max-height:120px;overflow:auto}
+.gbtn{border:2px solid #6b5b45;background:#efe6cf;color:#3a3226;font-size:22px;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:inherit;box-shadow:0 2px 0 #6b5b45}
+.gbtn:active{transform:scale(.97)}
+.gbtn:disabled{opacity:.45;cursor:default}
+.gbtn.red{border-color:#8c3b2e;color:#7a2c20;background:#f3d9cf}
+.corner{position:absolute;left:16px;top:14px;z-index:10}
+
+/* 初始 */
+#scr-init{background:linear-gradient(160deg,#2b2f3a,#171a21 60%,#0e1015);color:#e8e0c8}
+#init-title{position:absolute;left:90px;top:210px;font-size:84px;font-weight:bold;letter-spacing:12px;text-shadow:0 4px 14px #000}
+#init-sub{position:absolute;left:96px;top:335px;font-size:25px;color:#b9ae8d;letter-spacing:6px}
+#init-train{position:absolute;right:140px;top:110px;height:640px;width:460px;border-radius:12px;box-shadow:0 10px 40px #000}
+#btn-start{position:absolute;left:100px;top:480px;font-size:32px;padding:16px 60px}
+#init-tip{position:absolute;left:104px;top:600px;font-size:17px;color:#7d7660}
+
+/* 预备 */
+#scr-prep{background:radial-gradient(1200px 700px at 50% 30%,#fbf6e7,#e8dfc6)}
+#prep-title{position:absolute;width:100%;top:60px;text-align:center;font-size:42px;font-weight:bold;color:#4a4030;letter-spacing:8px}
+#train-pick{position:absolute;left:0;width:100%;top:160px;display:flex;justify-content:center;gap:60px}
+.tpick{width:210px;cursor:pointer;text-align:center}
+.tpick .picw{height:295px;border:4px solid #b9ad8e;border-radius:10px;overflow:hidden;background:#fff;transition:.15s}
+.tpick.on .picw{border-color:#d3a013;box-shadow:0 0 0 4px rgba(211,160,19,.35)}
+.tpick.on::after{content:"✔ 初始列车";display:block;margin-top:8px;color:#a67c00;font-size:19px;font-weight:bold}
+#prep-gear{position:absolute;width:100%;top:560px;text-align:center}
+#prep-gearbtn{font-size:25px;padding:10px 40px}
+#gear-exp{margin-top:10px;font-size:18px;color:#7a6f56}
+#btn-fight{position:absolute;left:50%;transform:translateX(-50%);top:690px;font-size:30px;padding:14px 80px}
+
+/* 对战 */
+#scr-battle{background:#fbf7ec}
+#mapborder{position:absolute;left:20px;top:20px;width:1560px;height:860px;border:2px solid #777;pointer-events:none}
+.cell{position:absolute;border:1.5px solid #8b8b8b;background:#fffdf2;overflow:hidden}
+.cell.f{box-shadow:inset 0 0 0 3px rgba(58,110,190,.55)}
+.cell.e{box-shadow:inset 0 0 0 3px rgba(190,58,58,.55)}
+@keyframes cflash{50%{filter:brightness(1.7) saturate(1.6)}}
+.cell.flash{animation:cflash .3s ease 2}
+.slot{position:absolute;border:1.5px dashed #a99e82;border-radius:6px}
+.pbox{position:absolute;border:2px solid #6b6255;background:#f7f1e1;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px;overflow:hidden}
+.pbox .plabel{font-size:20px;font-weight:bold;color:#4a4030;text-align:center;line-height:1.3}
+.pbox .picw{flex:1;width:100%;min-height:0}
+#pips{display:flex;gap:7px}
+#pips span{width:19px;height:19px;border:2px solid #6b5b45;background:#fff;border-radius:4px}
+#pips span.on{background:#d3a013}
+.slotbtn{width:100%;height:100%;border:none;background:transparent;font-family:inherit;font-size:22px;font-weight:bold;color:#4a4030;cursor:pointer;border-radius:6px}
+.slotbtn.end,.slotbtn.tut,.slotbtn.gear,.slotbtn.menu{background:#4a7ba6;color:#fff}
+.slotbtn.end:hover,.slotbtn.tut:hover,.slotbtn.gear:hover,.slotbtn.menu:hover{background:#4a7ba6}
+.slotbtn:disabled{opacity:.45;cursor:default}
+#turnd{position:absolute;left:560px;top:210px;width:480px;text-align:center;font-size:36px;font-weight:bold;color:#5a4c34;pointer-events:none}
+#hint{position:absolute;left:560px;top:290px;width:480px;text-align:center;font-size:20px;color:#a05a10;font-weight:bold;pointer-events:none;min-height:56px}
+#train{position:absolute;z-index:30;transition:left .13s linear,top .13s linear;pointer-events:none;filter:drop-shadow(0 4px 5px rgba(0,0,0,.45))}
+#train img{width:100%;height:100%}
+.tmark{position:absolute;left:50%;top:-30px;transform:translateX(-50%);color:#c0392b;font-weight:bold;font-size:16px;background:rgba(255,255,255,.92);border:2px solid #c0392b;border-radius:14px;padding:1px 9px;white-space:nowrap;z-index:5;animation:bob 1s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-7px)}}
+.hcard{position:absolute;width:150px;height:211px;transition:left .25s,top .22s,transform .18s,opacity .25s;cursor:pointer;z-index:20}
+.hcard .picw{width:100%;height:100%;border-radius:8px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,.35);background:#fff}
+.hcard.canplay .picw{box-shadow:0 0 0 3px #3fa34d,0 3px 8px rgba(0,0,0,.35);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(63,163,77,.45),0 3px 8px rgba(0,0,0,.35)}}
+.hcard.sel{transform:translateY(-85px);z-index:60!important}
+.hcard.sel .picw{box-shadow:0 0 0 4px #d3a013,0 10px 18px rgba(0,0,0,.4)}
+.hcard.kong{transform:translateY(-85px)}
+.hcard.kong .picw{box-shadow:0 0 0 4px #2f6fd3,0 10px 18px rgba(0,0,0,.4)}
+.hcard.ksel{transform:translateY(-110px) scale(1.13);z-index:65!important}
+.hcard.ksel .picw{box-shadow:0 0 0 5px #2f6fd3,0 12px 20px rgba(0,0,0,.45)}
+#kongbtn{position:absolute;display:none;z-index:70;width:150px;padding:10px 0;background:#2f6fd3;color:#fff;font-family:inherit;font-size:20px;font-weight:bold;border:2px solid #1d4f9e;border-radius:8px;cursor:pointer}
+#kongbtn:hover{background:#245bb3}
+.picw{position:relative;width:100%;height:100%}
+.picw img{width:100%;height:100%;object-fit:contain;display:block}
+.picw .fb{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;font-size:14px;color:#4a4030;background:#e8dfc0;padding:5px;line-height:1.4}
+.fhq{position:absolute;left:50%;top:40%;transform:translateX(-50%);font-size:34px;font-weight:bold;animation:floatup 1.1s forwards;pointer-events:none;text-shadow:0 2px 4px #fff;z-index:5}
+.fhq.dmg{color:#c22}.fhq.heal{color:#2a8c3c}
+@keyframes floatup{0%{opacity:1}100%{opacity:0;transform:translate(-50%,-60px)}}
+
+/* 弹窗 */
+#reveal{position:absolute;inset:0;background:rgba(0,0,0,.45);display:none;z-index:900}
+#reveal.on{display:block}
+#rcard{position:absolute;left:50%;top:200px;height:480px;width:340px;transform:translateX(-50%)}
+#rcard .picw{height:100%;border-radius:12px;overflow:hidden;box-shadow:0 10px 34px #000;background:#fff}
+#rname{position:absolute;left:50%;top:120px;transform:translateX(-50%);color:#fff;font-size:26px;font-weight:bold;text-shadow:0 2px 6px #000;z-index:901;display:none}
+.ov{position:absolute;inset:0;background:rgba(0,0,0,.55);display:none;z-index:950;align-items:center;justify-content:center}
+.ov.on{display:flex}
+.panel{background:#f7f1e1;border:3px solid #6b5b45;border-radius:12px;padding:24px 32px;min-width:430px;max-height:840px;overflow:auto}
+.ptitle{text-align:center;font-size:30px;font-weight:bold;color:#4a4030;margin-bottom:16px;letter-spacing:6px}
+.mrow{display:flex;align-items:center;gap:14px;margin:14px 0;font-size:21px;color:#4a4030}
+.mrow input[type=range]{flex:1;height:26px}
+#trainsel{display:flex;gap:10px}
+#trainsel .picw{width:60px;height:85px;border:3px solid #b9ad8e;border-radius:6px;cursor:pointer;background:#fff}
+#trainsel .picw.on{border-color:#d3a013}
+.mrow2{display:flex;gap:20px;justify-content:center;margin-top:16px}
+/* 菜单加大 */
+#menu-ov .panel{min-width:680px;padding:36px 48px}
+#menu-ov .ptitle{font-size:40px;margin-bottom:24px}
+#menu-ov .mrow{font-size:26px;margin:22px 0;gap:18px}
+#menu-ov .mrow input[type=range]{height:32px}
+#menu-ov .gbtn{font-size:27px;padding:13px 30px}
+#menu-ov .mrow2 .gbtn{font-size:24px}
+#trainsel .picw{width:112px;height:158px;border-width:4px}
+#tut{max-width:920px;line-height:1.6;font-size:18px;color:#3c3428}
+#tut h3{margin:12px 0 4px;color:#7a2c20}
+#tut table{border-collapse:collapse;width:100%;margin:4px 0}
+#tut td,#tut th{border:1px solid #9a8f76;padding:3px 7px;font-size:15px}
+#confirm p{font-size:23px;margin-bottom:18px;text-align:center}
+#video-ov{position:absolute;inset:0;background:#000;display:none;z-index:980;align-items:center;justify-content:center}
+#video-ov.on{display:flex}
+#fvid{max-width:100%;max-height:100%}
+#toast{position:absolute;left:50%;top:400px;transform:translateX(-50%);background:rgba(40,34,24,.88);color:#f3ecd9;font-size:20px;padding:9px 22px;border-radius:20px;display:none;z-index:920;pointer-events:none;white-space:nowrap}
+#rot{position:fixed;inset:0;background:#111;color:#eee;display:none;align-items:center;justify-content:center;font-size:22px;z-index:9999}
+
+/* 结算 */
+#scr-settle{background:radial-gradient(1000px 640px at 50% 38%,#3a3f4d,#14161d);color:#eee}
+#settle-title{position:absolute;width:100%;top:160px;text-align:center;font-size:104px;font-weight:bold;letter-spacing:24px}
+#settle-title.win{color:#ffd76a;text-shadow:0 0 30px rgba(255,190,60,.6)}
+#settle-title.lose{color:#e05545;text-shadow:0 0 30px rgba(224,85,69,.5)}
+#settle-reason{position:absolute;width:100%;top:320px;text-align:center;font-size:25px;color:#c8bfa4}
+#settle-stats{position:absolute;width:100%;top:410px;text-align:center;font-size:22px;line-height:2;color:#d8d0b8}
+#settle-btns{position:absolute;width:100%;top:630px;display:flex;justify-content:center;gap:50px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="errbar"></div>
+
+  <!-- 初始界面 -->
+  <div class="screen active" id="scr-init" style="display:block">
+    <button class="gbtn corner" onclick="location.href='game lobby.html'">返 回</button>
+    <div id="init-title">列车作战</div>
+    <div id="init-sub">—— 卡牌对战 · 第二部 ——</div>
+    <div id="init-train" class="picw"><img draggable="false"><div class="fb">达努塔装甲列车</div></div>
+    <button class="gbtn" id="btn-start">开始游戏</button>
+    <div id="init-tip">目标：在 12 回合内将敌方总部血量打到 0（初始 30，上限 99）</div>
+  </div>
+
+  <!-- 预备界面 -->
+  <div class="screen" id="scr-prep">
+    <button class="gbtn corner" id="prep-exit">退 出</button>
+    <div id="prep-title">备 战</div>
+    <div id="train-pick"></div>
+    <div id="prep-gear">
+      <button class="gbtn" id="prep-gearbtn"></button>
+      <div id="gear-exp"></div>
+    </div>
+    <button class="gbtn red" id="btn-fight">开始对战</button>
+  </div>
+
+  <!-- 对战界面 -->
+  <div class="screen" id="scr-battle">
+    <div id="mapborder"></div>
+    <div id="board"></div>
+  </div>
+
+  <!-- 结算界面 -->
+  <div class="screen" id="scr-settle">
+    <div id="settle-title"></div>
+    <div id="settle-reason"></div>
+    <div id="settle-stats"></div>
+    <div id="settle-btns">
+      <button class="gbtn" id="settle-again">再来一次</button>
+      <button class="gbtn" id="settle-exit">退 出</button>
+    </div>
+  </div>
+
+  <!-- 卡牌展示 -->
+  <div id="rname"></div>
+  <div id="reveal"><div id="rcard" class="picw"><img draggable="false"><div class="fb"></div></div></div>
+  <div id="toast"></div>
+
+  <!-- 菜单 -->
+  <div class="ov" id="menu-ov"><div class="panel">
+    <div class="ptitle">菜 单</div>
+    <div class="mrow"><span>音　量</span><input id="vol" type="range" min="0" max="100" value="70"><span id="volv">70</span></div>
+    <div class="mrow"><span>更换列车</span><div id="trainsel"></div></div>
+    <button class="gbtn" id="m-resume" style="width:100%">继 续</button>
+    <div class="mrow2"><button class="gbtn" id="m-restart">重新开始</button><button class="gbtn" id="m-exit">退　出</button></div>
+  </div></div>
+
+  <!-- 教程 -->
+  <div class="ov" id="tut-ov"><div class="panel" id="tut"></div></div>
+
+  <!-- 询问 -->
+  <div class="ov" id="confirm"><div class="panel">
+    <p id="confirm-msg"></p>
+    <div class="mrow2"><button class="gbtn red" id="cf-yes">确 定</button><button class="gbtn" id="cf-no">取 消</button></div>
+  </div></div>
+
+  <!-- 失败动画 -->
+  <div id="video-ov"><video id="fvid" playsinline></video></div>
+
+  <div id="ver">v6</div>
+  <div class="author">作者：生而峥嵘</div>
+</div>
+<div id="rot">请横屏设备以获得最佳体验 ↻</div>
+
+<script>
+/* ============ 错误横幅 ============ */
+window.addEventListener('error',e=>{const b=document.getElementById('errbar');
+b.style.display='block';b.textContent='脚本错误：'+e.message+' @'+(e.lineno||'?');});
+
+/* ============ 工具 ============ */
+const $=s=>document.querySelector(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const R=n=>Math.floor(Math.random()*n);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=R(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function setImg(im,names,onfail){let i=0;const t=()=>{if(i>=names.length){if(onfail)onfail();return;}
+im.onerror=()=>{i++;t();};im.src=encodeURI('picture/game picture/'+names[i]);};t();}
+function pic(names,label){const w=document.createElement('div');w.className='picw';
+const im=document.createElement('img');im.draggable=false;
+const fb=document.createElement('div');fb.className='fb';fb.textContent=label||'';
+w.appendChild(im);w.appendChild(fb);
+setImg(im,names,()=>{im.style.display='none';fb.style.display='flex';});
+return w;}
+
+/* ============ 双击跳过 ============ */
+let SKIP=false,lastTap=0;
+document.getElementById('stage').addEventListener('pointerdown',()=>{
+ const n=Date.now();if(n-lastTap<350)SKIP=true;lastTap=n;});
+const wait=ms=>SKIP?Promise.resolve():sleep(ms);
+
+/* ============ 数据 ============ */
+const HAND={
+ kuaisu:{n:'快速胜利',c:1,cnt:1,img:['kuaisushengli.png'],d:'对敌方总部造成3点伤害。',army:0},
+ wengweng:{n:'嗡嗡炸弹',c:1,cnt:3,img:['wengwengzhadan.png','wengwengzhad an.png'],d:'对敌方总部造成1点伤害，抽1张牌。',army:0},
+ heyexunshi:{n:'黑夜巡视',c:2,cnt:4,img:['heiyexunshi.png'],d:'抽2张牌，选择一张手牌并将其返回卡组顶。',army:0},
+ di175:{n:'第175步兵团',c:3,cnt:4,img:['di 175 bubingtuan.png'],d:'对敌方总部造成6点伤害，选择一张手牌并将其返回卡组顶。陆军。',army:1},
+ he162:{n:'He 162蝾螈',c:4,cnt:1,img:['He 162rongyuan.png','He 162 rongyuan.png'],d:'对敌方总部造成2点伤害，此后每个友方回合开始时，对敌方总部造成2点伤害。',army:0},
+ sidalin:{n:'斯大林管风琴',c:4,cnt:3,img:['sidalinguanfengqin.png','sidalinguanfen gqin.png'],d:'对敌方总部造成8点伤害。',army:0},
+ di110:{n:'第110装甲掷弹兵团',c:5,cnt:1,img:['di 110 zhuangjiazhidanbingtuan.png'],d:'对敌方总部造成8点伤害，下一个攻击力不小于4的友方陆军造成的伤害+3。陆军。',army:1},
+ jiazhan:{n:'假战',c:5,cnt:2,img:['jiazhan.png'],d:'抽牌，直至手牌数为8。',army:0},
+ me163:{n:'Me 163彗星',c:6,cnt:1,img:['Me 163huixing.png'],d:'对敌方总部造成4点伤害，使用它的友方回合结束时，将本单位返回手牌。',army:0},
+ baoke:{n:'豹式坦克D型',c:7,cnt:1,img:['baoshitanke D xing.png'],d:'对敌方总部造成7点伤害，再造成7点伤害。陆军。（重复也会触发增伤）',army:1},
+ jianmie:{n:'歼灭',c:7,cnt:2,img:['jianmie.png'],d:'敌方随机弃掉一张场上卡。',army:0},
+ b29:{n:'B-29超级堡垒',c:12,cnt:1,img:['B-29 chaojibaolei.png'],d:'对敌方总部造成15点伤害，下一个友方回合开始时，对敌方总部造成9点伤害。',army:0},
+};
+const FIELD={
+ bisimai:{n:'KM俾斯麦号',side:'f',dmg:8,cnt:1,img:['KM bisimaihao.png']},
+ tierpici:{n:'KM提尔皮茨号',side:'f',dmg:4,cnt:1,img:['KM tierpicihao.png']},
+ luoma:{n:'RM罗马号',side:'f',dmg:4,cnt:2,img:['RM luomahao.png']},
+ zhimindi:{n:'进攻殖民地',side:'f',dmg:3,cnt:2,img:['jingongzhimingdi.png','jingongzhiming di.png']},
+ shanji:{n:'空中闪击',side:'f',dmg:3,cnt:3,img:['kongzhongshanji.png','kongzhongshan ji.png']},
+ zidian:{n:'N1K-J紫电局地战',side:'f',dmg:8,cnt:1,img:['N1K-J zidianjudizhan.png']},
+ jiefang:{n:'解放',side:'e',heal:6,cnt:2,img:['jiefang.png']},
+ gongshi:{n:'防御工事',side:'e',heal:7,cnt:4,img:['fangyugongshi.png']},
+ daoyu:{n:'岛屿防御',side:'e',heal:8,cnt:4,img:['daoyufangyu.png']},
+};
+const CARS={car1:{img:['car 1.png'],n:'达努塔装甲列车'},car2:{img:['car 2.png'],n:'BP-43装甲列车'},car3:{img:['car 3.png'],n:'BP-43装甲列车'}};
+const pcost=c=>c<=3?1:c<=6?2:c<=9?3:4;
+const GEAR_TXT={0:'0：不回血',1:'1：回1~5点血',2:'2：回5~9点血',3:'3：回10点血','?':'?：回0~10点血'};
+const HPMAX=99;
+
+/* ============ 状态 ============ */
+const S={screen:'init',enemyHP:30,deck:[],hand:[],slots:1,points:1,gear:1,turn:1,pos:1,
+train:'car1',cells:{},armyBuff:false,he162:false,b29:false,me163Turn:false,
+kongding:false,kongSel:null,sel:-1,totalDmg:0,used:0,removed:0,ended:false};
+let pumping=false,kongRes=null;const Q=[];
+
+/* ============ 音乐/视频 ============ */
+const music=new Audio(encodeURI('music/game2 music.mp3'));music.loop=true;music.volume=.7;
+function playFailVideo(){return new Promise(res=>{const ov=$('#video-ov'),v=$('#fvid');let done=false;
+const fin=()=>{if(done)return;done=true;v.pause();ov.classList.remove('on');res();};
+v.onended=fin;v.onerror=fin;v.onclick=fin;
+v.src=encodeURI('video/shibaijiesuan.mp4');ov.classList.add('on');
+v.play().catch(fin);setTimeout(fin,90000);});}
+
+/* ============ 几何 ============ */
+const CW=96.25;
+function cellPos(i){
+if(i<=16)return{x:30+(i-1)*CW,y:30,w:CW,h:85};
+if(i<=20)return{x:1473.75,y:115+(i-17)*97.5,w:CW,h:97.5};
+if(i<=36){const k=i-21;return{x:1473.75-k*CW,y:505,w:CW,h:85};}
+const j=i-37;return{x:30,y:407.5-j*97.5,w:CW,h:97.5};
+}
+const cellOri=i=>i>=21?-1:1;
+function panelRect(id){
+if(id===1)return{x:150,y:150,w:180,h:320};
+if(id===8)return{x:1270,y:150,w:180,h:320};
+if(id<=4)return{x:360,y:150+(id-2)*110,w:180,h:100};
+return{x:1060,y:150+(id-5)*110,w:180,h:100};
+}
+function slotPos(j){return{x:30+j*172,y:612,w:164,h:265};}
+
+/* ============ 对局构建 ============ */
+let E={};
+function buildBoard(){
+const b=$('#board');b.innerHTML='';
+for(let i=1;i<=40;i++){const p=cellPos(i);const c=document.createElement('div');
+  c.className='cell';c.id='cell'+i;
+  c.style.cssText=`left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px`;b.appendChild(c);}
+const mk=(id,inner)=>{const r=panelRect(id);const d=document.createElement('div');d.className='pbox';
+  d.style.cssText=`left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`;d.innerHTML=inner;b.appendChild(d);return d;};
+const hq=mk(1,'<div class="plabel" id="hqhp"></div>');hq.insertBefore(pic(['difangzongbu.png'],'敌方总部'),hq.firstChild);
+const dk=mk(8,'<div class="plabel" id="deckn"></div>');dk.insertBefore(pic(['kabei.png'],'卡背'),dk.firstChild);
+mk(2,'<div class="plabel" id="slotn"></div><div id="pips"><span></span><span></span><span></span><span></span></div>');
+mk(3,'<div class="plabel" id="ptn" style="font-size:24px"></div>');
+const bt=(id,txt,fn,cls)=>{const r=panelRect(id);const d=document.createElement('div');
+  d.style.cssText=`position:absolute;left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`;
+  const btn=document.createElement('button');btn.className='slotbtn '+(cls||'');btn.textContent=txt;btn.onclick=fn;
+  d.appendChild(btn);b.appendChild(d);return btn;};
+E.endbtn=bt(4,'结束回合',endTurn,'end');
+bt(5,'教程',openTut,'tut');
+E.gearb=bt(6,'呼吸回血：1',cycleGear,'gear');
+bt(7,'菜单',openMenu,'menu');
+const td=document.createElement('div');td.id='turnd';b.appendChild(td);
+const ht=document.createElement('div');ht.id='hint';b.appendChild(ht);
+const tr=document.createElement('div');tr.id='train';
+tr.innerHTML='<div class="tmark">▼ 列车</div><img draggable="false">';b.appendChild(tr);
+const kb=document.createElement('button');kb.id='kongbtn';kb.textContent='确认控顶';
+kb.onclick=kongConfirm;b.appendChild(kb);
+for(let j=0;j<9;j++){const p=slotPos(j);const s=document.createElement('div');s.className='slot';
+  s.style.cssText=`left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px`;b.appendChild(s);}
+}
+
+/* ============ 渲染 ============ */
+function renderCells(){for(let i=1;i<=40;i++){const c=$('#cell'+i);c.classList.remove('f','e');c.innerHTML='';
+const k=S.cells[i];if(k){const f=FIELD[k];c.classList.add(f.side);
+  const p=pic(f.img,f.n);p.style.cssText='position:absolute;inset:2px';c.appendChild(p);}}}
+function placeTrain(){const p=cellPos(S.pos),t=$('#train');if(!t)return;const h=Math.min(p.w,p.h)*.96,w=h*.72;
+t.style.width=w+'px';t.style.height=h+'px';
+t.style.left=p.x+(p.w-w)/2+'px';t.style.top=p.y+(p.h-h)/2+'px';
+const im=t.querySelector('img');setImg(im,CARS[S.train].img);im.style.transform=`scaleX(${cellOri(S.pos)})`;}
+function syncHand(){S.hand.forEach((o,i)=>{const p=slotPos(i);const cw=150,ch=211;
+o.el.style.left=(p.x+(p.w-cw)/2)+'px';o.el.style.top=(p.y+(p.h-ch)/2)+'px';
+o.el.classList.toggle('sel',!S.kongding&&S.sel===i);
+o.el.classList.toggle('kong',S.kongding&&S.kongSel!==o);
+o.el.classList.toggle('ksel',S.kongding&&S.kongSel===o);
+o.el.classList.toggle('canplay',!S.kongding&&!pumping&&!S.ended&&pcost(HAND[o.key].c)<=S.points);
+o.el.style.zIndex=(S.sel===i||S.kongSel===o)?65:(S.kongding?60:20+i);});}
+function showKongBtn(o){const i=S.hand.indexOf(o),p=slotPos(i),b=$('#kongbtn');
+b.style.left=(p.x+7)+'px';b.style.top=(p.y+150)+'px';b.style.display='block';}
+function hideKongBtn(){$('#kongbtn').style.display='none';}
+function refresh(){if(S.screen!=='battle')return;
+ $('#hqhp').textContent='总部血量：'+Math.max(0,S.enemyHP);
+ $('#deckn').textContent='剩余卡牌：'+S.deck.length;
+ $('#slotn').textContent='指挥点槽：'+S.slots;
+document.querySelectorAll('#pips span').forEach((p,i)=>p.classList.toggle('on',i<S.slots));
+ $('#ptn').textContent='指挥点数：'+S.points;
+E.gearb.textContent='呼吸回血：'+S.gear;
+ $('#turnd').textContent='第 '+Math.min(S.turn,12)+' 回合';
+E.endbtn.disabled=pumping||S.kongding||S.ended;syncHand();}
+function setHint(t){$('#hint').innerHTML=t||'';}
+let toastT=null;
+function toast(t){const el=$('#toast');el.textContent=t;el.style.display='block';
+clearTimeout(toastT);toastT=setTimeout(()=>el.style.display='none',1800);}
+function flashCell(i){const c=$('#cell'+i);if(!c)return;c.classList.remove('flash');void c.offsetWidth;
+c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),700);}
+function floatHQ(txt,cls){const d=document.createElement('div');d.className='fhq '+cls;d.textContent=txt;
+const box=$('#hqhp').parentNode;box.appendChild(d);setTimeout(()=>d.remove(),1150);}
+
+/* ============ 手牌 ============ */
+function addHand(key,flash){const o={key};const el=document.createElement('div');el.className='hcard';
+el.appendChild(pic(HAND[key].img,HAND[key].n+'（'+HAND[key].c+'费）'));
+el.onclick=()=>handClick(o);o.el=el;S.hand.push(o);
+const idx=S.hand.length-1,p=slotPos(idx),cw=150,ch=211;
+el.style.left=(p.x+(p.w-cw)/2)+'px';el.style.top=(p.y+(p.h-ch)/2)+'px';
+el.style.opacity='0';
+ $('#board').appendChild(el);
+requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.opacity='1';
+  if(flash){el.style.filter='brightness(1.7) drop-shadow(0 0 10px #d3a013)';
+  setTimeout(()=>{el.style.filter='';},500);}
+  syncHand();}));}
+function handClick(o){if(S.ended||S.screen!=='battle')return;
+/* 控顶模式：单击选择 → 放大 + 确认按钮；再点同一张取消 */
+if(S.kongding){
+  if(S.kongSel===o){S.kongSel=null;hideKongBtn();syncHand();return;}
+  S.kongSel=o;syncHand();showKongBtn(o);return;}
+if(pumping)return;
+const i=S.hand.indexOf(o);
+const p=pcost(HAND[o.key].c);
+if(S.sel===i){S.sel=-1;S.points-=p;S.used++;S.hand.splice(i,1);
+  o.el.remove();syncHand();refresh();
+  enqueue(()=>useEffects(o.key));}
+else{if(p>S.points){toast('指挥点不足！');return;}S.sel=i;syncHand();}}
+/* 控顶确认 */
+function kongConfirm(){const o=S.kongSel;if(!o)return;
+const i=S.hand.indexOf(o);S.hand.splice(i,1);S.deck.unshift(o.key);
+let msg='「'+HAND[o.key].n+'」已返回卡组顶';
+if(o.key==='me163'&&S.me163Turn){S.me163Turn=false;msg='Me163已返回卡组顶，本回合结束不再返回手牌';}
+S.kongSel=null;hideKongBtn();
+o.el.remove();syncHand();refresh();toast(msg);
+if(kongRes){const f=kongRes;kongRes=null;f();}}
+
+/* ============ 行动队列 ============ */
+function enqueue(f){Q.push(f);pump();}
+async function pump(){if(pumping)return;pumping=true;S.sel=-1;refresh();
+while(Q.length){if(S.ended){Q.length=0;break;}const f=Q.shift();SKIP=false;
+  try{await f();}catch(e){console.error(e);}}
+SKIP=false;pumping=false;refresh();}
+function reveal(key,ms){return new Promise(res=>{
+if(SKIP){res();return;}
+const f=FIELD[key]||HAND[key];
+ $('#rname').textContent=f.n;$('#rname').style.display='block';
+const box=$('#rcard');setImg(box.querySelector('img'),f.img,()=>{});
+box.querySelector('.fb').textContent=f.n;
+ $('#reveal').classList.add('on');let done=false;
+const fin=()=>{if(done)return;done=true;$('#reveal').classList.remove('on');
+  $('#rname').style.display='none';$('#reveal').onclick=null;setTimeout(res,100);};
+ $('#reveal').onclick=fin;setTimeout(fin,ms||1800);});}
+async function stDmg(n){S.enemyHP-=n;S.totalDmg+=n;floatHQ('-'+n,'dmg');refresh();await wait(550);
+if(S.enemyHP<=0&&!S.ended)doWin();}
+async function stHeal(n){S.enemyHP=Math.min(HPMAX,S.enemyHP+n);floatHQ('+'+n,'heal');refresh();await wait(550);}
+async function stMove(n){if(SKIP){S.pos=((S.pos-1+n)%40)+1;placeTrain();return;}
+for(let k=0;k<n;k++){S.pos=S.pos%40+1;placeTrain();await sleep(140);}await sleep(120);}
+async function stTrigger(){const k=S.cells[S.pos];if(!k)return;const f=FIELD[k];
+flashCell(S.pos);await reveal(k);
+if(f.dmg)await stDmg(f.dmg);else await stHeal(f.heal);}
+/* 抽牌：手牌满 → 爆牌（不移动、不触发、直接弃掉） */
+async function stDraw(){
+if(!S.deck.length){doFailDeck();return;}
+const k=S.deck.shift();refresh();
+if(S.hand.length>=9){toast('爆牌：「'+HAND[k].n+'」被弃掉');await wait(350);return;}
+addHand(k);
+await wait(300);await stMove(HAND[k].c);if(S.ended)return;await stTrigger();}
+/* 控顶：选择 + 确认 */
+function stKong(){return new Promise(res=>{if(!S.hand.length||S.ended){res();return;}
+S.kongding=true;S.kongSel=null;setHint('【控顶】单击选择 1 张手牌，点击「确认控顶」将其返回卡组顶');syncHand();
+kongRes=()=>{S.kongding=false;S.kongSel=null;hideKongBtn();setHint('');syncHand();res();};});}
+/* 陆军牌统一入口：增伤只结算一次，但作用于该牌所有伤害段（豹D两段都+3） */
+async function armyHits(list){
+let bonus=0;
+if(S.armyBuff){S.armyBuff=false;bonus=3;toast('攻击力不小于4的友方陆军造成的伤害加3');}
+for(const n of list){await stDmg(n+bonus);if(S.ended)return;await wait(220);}
+}
+async function useEffects(k){
+await reveal(k);
+switch(k){
+  case'kuaisu':await stDmg(3);break;
+  case'wengweng':await stDmg(1);if(S.ended)return;await stDraw();break;
+  case'heyexunshi':await stDraw();if(S.ended)return;await stDraw();if(S.ended)return;await stKong();break;
+  case'di175':await armyHits([6]);if(S.ended)return;await stKong();break;
+  case'he162':await stDmg(2);if(S.ended)return;S.he162=true;toast('此后每个友方回合开始时造成2点伤害');break;
+  case'sidalin':await stDmg(8);break;
+  case'di110':await armyHits([8]);if(S.ended)return;S.armyBuff=true;toast('下一个攻击力不小于4的友方陆军伤害+3');break;
+  case'jiazhan':while(S.hand.length!==8&&!S.ended){await stDraw();}break;
+  case'me163':await stDmg(4);if(S.ended)return;S.me163Turn=true;toast('本友方回合结束时，Me163将返回手牌');break;
+  case'baoke':await armyHits([7,7]);break;
+  case'jianmie':{const occ=Object.keys(S.cells).filter(i=>S.cells[i]&&FIELD[S.cells[i]].side==='e');
+   if(occ.length){const ci=+occ[R(occ.length)];const rk=S.cells[ci];delete S.cells[ci];S.removed++;
+    renderCells();flashCell(ci);toast('歼灭：敌方弃掉场上卡「'+FIELD[rk].n+'」');await wait(900);}
+   else toast('场上没有敌方卡牌');break;}
+  case'b29':await stDmg(15);if(S.ended)return;S.b29=true;toast('下一个友方回合开始时造成9点伤害');break;}}
+
+/* ============ 回合 ============ */
+async function stEndTurn(){
+setHint('回合结束…');
+if(S.me163Turn){S.me163Turn=false;
+  if(S.hand.length<9){addHand('me163',true);toast('Me163彗星：回合结束时，返回手牌');}
+  else toast('手牌已满，Me163被弃掉');
+  await wait(600);}
+const h=S.gear==='?'?R(11):S.gear===0?0:S.gear===1?1+R(5):S.gear===2?5+R(5):10;
+if(h>0){setHint('敌方呼吸回血 +'+h);await stHeal(h);await wait(200);}
+else{setHint('敌方本回合不回血');await wait(600);}
+if(S.ended)return;
+S.turn++;
+if(S.turn>12){await doFailVideo();return;}
+if(S.he162){setHint('He162蝾螈：回合开始伤害');await stDmg(2);if(S.ended)return;await wait(200);}
+if(S.b29){S.b29=false;setHint('B-29：回合开始伤害');await stDmg(9);if(S.ended)return;await wait(200);}
+setHint('友方回合开始：抽 1 张牌…（双击屏幕可跳过动画）');
+await stDraw();if(S.ended)return;
+S.slots=Math.min(4,S.slots+1);S.points=S.slots;refresh();
+setHint('出牌阶段：单击选中，再击使用');await wait(400);}
+function endTurn(){if(pumping||S.kongding||S.ended||S.screen!=='battle')return;enqueue(stEndTurn);}
+
+/* ============ 胜负 ============ */
+async function doWin(){if(S.ended)return;S.ended=true;music.pause();setHint('');
+await sleep(800);showSettle(true,'敌方总部血量降至 0');}
+function doFailDeck(){if(S.ended)return;S.ended=true;music.pause();setHint('');
+setTimeout(()=>showSettle(false,'卡组已被抽空'),700);}
+async function doFailVideo(){if(S.ended)return;S.ended=true;music.pause();setHint('');
+await sleep(500);await playFailVideo();showSettle(false,'回合数达到 12');}
+function showSettle(win,reason){Q.length=0;
+const t=$('#settle-title');t.textContent=win?'胜 利':'失 败';t.className=win?'win':'lose';
+ $('#settle-reason').textContent=reason;
+ $('#settle-stats').innerHTML=`历经回合：${Math.min(S.turn,12)} ｜ 造成总伤害：${S.totalDmg}<br>使用卡牌：${S.used} 张 ｜ 弃掉敌方场上卡：${S.removed} 张 ｜ 剩余卡组：${S.deck.length}`;
+showScreen('settle');}
+
+/* ============ 界面 ============ */
+function showScreen(n){S.screen=n;
+document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+const el=$('#scr-'+n);el.classList.add('active');el.style.display='block';
+if(n!=='battle'){['#reveal','#menu-ov','#tut-ov','#confirm','#video-ov'].forEach(s=>$(s).classList.remove('on'));}}
+function startBattle(){
+Q.length=0;Object.assign(S,{enemyHP:30,turn:1,slots:1,points:1,armyBuff:false,he162:false,b29:false,
+  me163Turn:false,totalDmg:0,used:0,removed:0,ended:false,sel:-1,kongding:false,kongSel:null});
+S.hand.forEach(o=>o.el&&o.el.remove());S.hand=[];
+hideKongBtn();
+S.deck=shuffle(Object.keys(HAND).flatMap(k=>Array(HAND[k].cnt).fill(k)));
+S.pos=1+R(40);
+const rest=shuffle([...Array(40).keys()].map(i=>i+1).filter(i=>i!==S.pos));
+const fd=shuffle(Object.keys(FIELD).flatMap(k=>Array(FIELD[k].cnt).fill(k)));
+S.cells={};for(let i=0;i<20;i++)S.cells[rest[i]]=fd[i];
+renderCells();placeTrain();
+for(let i=0;i<4;i++)addHand(S.deck.shift()); // 开局4张不算“抽”
+showScreen('battle');refresh();setHint('出牌阶段：单击选中，再击使用');
+music.currentTime=0;music.play().catch(()=>{});
+toast('第 1 回合，出牌阶段！');}
+function toInit(){Q.length=0;S.ended=true;music.pause();showScreen('init');}
+
+/* ============ 菜单/教程/询问 ============ */
+function openMenu(){if(S.screen!=='battle'){return;}
+if(pumping||S.kongding){toast('请等待当前效果结算完毕');return;}
+music.pause();buildTrainSel();$('#menu-ov').classList.add('on');}
+ $('#m-resume').onclick=()=>{$('#menu-ov').classList.remove('on');
+if(S.screen==='battle'&&!S.ended)music.play().catch(()=>{});};
+ $('#vol').oninput=e=>{music.volume=e.target.value/100;$('#volv').textContent=e.target.value;};
+function buildTrainSel(){const box=$('#trainsel');box.innerHTML='';
+['car1','car2','car3'].forEach(k=>{const p=pic(CARS[k].img,CARS[k].n);
+  p.classList.toggle('on',S.train===k);
+  p.onclick=()=>{S.train=k;placeTrain();buildTrainSel();};box.appendChild(p);});}
+ $('#m-restart').onclick=async()=>{if(await confirmDlg('确定要重新开始吗？')){
+ $('#menu-ov').classList.remove('on');startBattle();}};
+ $('#m-exit').onclick=async()=>{if(await confirmDlg('确定要退出对局吗？')){
+ $('#menu-ov').classList.remove('on');toInit();}};
+function confirmDlg(msg){return new Promise(res=>{$('#confirm-msg').textContent=msg;
+ $('#confirm').classList.add('on');
+ $('#cf-yes').onclick=()=>{$('#confirm').classList.remove('on');res(true);};
+ $('#cf-no').onclick=()=>{$('#confirm').classList.remove('on');res(false);};});}
+function openTut(){buildTut();$('#tut-ov').classList.add('on');}
+ $('#tut-ov').onclick=e=>{if(e.target.id==='tut-ov')$('#tut-ov').classList.remove('on');};
+function buildTut(){const t=$('#tut');
+const th=Object.values(HAND).map(c=>`<tr><td>${c.n}</td><td>${c.c}</td><td>${c.cnt}</td><td>${c.d}</td></tr>`).join('');
+const tf=Object.values(FIELD).map(c=>`<tr><td>${c.n}</td><td>${c.side==='f'?'造成'+c.dmg+'点伤害':'回复'+c.heal+'点血'}</td><td>${c.cnt}</td></tr>`).join('');
+t.innerHTML=`<div class="ptitle">教 程</div>
+<h3>目标</h3>把敌方总部血量（初始 30，<b>上限 99</b>）打到 0 即<b>胜利</b>。若抽牌时卡组已空，或打满 12 回合，则<b>失败</b>。
+<h3>回合流程</h3>点「结束回合」→ 若本回合使用过 Me163 彗星（且未被返回卡组顶），则其返回手牌的下一个空位 → 敌方按呼吸回血档位回血（不超过99）→ 我方回合开始：持续伤害结算 → 抽 1 张牌（列车按新牌费用移动并触发停下格）→ 指挥点槽 +1（上限 4）并获得等于槽数的指挥点 → 出牌阶段。
+<h3>列车与场上卡</h3>开局随机选 1 格为初始点，20 张场上卡随机放在其余格子上。每“抽”一张牌，列车顺时针移动该牌费用格数，<b>停下后</b>触发所在格的场上卡。<b>抽牌及抽牌效果播放时，双击屏幕可跳过动画直接结算。</b>
+<h3>爆牌</h3>手牌已满（9张）时再抽牌：该牌直接<b>弃掉</b>（从卡组移除），列车<b>不移动</b>、不触发格子，称为「爆牌」。
+<h3>出牌</h3>单击手牌选中（滑到卡槽顶），再点一次使用；点其他牌则先选中的回到卡槽底。费用 1~3 耗 1 指挥点，4~6 耗 2 点，7~9 耗 3 点，10~12 耗 4 点；剩余指挥点够的牌绿框高亮。
+<h3>关键词</h3><b>返回卡组顶（控顶）</b>＝单击选择 1 张手牌（牌放大、下方出现确认按钮），点「确认控顶」将其返回卡组顶；若返回的是 Me163，则本回合结束不再返回手牌。<b>弃掉</b>＝歼灭使敌方随机弃掉 1 张场上卡（本局不再出现）。<b>陆军</b>＝攻击力不小于 4 的友方陆军；「下一个陆军伤害+3」加成消耗在该陆军牌上时，<b>此牌全部伤害段都+3</b>（如豹式坦克D型的两次 7 点都变 10 点）。
+<h3>呼吸回血档位</h3>0：不回血｜1：回 1~5｜2：回 5~9｜3：回 10｜?：回 0~10。点击「呼吸回血」切换，初始 1 档。
+<h3>卡组（24 张）</h3><table><tr><th>名称</th><th>花费</th><th>数量</th><th>效果</th></tr>${th}</table>
+<h3>场上卡（各 10 张）</h3><table><tr><th>名称</th><th>效果</th><th>数量</th></tr>${tf}</table>
+<div style="text-align:center;margin-top:12px"><button class="gbtn" onclick="document.getElementById('tut-ov').classList.remove('on')">关 闭</button></div>`;}
+
+/* ============ 档位/预备 ============ */
+function cycleGear(){const order=[0,1,2,3,'?'];S.gear=order[(order.indexOf(S.gear)+1)%5];
+refresh();updatePrepGear();}
+function updatePrepGear(){$('#prep-gearbtn').textContent='呼吸回血档位：'+S.gear;
+ $('#gear-exp').textContent=GEAR_TXT[S.gear];}
+function buildPrep(){const box=$('#train-pick');box.innerHTML='';
+['car1','car2','car3'].forEach(k=>{const d=document.createElement('div');
+  d.className='tpick'+(S.train===k?' on':'');
+  const p=pic(CARS[k].img,CARS[k].n);d.appendChild(p);
+  d.onclick=()=>{S.train=k;buildPrep();};box.appendChild(d);});updatePrepGear();}
+ $('#prep-exit').onclick=()=>showScreen('init');
+ $('#prep-gearbtn').onclick=cycleGear;
+ $('#btn-fight').onclick=startBattle;
+ $('#btn-start').onclick=()=>{buildPrep();showScreen('prep');};
+ $('#settle-again').onclick=startBattle;
+ $('#settle-exit').onclick=toInit;
+
+/* ============ 缩放适配 ============ */
+function fit(){const s=Math.min(innerWidth/1600,innerHeight/900);
+ $('#stage').style.transform=`translate(-50%,-50%) scale(${s})`;
+ $('#rot').style.display=(innerHeight>innerWidth*1.05&&innerWidth<900)?'flex':'none';}
+addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,250));
+
+/* ============ 启动 ============ */
+buildBoard();
+setImg($('#init-train').querySelector('img'),CARS.car1.img,()=>{});
+fit();
+</script>
+</body>
+</html>

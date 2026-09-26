@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>卡兹ba交流群专属网站</title>
     <style>
+        :root{
+            /* 主菜单按钮：桌面端 240×60 / 字号24；手机端随屏宽等比缩小（最小180px） */
+            /* 想调整按钮大小，只需改 --btn-w 一行，高和字号自动等比跟随 */
+            --btn-w: clamp(180px, 55vw, 240px);
+            --btn-h: calc(var(--btn-w) * 0.25);    /* 高 = 宽 × 0.25（240:60） */
+            --btn-fs: calc(var(--btn-w) * 0.1);    /* 字号 = 宽 × 0.1，保持等比 */
+
+            /* 右上角二维码：桌面端 300×375；手机端随屏宽等比缩小（最小160px） */
+            --qr-w: clamp(160px, 55vw, 300px);
+        }
         html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;}
         .bg-container {
             width: 100%;height: 100%;
@@ -28,8 +38,16 @@
         .menu-btn:active {transform: scale(0.9);}
         .menu-btn:hover {background-color: #ff6700;}
 
+        /* 主菜单按钮（含签到面板内按钮），弹窗内的按钮不受影响 */
+        .btn-group .menu-btn{
+            width: var(--btn-w);
+            height: var(--btn-h);
+            line-height: var(--btn-h);
+            font-size: var(--btn-fs);
+        }
+
         .sign-panel {
-            display: none;width: 200px;background: #2b2b2b;
+            display: none;width: var(--btn-w);background: #2b2b2b;
             padding: 12px;border-radius: 4px;color: #fff;
             margin-bottom: 10px;box-sizing: border-box;
         }
@@ -129,7 +147,12 @@
             width: 100%;min-height: 100px;background: #3a3a3a;color: #fff;
             border: 1px solid #555;border-radius: 4px;padding: 8px;box-sizing: border-box;
         }
-        .corner-img {width: 240px;height: 302px;z-index: 9;object-fit: contain;cursor: pointer;}
+        /* 右上角二维码：桌面端 300×375，手机端等比缩小 */
+        .corner-img {
+            width: var(--qr-w);
+            height: calc(var(--qr-w) * 1.25);   /* 375/300 = 1.25，保持等比 */
+            z-index: 10;object-fit: contain;cursor: pointer;
+        }
 
         .poll-mask{
             display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
@@ -153,58 +176,30 @@
         .vote-chart-bar-fill{height:100%;background:#4096ff;}
         .vote-chart-text{width:80px;font-size:13px;}
 
-        /* 管理员切换小秘密按钮 */
         .toggle-secret-btn{
-            color:#ff6700;
-            font-size:12px;
-            margin-top:6px;
-            cursor:pointer;
-            display:none;
-            user-select:none;
+            color:#ff6700;font-size:12px;margin-top:6px;cursor:pointer;
+            display:none;user-select:none;
         }
 
-        /* ========== 小游戏弹窗 ========== */
-        .game-modal-mask{
-            display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
-            z-index:9998;align-items:center;justify-content:center;
+        /* ========== 小秘密（由原行内样式提取为类） ========== */
+        .secret-float-btn{
+            position:fixed;right:12px;top:50%;transform:translateY(-50%);
+            width:44px;height:44px;border-radius:50%;background:#992ed8;color:#fff;
+            display:flex;align-items:center;justify-content:center;
+            font-size:11px;text-align:center;cursor:grab;z-index:9999;
+            box-shadow:0 2px 8px #00000077;user-select:none;
         }
-        .game-modal-box{
-            width:90%;max-width:600px;background:#2b2b2b;color:#fff;
-            border-radius:8px;padding:20px;box-sizing:border-box;
+        .secret-modal-mask{
+            position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10000;
+            display:none;align-items:center;justify-content:center;
         }
-        .game-modal-header{
-            display:flex;justify-content:space-between;align-items:center;
-            margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #444;
+        .secret-modal-box{
+            background:#1b1b26;border-radius:10px;padding:16px;
+            max-width:420px;max-height:85vh;overflow-y:auto;color:#fff;
         }
-        .game-modal-close{background:none;border:none;color:#aaa;font-size:24px;cursor:pointer;}
-        .game-card-list{
-            display:flex;gap:20px;justify-content:center;flex-wrap:wrap;
-        }
-        .game-card{
-            width:220px;height:220px;border-radius:8px;
-            display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-            padding-bottom:16px;box-sizing:border-box;
-            border:1px solid #555;cursor:pointer;
-            transition: transform 0.1s ease;
-            background-size:cover;background-position:center center;
-        }
-        .game-card:active{transform:scale(0.95);}
-        .game-card.turtle-soup{
-            background-image: url("picture/haiguitang.png");
-            background-color:#3a3a3a;
-        }
-        .game-card.coming-soon{
-            background:#ffffff;color:#999999;
-            justify-content:center;
-            padding-bottom:0;
-        }
-        .game-card-title{
-            font-size:18px;font-weight:bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-        .game-card.coming-soon .game-card-title{
-            text-shadow:none;
-        }
+        .secret-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+        .secret-modal-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;}
+        .secret-modal-text{font-size:13px;opacity:0.85;margin-bottom:12px;}
     </style>
 </head>
 <body>
@@ -262,28 +257,10 @@
         <div class="poll-box" id="pollBox"></div>
     </div>
 
-    <!-- 小游戏弹窗 -->
-    <div class="game-modal-mask" id="gameModalMask">
-        <div class="game-modal-box">
-            <div class="game-modal-header">
-                <h3>🎮 小游戏</h3>
-                <button class="game-modal-close" id="gameModalClose">×</button>
-            </div>
-            <div class="game-card-list">
-                <div class="game-card turtle-soup" id="turtleSoupCard">
-                    <div class="game-card-title">海龟汤</div>
-                </div>
-                <div class="game-card coming-soon">
-                    <div class="game-card-title">敬请期待</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- 主背景页面 -->
     <div class="bg-container">
-        <div class="author-text" style="position:absolute; right:20px; bottom:40px;">作者：生而峥嵘</div>
-        <div class="author-text" style="position:absolute; right:20px; bottom:18px;font-size:12px;opacity:0.7;">版本号：v2.1.3</div>
+        <div class="author-text">作者：生而峥嵘</div>
+        <div class="author-text" style="bottom:18px;font-size:12px;opacity:0.7;">版本号：v3.0.0</div>
         <div style="position:absolute;top:10px;right:32.5px;text-align:right;">
             <img class="corner-img" src="picture/erweima.png">
             <div style="margin-top:6px;display:flex;align-items:center;justify-content:flex-end;gap:6px;background:rgba(0,0,0,0.38);padding:3px 8px;border-radius:5px;">
@@ -313,18 +290,16 @@
     </div>
 
     <!-- 可拖拽悬浮彩蛋按钮 -->
-    <div id="secretFloatBtn" style="position:fixed;right:12px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:#992ed8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;text-align:center;cursor:grab;z-index:9999;box-shadow:0 2px 8px #00000077;user-select:none;">
-        作者的<br>小秘密
-    </div>
+    <div id="secretFloatBtn" class="secret-float-btn">作者的<br>小秘密</div>
 
     <!-- 彩蛋弹窗 -->
-    <div id="secretModalMask" style="position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10000;display:none;align-items:center;justify-content:center;">
-        <div style="background:#1b1b26;border-radius:10px;padding:16px;max-width:420px;max-height:85vh;overflow-y:auto;color:#fff;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div id="secretModalMask" class="secret-modal-mask">
+        <div class="secret-modal-box">
+            <div class="secret-modal-header">
                 <h3 style="margin:0;">✨作者的小秘密</h3>
-                <button id="closeSecretModal" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;">×</button>
+                <button id="closeSecretModal" class="secret-modal-close">×</button>
             </div>
-            <div style="font-size:13px;opacity:0.85;margin-bottom:12px;">
+            <div class="secret-modal-text">
                 其实作者也是小猫娘，喵~💖。<br>
                 如果你有任何建议或者想法，欢迎随时联系我！<br>
                 感谢大家的支持！💖
@@ -335,16 +310,19 @@
     </div>
 
 <script>
+    /* ===================== 常量与全局状态 ===================== */
     const API_BASE = "https://mengdi.de5.net";
     const ADMIN_PWD = 'mengdi12345678';
     const DECK_FAV_KEY = "kards_deck_fav";
     const today = new Date().toISOString().split('T')[0];
     const STORAGE_KEY = 'group_sign_' + today;
 
+    const $ = (id) => document.getElementById(id);
+
     let userId = localStorage.getItem("local_user_id");
     if(!userId){
         userId = crypto.randomUUID();
-        localStorage.setItem("local_user_id",userId);
+        localStorage.setItem("local_user_id", userId);
     }
 
     let isAdmin = false;
@@ -353,31 +331,14 @@
     let triggerTimer = null;
     let preReady = false;
 
+    /* ===================== 通用工具函数 ===================== */
     function escapeHtml(str){
-        if(!str)return "";
-        return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    }
-
-    function renderVoteChart(options,counts){
-        let html = `<div style="margin:10px 0;"><h4>📊投票可视化统计</h4>`;
-        const total = counts.reduce((s,i)=>s+i,0);
-        options.forEach((opt,idx)=>{
-            const cnt = counts[idx]||0;
-            const percent = total===0 ? 0 : (cnt/total*100).toFixed(1);
-            html += `
-            <div class="vote-chart-item">
-                <div class="vote-chart-line-wrap">
-                    <span class="vote-chart-name">${escapeHtml(opt)}</span>
-                    <div class="vote-chart-bar-bg">
-                        <div class="vote-chart-bar-fill" style="width:${percent}%"></div>
-                    </div>
-                    <span class="vote-chart-text">${cnt}票 (${percent}%)</span>
-                </div>
-            </div>
-            `;
-        })
-        html += "</div>";
-        return html;
+        if(!str) return "";
+        return str
+            .replace(/&/g,"&amp;")
+            .replace(/</g,"&lt;")
+            .replace(/>/g,"&gt;")
+            .replace(/"/g,"&quot;");
     }
 
     async function safeFetchJson(url, options){
@@ -393,342 +354,332 @@
         return await res.json();
     }
 
+    // 统一封装 POST 请求
+    async function postApi(path, data){
+        return safeFetchJson(`${API_BASE}/api/${path}`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        });
+    }
+
+    // 通用弹窗绑定：按钮打开 / 按钮关闭 / 点击遮罩关闭
+    function bindModal(maskId, openIds, closeIds, onOpen){
+        const mask = $(maskId);
+        if(!mask) return;
+        openIds.forEach(id => $(id)?.addEventListener("click", e => {
+            e.preventDefault();
+            mask.style.display = "flex";
+            onOpen && onOpen();
+        }));
+        closeIds.forEach(id => $(id)?.addEventListener("click", () => mask.style.display = "none"));
+        mask.addEventListener("click", e => {
+            if(e.target === mask) mask.style.display = "none";
+        });
+    }
+
+    // 生成 <option> 列表
+    const optionList = (start, end, unit) =>
+        Array.from({length: end - start + 1}, (_, i) => `<option value="${start + i}">${start + i}${unit}</option>`).join("");
+
+    /* ===================== 投票模块 ===================== */
+    function renderVoteChart(options, counts){
+        let html = `<div style="margin:10px 0;"><h4>📊投票可视化统计</h4>`;
+        const total = counts.reduce((s, i) => s + i, 0);
+        options.forEach((opt, idx) => {
+            const cnt = counts[idx] || 0;
+            const percent = total === 0 ? 0 : (cnt / total * 100).toFixed(1);
+            html += `
+            <div class="vote-chart-item">
+                <div class="vote-chart-line-wrap">
+                    <span class="vote-chart-name">${escapeHtml(opt)}</span>
+                    <div class="vote-chart-bar-bg">
+                        <div class="vote-chart-bar-fill" style="width:${percent}%"></div>
+                    </div>
+                    <span class="vote-chart-text">${cnt}票 (${percent}%)</span>
+                </div>
+            </div>
+            `;
+        });
+        return html + "</div>";
+    }
+
     async function fetchPoll(){
         const json = await safeFetchJson(`${API_BASE}/api/get-poll`);
-        if(!json.ok) throw new Error(json.msg||"获取投票失败");
+        if(!json.ok) throw new Error(json.msg || "获取投票失败");
         return json.poll;
     }
 
     async function createRemotePoll(newPollObj){
-        const payload = {...newPollObj, adminSecret:ADMIN_PWD};
-        const j = await safeFetchJson(`${API_BASE}/api/poll-create`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(payload)
-        });
-        if(!j.ok) throw new Error(j.msg||"创建投票失败");
+        const j = await postApi("poll-create", {...newPollObj, adminSecret: ADMIN_PWD});
+        if(!j.ok) throw new Error(j.msg || "创建投票失败");
     }
 
     async function submitRemoteVote(optIndex){
-        const j = await safeFetchJson(`${API_BASE}/api/vote-submit`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({uid:userId, opt:optIndex})
-        });
+        const j = await postApi("vote-submit", {uid: userId, opt: optIndex});
         if(!j.ok) throw new Error(j.msg);
         return j.poll;
     }
 
     async function adminCloseRemotePoll(){
-        const payload = {adminSecret:ADMIN_PWD};
-        const j = await safeFetchJson(`${API_BASE}/api/poll-close`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(payload)
-        });
+        const j = await postApi("poll-close", {adminSecret: ADMIN_PWD});
         if(!j.ok) throw new Error(j.msg);
         return j.poll;
     }
 
     async function exportPollDetail(poll){
         if(!poll) return alert("暂无投票数据");
-        let text = `【投票标题】${poll.title}\n【投票描述】${poll.desc||""}\n====选项统计====\n`;
-        poll.options.forEach((opt,idx)=> text += `${idx+1}.${opt} 票数:${poll.counts[idx]??0}\n`);
+        let text = `【投票标题】${poll.title}\n【投票描述】${poll.desc || ""}\n====选项统计====\n`;
+        poll.options.forEach((opt, idx) => text += `${idx + 1}.${opt} 票数:${poll.counts[idx] ?? 0}\n`);
         text += "\n====投票人明细====\n";
-        if(poll.voterIds && Array.isArray(poll.voterIds)) poll.voterIds.forEach(item=> text += `用户ID:${item.uid} | 选择序号:${item.selectIndex}\n`);
+        if(poll.voterIds && Array.isArray(poll.voterIds)) poll.voterIds.forEach(item => text += `用户ID:${item.uid} | 选择序号:${item.selectIndex}\n`);
         await navigator.clipboard.writeText(text);
         alert("✅投票明细已经复制剪贴板！");
     }
-    window.exportPollDetail = exportPollDetail;
 
     async function renderPoll(){
-        const pollMask = document.getElementById("pollMask");
-        const pollBox = document.getElementById("pollBox");
+        const pollMask = $("pollMask");
+        const pollBox = $("pollBox");
         if(!pollMask || !pollBox) return;
+
         let poll = null;
         try{
             poll = await fetchPoll();
         }catch(e){
-            pollBox.innerHTML=`<div style="color:#f88;">加载投票出错：${e.message}</div>`;
-            pollMask.style.display="flex";
+            pollBox.innerHTML = `<div style="color:#f88;">加载投票出错：${e.message}</div>`;
+            pollMask.style.display = "flex";
             return;
         }
-        const nowTs = Date.now();
-        const isPollEnd = poll && (poll.endTime && nowTs > poll.endTime);
+
+        const isPollEnd = poll && (poll.endTime && Date.now() > poll.endTime);
 
         if(!poll || !poll.title || isPollEnd){
             if(isAdmin){
-                pollBox.innerHTML=`
-                <button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button>
-                <h3>创建新投票</h3>
-                <input class="deck-input" id="pollTitle" placeholder="投票标题">
-                <textarea class="deck-input deck-textarea" id="pollDesc" placeholder="投票描述内容"></textarea>
-                <div class="poll-select-row">
-                <select id="poll_day">
-                    <option value="0">0天</option><option value="1">1天</option><option value="2">2天</option><option value="3">3天</option><option value="4">4天</option><option value="5">5天</option>
-                    <option value="6">6天</option><option value="7">7天</option><option value="8">8天</option><option value="9">9天</option><option value="10">10天</option>
-                    <option value="11">11天</option><option value="12">12天</option><option value="13">13天</option><option value="14">14天</option><option value="15">15天</option>
-                    <option value="16">16天</option><option value="17">17天</option><option value="18">18天</option><option value="19">19天</option><option value="20">20天</option>
-                    <option value="21">21天</option><option value="22">22天</option><option value="23">23天</option><option value="24">24天</option><option value="25">25天</option>
-                    <option value="26">26天</option><option value="27">27天</option><option value="28">28天</option><option value="29">29天</option><option value="30">30天</option>
-                    <option value="31">31天</option>
-                </select>
-                <select id="poll_hour">
-                    <option value="0">0时</option><option value="1">1时</option><option value="2">2时</option><option value="3">3时</option><option value="4">4时</option><option value="5">5时</option>
-                    <option value="6">6时</option><option value="7">7时</option><option value="8">8时</option><option value="9">9时</option><option value="10">10时</option>
-                    <option value="11">11时</option><option value="12">12时</option><option value="13">13时</option><option value="14">14时</option><option value="15">15时</option>
-                    <option value="16">16时</option><option value="17">17时</option><option value="18">18时</option><option value="19">19时</option><option value="20">20时</option>
-                    <option value="21">21时</option><option value="22">22时</option><option value="23">23时</option><option value="24">24时</option>
-                </select>
-                <select id="poll_minute">
-                    <option value="0">0分</option><option value="1">1分</option><option value="2">2分</option><option value="3">3分</option><option value="4">4分</option><option value="5">5分</option>
-                    <option value="6">6分</option><option value="7">7分</option><option value="8">8分</option><option value="9">9分</option><option value="10">10分</option>
-                    <option value="11">11分</option><option value="12">12分</option><option value="13">13分</option><option value="14">14分</option><option value="15">15分</option>
-                    <option value="16">16分</option><option value="17">17分</option><option value="18">18分</option><option value="19">19分</option><option value="20">20分</option>
-                    <option value="21">21分</option><option value="22">22分</option><option value="23">23分</option><option value="24">24分</option><option value="25">25分</option>
-                    <option value="26">26分</option><option value="27">27分</option><option value="28">28分</option><option value="29">29分</option><option value="30">30分</option>
-                    <option value="31">31分</option><option value="32">32分</option><option value="33">33分</option><option value="34">34分</option><option value="35">35分</option>
-                    <option value="36">36分</option><option value="37">37分</option><option value="38">38分</option><option value="39">39分</option><option value="40">40分</option>
-                    <option value="41">41分</option><option value="42">42分</option><option value="43">43分</option><option value="44">44分</option><option value="45">45分</option>
-                    <option value="46">46分</option><option value="47">47分</option><option value="48">48分</option><option value="49">49分</option><option value="50">50分</option>
-                    <option value="51">51分</option><option value="52">52分</option><option value="53">53分</option><option value="54">54分</option><option value="55">55分</option>
-                    <option value="56">56分</option><option value="57">57分</option><option value="58">58分</option><option value="59">59分</option><option value="60">60分</option>
-                </select>
-                <select id="poll_second">
-                    <option value="0">0秒</option><option value="1">1秒</option><option value="2">2秒</option><option value="3">3秒</option><option value="4">4秒</option><option value="5">5秒</option>
-                    <option value="6">6秒</option><option value="7">7秒</option><option value="8">8秒</option><option value="9">9秒</option><option value="10">10秒</option>
-                    <option value="11">11秒</option><option value="12">12秒</option><option value="13">13秒</option><option value="14">14秒</option><option value="15">15秒</option>
-                    <option value="16">16秒</option><option value="17">17秒</option><option value="18">18秒</option><option value="19">19秒</option><option value="20">20秒</option>
-                    <option value="21">21秒</option><option value="22">22秒</option><option value="23">23秒</option><option value="24">24秒</option><option value="25">25秒</option>
-                    <option value="26">26秒</option><option value="27">27秒</option><option value="28">28秒</option><option value="29">29秒</option><option value="30">30秒</option>
-                    <option value="31">31秒</option><option value="32">32秒</option><option value="33">33秒</option><option value="34">34秒</option><option value="35">35秒</option>
-                    <option value="36">36秒</option><option value="37">37秒</option><option value="38">38秒</option><option value="39">39秒</option><option value="40">40秒</option>
-                    <option value="41">41秒</option><option value="42">42秒</option><option value="43">43秒</option><option value="44">44秒</option><option value="45">45秒</option>
-                    <option value="46">46秒</option><option value="47">47秒</option><option value="48">48秒</option><option value="49">49秒</option><option value="50">50秒</option>
-                    <option value="51">51秒</option><option value="52">52秒</option><option value="53">53秒</option><option value="54">54秒</option><option value="55">55秒</option>
-                    <option value="56">56秒</option><option value="57">57秒</option><option value="58">58秒</option><option value="59">59秒</option>
-                </select>
-                </div>
-                <textarea class="deck-input deck-textarea" id="pollOptionsText" placeholder="选项，一行一个"></textarea>
-                <button class="menu-btn" style="width:100%;height:40px;line-height:40px;" id="createPollBtn">创建投票</button>
+                pollBox.innerHTML = `
+                    <button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button>
+                    <h3>创建新投票</h3>
+                    <input class="deck-input" id="pollTitle" placeholder="投票标题">
+                    <textarea class="deck-input deck-textarea" id="pollDesc" placeholder="投票描述内容"></textarea>
+                    <div class="poll-select-row">
+                        <select id="poll_day">${optionList(0, 31, "天")}</select>
+                        <select id="poll_hour">${optionList(0, 24, "时")}</select>
+                        <select id="poll_minute">${optionList(0, 60, "分")}</select>
+                        <select id="poll_second">${optionList(0, 59, "秒")}</select>
+                    </div>
+                    <textarea class="deck-input deck-textarea" id="pollOptionsText" placeholder="选项，一行一个"></textarea>
+                    <button class="menu-btn" style="width:100%;height:40px;line-height:40px;" id="createPollBtn">创建投票</button>
                 `;
-                setTimeout(()=>{
-                    document.getElementById("createPollBtn").onclick = async ()=>{
-                        const title = document.getElementById("pollTitle").value.trim();
-                        const desc = document.getElementById("pollDesc").value.trim();
-                        const day = Number(document.getElementById("poll_day").value);
-                        const hour = Number(document.getElementById("poll_hour").value);
-                        const minute = Number(document.getElementById("poll_minute").value);
-                        const second = Number(document.getElementById("poll_second").value);
-                        const optRaw = document.getElementById("pollOptionsText").value.trim();
-                        if(!title){alert("投票标题不能为空");return;}
-                        if(!optRaw){alert("至少填写一个投票选项");return;}
-                        const options = optRaw.split("\n").map(s=>s.trim()).filter(s=>s);
+                $("createPollBtn").onclick = async () => {
+                    const title = $("pollTitle").value.trim();
+                    const desc = $("pollDesc").value.trim();
+                    const day = Number($("poll_day").value);
+                    const hour = Number($("poll_hour").value);
+                    const minute = Number($("poll_minute").value);
+                    const second = Number($("poll_second").value);
+                    const optRaw = $("pollOptionsText").value.trim();
+                    if(!title){ alert("投票标题不能为空"); return; }
+                    if(!optRaw){ alert("至少填写一个投票选项"); return; }
+                    const options = optRaw.split("\n").map(s => s.trim()).filter(Boolean);
 
-                        const addMs = ((day*24+hour)*60+minute)*60+second;
-                        const finalSeconds = Math.max(addMs, 3);
-                        const endTime = Date.now() + finalSeconds * 1000;
+                    const addMs = ((day * 24 + hour) * 60 + minute) * 60 + second;
+                    const endTime = Date.now() + Math.max(addMs, 3) * 1000;
 
-                        const newPoll = {
-                            title,desc,options,endTime,
+                    try{
+                        await createRemotePoll({
+                            title, desc, options, endTime,
                             forceEnd: false,
-                            counts: options.map(()=>0),
+                            counts: options.map(() => 0),
                             voterIds: []
-                        };
-                        try{
-                            await createRemotePoll(newPoll);
-                            alert("✅云端投票创建成功，所有人可见");
-                            renderPoll();
-                        }catch(err){
-                            alert("创建失败："+err.message);
-                        }
+                        });
+                        alert("✅云端投票创建成功，所有人可见");
+                        renderPoll();
+                    }catch(err){
+                        alert("创建失败：" + err.message);
                     }
-                },0);
+                };
             }else{
-                pollBox.innerHTML=`<div style="color:#aaa;">暂无投票，请管理员创建投票</div>`;
+                pollBox.innerHTML = `<div style="color:#aaa;">暂无投票，请管理员创建投票</div>`;
             }
         }else{
-            const hasVoted = poll.voterIds?.some(v=>v.uid===userId);
-            pollBox.innerHTML=`
+            const hasVoted = poll.voterIds?.some(v => v.uid === userId);
+            pollBox.innerHTML = `
                 <button class="poll-close" onclick="document.getElementById('pollMask').style.display='none'">×</button>
                 <h3>${escapeHtml(poll.title)}</h3>
-                <div style="margin-bottom:8px;">${escapeHtml(poll.desc||"")}</div>
+                <div style="margin-bottom:8px;">${escapeHtml(poll.desc || "")}</div>
                 <div style="font-size:13px;color:#aaa;margin-bottom:10px;">结束时间：${new Date(poll.endTime).toLocaleString()}</div>
-                ${hasVoted?`<div style="color:#4cd964;margin-bottom:8px;">✅你已经投过票</div>`:""}
-                ${isAdmin?`<button id="adminEndPollBtn" class="menu-btn" style="width:100%;height:36px;line-height:36px;margin-bottom:10px;background:#992222;">🔒管理员关闭投票</button>`:""}
+                ${hasVoted ? `<div style="color:#4cd964;margin-bottom:8px;">✅你已经投过票</div>` : ""}
+                ${isAdmin ? `<button id="adminEndPollBtn" class="menu-btn" style="width:100%;height:36px;line-height:36px;margin-bottom:10px;background:#992222;">🔒管理员关闭投票</button>` : ""}
                 <div id="pollOptionWrap"></div>
-                ${renderVoteChart(poll.options,poll.counts)}
-                ${isAdmin?`<button class="menu-btn" style="width:100%;height:36px;line-height:36px;margin-top:8px;" onclick="exportPollDetail(${JSON.stringify(poll).replace(/"/g,'&quot;')})">导出投票明细复制到剪贴板</button>`:""}
+                ${renderVoteChart(poll.options, poll.counts)}
+                ${isAdmin ? `<button id="exportPollBtn" class="menu-btn" style="width:100%;height:36px;line-height:36px;margin-top:8px;">导出投票明细复制到剪贴板</button>` : ""}
             `;
+
             if(isAdmin){
-                setTimeout(()=>{
-                    const endBtn = document.getElementById("adminEndPollBtn");
-                    if(endBtn){
-                        endBtn.onclick = async ()=>{
-                            if(!confirm("⚠确认关闭投票？关闭后所有人不能再投票！")) return;
-                            try{
-                                await adminCloseRemotePoll();
-                                alert("✅投票已云端关闭！");
-                                renderPoll();
-                            }catch(e){
-                                alert(e.message);
-                            }
-                        }
+                $("adminEndPollBtn").onclick = async () => {
+                    if(!confirm("⚠确认关闭投票？关闭后所有人不能再投票！")) return;
+                    try{
+                        await adminCloseRemotePoll();
+                        alert("✅投票已云端关闭！");
+                        renderPoll();
+                    }catch(e){
+                        alert(e.message);
                     }
-                },0);
+                };
+                $("exportPollBtn").onclick = () => exportPollDetail(poll);
             }
-            const wrap = document.getElementById("pollOptionWrap");
-            poll.options.forEach((opt,idx)=>{
+
+            const wrap = $("pollOptionWrap");
+            poll.options.forEach((opt, idx) => {
                 const div = document.createElement("div");
-                div.className="poll-option-item";
+                div.className = "poll-option-item";
                 div.textContent = escapeHtml(opt);
                 if(!hasVoted){
-                    div.onclick = async ()=>{
+                    div.onclick = async () => {
                         try{
                             await submitRemoteVote(idx);
                             renderPoll();
                         }catch(err){
                             alert(err.message);
                         }
-                    }
+                    };
                 }
                 wrap.appendChild(div);
-            })
+            });
         }
         pollMask.style.display = "flex";
     }
 
+    /* ===================== 卡组模块 ===================== */
     function getFavDeckIds(){
-        const str = localStorage.getItem(DECK_FAV_KEY);
-        if(!str) return [];
-        try{return JSON.parse(str);}catch(e){return [];}
+        try{ return JSON.parse(localStorage.getItem(DECK_FAV_KEY)) || []; }
+        catch(e){ return []; }
     }
-    function saveFavDeckIds(arr){
-        localStorage.setItem(DECK_FAV_KEY, JSON.stringify(arr));
-    }
-    window.toggleDeckFav = function(deckId){
-        let list = getFavDeckIds();
-        if(list.includes(deckId)){
-            list = list.filter(x=>x!==deckId);
-        }else{
-            list.push(deckId);
-        }
-        saveFavDeckIds(list);
+    function saveFavDeckIds(arr){ localStorage.setItem(DECK_FAV_KEY, JSON.stringify(arr)); }
+
+    function toggleDeckFav(deckId){
+        const list = getFavDeckIds();
+        saveFavDeckIds(list.includes(deckId) ? list.filter(x => x !== deckId) : [...list, deckId]);
         loadDeckList();
     }
 
     async function loadDeckList(){
-        const deckListWrap = document.getElementById("deckListWrap");
+        const wrap = $("deckListWrap");
         try{
             const json = await safeFetchJson(`${API_BASE}/api/get-decks`);
             if(!json.ok) throw new Error(json.msg);
             const list = json.list;
-            deckListWrap.innerHTML = "";
-            if(!list||list.length===0){
-                deckListWrap.innerHTML="<div>暂无卡组</div>";
+            if(!list || list.length === 0){
+                wrap.innerHTML = "<div>暂无卡组</div>";
                 return;
             }
-            const topList = list.filter(d=>d.isTop);
-            const normalList = list.filter(d=>!d.isTop);
-            const allList = [...topList,...normalList];
+            const allList = [...list.filter(d => d.isTop), ...list.filter(d => !d.isTop)];
             const favIds = getFavDeckIds();
-            allList.forEach(deck=>{
+            wrap.innerHTML = allList.map(deck => {
                 const isOwner = deck.uploader_id === userId;
                 const isFav = favIds.includes(deck.id);
-                const div = document.createElement("div");
-                div.className="deck-item"+(deck.isTop?" top-deck":"");
-                div.innerHTML=`
-                    <strong>${escapeHtml(deck.name)} ${deck.isTop?"【置顶】":""}</strong>
+                return `
+                <div class="deck-item${deck.isTop ? " top-deck" : ""}">
+                    <strong>${escapeHtml(deck.name)} ${deck.isTop ? "【置顶】" : ""}</strong>
                     <pre style="font-size:12px;color:#ccc;max-height:120px;overflow:auto;">${escapeHtml(deck.code)}</pre>
-                    <div class="deck-btn-row">
-                        <button class="deck-btn btn-copy" onclick="copyDeckCode(${JSON.stringify(deck.code).replace(/"/g,'&quot;')})">复制代码</button>
-                        <button class="deck-btn fav-btn" onclick="toggleDeckFav(${deck.id})">${isFav?"⭐已收藏":"☆收藏"}</button>
-                        ${isOwner?`<button class="deck-btn btn-del-own" onclick="deleteDeck(${deck.id})">删除我的卡组</button>`:""}
-                        ${isAdmin?`
-                            <button class="deck-btn btn-del-admin" onclick="deleteDeck(${deck.id})">管理员删除</button>
-                            <button class="deck-btn btn-set-top" onclick="toggleDeckTop(${deck.id},${deck.isTop})">${deck.isTop?"取消置顶":"设为置顶"}
-                        `:""}
+                    <div class="deck-btn-row" data-id="${deck.id}">
+                        <button class="deck-btn btn-copy" data-act="copy">复制代码</button>
+                        <button class="deck-btn fav-btn" data-act="fav">${isFav ? "⭐已收藏" : "☆收藏"}</button>
+                        ${isOwner ? `<button class="deck-btn btn-del-own" data-act="del">删除我的卡组</button>` : ""}
+                        ${isAdmin ? `
+                            <button class="deck-btn btn-del-admin" data-act="del">管理员删除</button>
+                            <button class="deck-btn btn-set-top" data-act="top" data-top="${!!deck.isTop}">${deck.isTop ? "取消置顶" : "设为置顶"}</button>
+                        ` : ""}
                     </div>
-                `;
-                deckListWrap.appendChild(div);
-            })
+                </div>`;
+            }).join("");
         }catch(e){
-            deckListWrap.innerHTML=`<div style="color:#ff8888;">卡组加载失败：${e.message}</div>`;
+            wrap.innerHTML = `<div style="color:#ff8888;">卡组加载失败：${e.message}</div>`;
         }
     }
-    window.copyDeckCode = async function(text){
+
+    async function copyDeckCode(text){
         await navigator.clipboard.writeText(text);
         alert("已复制卡组代码");
     }
-    window.deleteDeck = async function(deckId){
+
+    async function deleteDeck(deckId){
         if(!confirm("确定删除这条卡组？")) return;
         try{
-            const j = await safeFetchJson(`${API_BASE}/api/del-deck`,{
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({deck_id:deckId, uploader_id:userId, adminSecret: isAdmin?ADMIN_PWD:""})
+            const j = await postApi("del-deck", {
+                deck_id: deckId,
+                uploader_id: userId,
+                adminSecret: isAdmin ? ADMIN_PWD : ""
             });
             if(!j.ok) throw new Error(j.msg);
             alert("删除成功");
             loadDeckList();
         }catch(err){
-            alert("删除失败："+err.message);
-        }
-    }
-    window.toggleDeckTop = async function(deckId,nowTop){
-        if(!isAdmin) return;
-        try{
-            const j = await safeFetchJson(`${API_BASE}/api/deck-set-top`,{
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({deck_id:deckId, isTop:!nowTop, adminSecret:ADMIN_PWD})
-            });
-            if(!j.ok) throw new Error(j.msg);
-            loadDeckList();
-        }catch(err){
-            alert("置顶操作失败："+err.message);
+            alert("删除失败：" + err.message);
         }
     }
 
+    async function toggleDeckTop(deckId, nowTop){
+        if(!isAdmin) return;
+        try{
+            const j = await postApi("deck-set-top", {deck_id: deckId, isTop: !nowTop, adminSecret: ADMIN_PWD});
+            if(!j.ok) throw new Error(j.msg);
+            loadDeckList();
+        }catch(err){
+            alert("置顶操作失败：" + err.message);
+        }
+    }
+
+    /* ===================== 公告模块 ===================== */
     async function loadNotice(){
         let text = "";
         try{
             const j = await safeFetchJson(`${API_BASE}/api/get-notice`);
-            text = j.notice||"";
+            text = j.notice || "";
         }catch(e){
-            console.warn("公告加载失败",e);
+            console.warn("公告加载失败", e);
         }
-        noticeShowContent.innerHTML = text ? escapeHtml(text).replace(/\n/g,"<br>") : "<p>暂无公告</p>";
-        noticeEditInput.value = text;
-        adminNoticeWrap.classList.toggle("active", isAdmin);
+        $("noticeShowContent").innerHTML = text ? escapeHtml(text).replace(/\n/g, "<br>") : "<p>暂无公告</p>";
+        $("noticeEditInput").value = text;
+        $("adminNoticeWrap").classList.toggle("active", isAdmin);
         return text;
     }
 
-    function renderSignList() {
-        const signCountEl = document.getElementById("signCountEl");
-        const signList = document.getElementById("signList");
-        if (!signCountEl || !signList) return;
-        let signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        signCountEl.textContent = signData.length;
-        signList.style.display = signData.length>0?"block":"none";
-        signList.innerHTML = signData.map(x=>`<div>👤${escapeHtml(x.name)} ${x.time}</div>`).join("");
+    async function submitNotice(notice, okMsg, failPrefix){
+        if(!isAdmin){ alert("无管理员权限"); return; }
+        try{
+            const j = await postApi("edit-notice", {notice, adminSecret: ADMIN_PWD});
+            if(!j.ok) throw new Error(j.msg);
+            alert(okMsg);
+            loadNotice();
+        }catch(err){
+            alert(failPrefix + err.message);
+        }
     }
 
-    // ========== 小秘密显示控制 ==========
+    /* ===================== 签到模块 ===================== */
+    function renderSignList(){
+        const signCountEl = $("signCountEl");
+        const signList = $("signList");
+        if(!signCountEl || !signList) return;
+        const signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        signCountEl.textContent = signData.length;
+        signList.style.display = signData.length > 0 ? "block" : "none";
+        signList.innerHTML = signData.map(x => `<div>👤${escapeHtml(x.name)} ${x.time}</div>`).join("");
+    }
+
+    /* ===================== 小秘密模块 ===================== */
+    function setSecretBtnVisible(visible){
+        $("secretFloatBtn").style.display = visible ? "flex" : "none";
+    }
+
     async function fetchSecretStatus(){
         try{
             const j = await safeFetchJson(`${API_BASE}/api/get-secret`);
-            const secretBtn = document.getElementById("secretFloatBtn");
-            if(j.hidden){
-                secretBtn.style.display = "none";
-            }else{
-                secretBtn.style.display = "flex";
-            }
+            setSecretBtnVisible(!j.hidden);
             return j.hidden;
         }catch(e){
-            console.warn("获取小秘密状态失败",e);
-            // 接口异常默认显示
-            document.getElementById("secretFloatBtn").style.display = "flex";
+            console.warn("获取小秘密状态失败", e);
+            setSecretBtnVisible(true);  // 接口异常默认显示
             return false;
         }
     }
@@ -736,281 +687,169 @@
     async function toggleSecretStatus(){
         if(!isAdmin) return;
         try{
-            const j = await safeFetchJson(`${API_BASE}/api/toggle-secret`,{
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({adminSecret:ADMIN_PWD})
-            });
+            const j = await postApi("toggle-secret", {adminSecret: ADMIN_PWD});
             if(!j.ok) throw new Error(j.msg);
-            const secretBtn = document.getElementById("secretFloatBtn");
-            if(j.hidden){
-                secretBtn.style.display = "none";
-                alert("✅已隐藏小秘密，所有人不可见");
-            }else{
-                secretBtn.style.display = "flex";
-                alert("✅已显示小秘密");
-            }
+            setSecretBtnVisible(!j.hidden);
+            alert(j.hidden ? "✅已隐藏小秘密，所有人不可见" : "✅已显示小秘密");
         }catch(err){
-            alert("操作失败："+err.message);
+            alert("操作失败：" + err.message);
         }
     }
 
-    window.onload = async function(){
-        const deckModalMask = document.getElementById("deckModalMask");
-        const deckModalClose = document.getElementById("deckModalClose");
-        const deckToggleBtn = document.getElementById("deckToggleBtn");
-        const deckNameInput = document.getElementById("deckNameInput");
-        const deckCodeInput = document.getElementById("deckCodeInput");
-        const addDeckBtn = document.getElementById("addDeckBtn");
-        const deckListWrap = document.getElementById("deckListWrap");
-
-        const adminPwdMask = document.getElementById('adminPwdMask');
-        const secretPwdInput = document.getElementById('secretPwdInput');
-        const pwdConfirm = document.getElementById('pwdConfirm');
-        const pwdMaskClose = document.getElementById('pwdMaskClose');
-        const clearSignBtn = document.getElementById('clearSignBtn');
-        const signToggleBtn = document.getElementById('signToggleBtn');
-        const adminTipText = document.getElementById("adminTipText");
-        const toggleSecretBtn = document.getElementById("toggleSecretBtn");
-        const qrImg = document.querySelector('.corner-img');
-
-        const signPanel = document.getElementById('signPanel');
-        const confirmSignBtn = document.getElementById('confirmSignBtn');
-        const nicknameInput = document.getElementById('nicknameInput');
-
-        const noticeToggleBtn = document.getElementById('noticeToggleBtn');
-        const noticeModalMask = document.getElementById('noticeModalMask');
-        const noticeCloseBtn = document.getElementById('noticeCloseBtn');
-        const noticeShowContent = document.getElementById("noticeShowContent");
-        const adminNoticeWrap = document.getElementById("adminNoticeWrap");
-        const noticeEditInput = document.getElementById("noticeEditInput");
-        const saveNoticeBtn = document.getElementById("saveNoticeBtn");
-        const clearNoticeBtn = document.getElementById("clearNoticeBtn");
-
-        const pollToggleBtn = document.getElementById("pollToggleBtn");
-        const pollMask = document.getElementById("pollMask");
-
-        const gameToggleBtn = document.getElementById("gameToggleBtn");
-        const gameModalMask = document.getElementById("gameModalMask");
-        const gameModalClose = document.getElementById("gameModalClose");
-
-        const secretFloatBtn = document.getElementById("secretFloatBtn");
-        const secretModalMask = document.getElementById("secretModalMask");
-        const closeSecretModal = document.getElementById("closeSecretModal");
-
-        // 悬浮按钮拖拽
-        let drag = false, offX=0,offY=0;
-        secretFloatBtn.onmousedown=e=>{drag=true;offX=e.offsetX;offY=e.offsetY;secretFloatBtn.style.cursor="grabbing";};
-        document.onmousemove=e=>{
-            if(!drag)return;
-            secretFloatBtn.style.left=(e.clientX-offX)+"px";
-            secretFloatBtn.style.top=(e.clientY-offY)+"px";
-            secretFloatBtn.style.right="unset";
-            secretFloatBtn.style.transform="none";
-        };
-        document.onmouseup=()=>{drag=false;secretFloatBtn.style.cursor="grab";};
-        secretFloatBtn.onclick=()=>{secretModalMask.style.display="flex";};
-        closeSecretModal.onclick=()=>{secretModalMask.style.display="none";};
-        secretModalMask.onclick=e=>{if(e.target===secretModalMask) secretModalMask.style.display="none";};
-
-        // 卡组弹窗事件
-        deckToggleBtn.addEventListener("click",e=>{
-            e.preventDefault();
-            deckModalMask.style.display = "flex";
-            loadDeckList();
+    /* ===================== 页面初始化与事件绑定 ===================== */
+    window.onload = function(){
+        /* ---- 悬浮小秘密按钮：拖拽 + 弹窗 ---- */
+        const secretFloatBtn = $("secretFloatBtn");
+        let drag = false, offX = 0, offY = 0;
+        secretFloatBtn.addEventListener("mousedown", e => {
+            drag = true; offX = e.offsetX; offY = e.offsetY;
+            secretFloatBtn.style.cursor = "grabbing";
         });
-        deckModalClose.addEventListener("click",()=>deckModalMask.style.display="none");
-        deckModalMask.addEventListener("click",e=>{
-            if(e.target === deckModalMask) deckModalMask.style.display="none";
-        })
-        addDeckBtn.addEventListener("click",async ()=>{
-            const name = deckNameInput.value.trim();
-            const code = deckCodeInput.value.trim();
-            if (!name) {alert("卡组名称必填");return;}
-            if (!code) {alert("卡组代码不能为空");return;}
-            try{
-                const j = await safeFetchJson(`${API_BASE}/api/save-deck`,{
-                    method:"POST",
-                    headers:{"Content-Type":"application/json"},
-                    body:JSON.stringify({
-                        id:Date.now(),
-                        name,
-                        code,
-                        uploader_id:userId,
-                        isTop:false
-                    })
-                });
-                if(!j.ok) throw new Error(j.msg);
-                alert("✅卡组提交成功，云端保存");
-                deckNameInput.value="";
-                deckCodeInput.value="";
-                loadDeckList();
-            }catch(err){
-                alert("提交失败："+err.message);
+        document.addEventListener("mousemove", e => {
+            if(!drag) return;
+            secretFloatBtn.style.left = (e.clientX - offX) + "px";
+            secretFloatBtn.style.top = (e.clientY - offY) + "px";
+            secretFloatBtn.style.right = "unset";
+            secretFloatBtn.style.transform = "none";
+        });
+        document.addEventListener("mouseup", () => {
+            drag = false;
+            secretFloatBtn.style.cursor = "grab";
+        });
+
+        /* ---- 各弹窗统一绑定（打开 / 关闭 / 点遮罩关闭） ---- */
+        bindModal("deckModalMask",   ["deckToggleBtn"],   ["deckModalClose"],  loadDeckList);
+        bindModal("noticeModalMask", ["noticeToggleBtn"], ["noticeCloseBtn"],  loadNotice);
+        bindModal("pollMask",        ["pollToggleBtn"],   [],                  renderPoll);
+        bindModal("secretModalMask", ["secretFloatBtn"],  ["closeSecretModal"]);
+
+        /* ---- 小游戏：直接跳转同文件夹的游戏大厅 ---- */
+        $("gameToggleBtn").addEventListener("click", e => {
+            e.preventDefault();
+            window.location.href = "./game lobby.html";  // 若实际文件名不同（如 game_lobby.html），只需改这一行
+        });
+
+        /* ---- 卡组列表按钮：事件委托 ---- */
+        $("deckListWrap").addEventListener("click", e => {
+            const btn = e.target.closest("button[data-act]");
+            if(!btn) return;
+            const id = Number(btn.closest(".deck-btn-row").dataset.id);
+            switch(btn.dataset.act){
+                case "copy": copyDeckCode(btn.closest(".deck-item").querySelector("pre").textContent); break;
+                case "fav":  toggleDeckFav(id); break;
+                case "del":  deleteDeck(id); break;
+                case "top":  toggleDeckTop(id, btn.dataset.top === "true"); break;
             }
         });
 
-        // 管理员触发后门
-        qrImg.addEventListener("click", function () {
+        /* ---- 提交新卡组 ---- */
+        $("addDeckBtn").addEventListener("click", async () => {
+            const name = $("deckNameInput").value.trim();
+            const code = $("deckCodeInput").value.trim();
+            if(!name){ alert("卡组名称必填"); return; }
+            if(!code){ alert("卡组代码不能为空"); return; }
+            try{
+                const j = await postApi("save-deck", {id: Date.now(), name, code, uploader_id: userId, isTop: false});
+                if(!j.ok) throw new Error(j.msg);
+                alert("✅卡组提交成功，云端保存");
+                $("deckNameInput").value = "";
+                $("deckCodeInput").value = "";
+                loadDeckList();
+            }catch(err){
+                alert("提交失败：" + err.message);
+            }
+        });
+
+        /* ---- 管理员隐藏入口：连点二维码5次 → 连点签到3次 ---- */
+        const qrImg = document.querySelector(".corner-img");
+        qrImg.addEventListener("click", () => {
             if(preReady) return;
             qrClick++;
             clearTimeout(triggerTimer);
-            triggerTimer = setTimeout(()=>{
-                qrClick = 0;
-                signClick = 0;
-                preReady = false;
-            },10000);
-            if(qrClick >=5){
-                preReady = true;
-            }
+            triggerTimer = setTimeout(() => {
+                qrClick = 0; signClick = 0; preReady = false;
+            }, 10000);
+            if(qrClick >= 5) preReady = true;
         });
 
-        signToggleBtn.addEventListener("click",function(){
+        $("signToggleBtn").addEventListener("click", () => {
             if(!preReady) return;
             signClick++;
-            if(signClick >=3){
-                adminPwdMask.style.display="flex";
-                qrClick = 0;
-                signClick = 0;
-                preReady = false;
+            if(signClick >= 3){
+                $("adminPwdMask").style.display = "flex";
+                qrClick = 0; signClick = 0; preReady = false;
                 clearTimeout(triggerTimer);
             }
         });
 
-        // 密码确认登录管理员
-        pwdConfirm.addEventListener('click', ()=>{
-            const inputPwd = secretPwdInput.value.trim();
-            if(inputPwd === ADMIN_PWD){
+        /* ---- 管理员密码确认 ---- */
+        $("pwdConfirm").addEventListener("click", () => {
+            if($("secretPwdInput").value.trim() === ADMIN_PWD){
                 isAdmin = true;
-                alert('✅已获得管理员权限');
-                adminPwdMask.style.display = 'none';
-                clearSignBtn.classList.add('active');
-                adminTipText.style.display="block";
-                toggleSecretBtn.style.display="block";
+                alert("✅已获得管理员权限");
+                $("adminPwdMask").style.display = "none";
+                $("clearSignBtn").classList.add("active");
+                $("adminTipText").style.display = "block";
+                $("toggleSecretBtn").style.display = "block";
             }else{
-                alert('❌密码错误');
+                alert("❌密码错误");
             }
         });
-        pwdMaskClose.addEventListener("click",()=>{
-            adminPwdMask.style.display="none";
-        })
+        $("pwdMaskClose").addEventListener("click", () => $("adminPwdMask").style.display = "none");
 
-        // 签到面板开关
-        signToggleBtn.addEventListener('click', function(e) {
+        /* ---- 签到面板 ---- */
+        const signToggleBtn = $("signToggleBtn");
+        const signPanel = $("signPanel");
+        signToggleBtn.addEventListener("click", function(e){
             e.preventDefault();
-            signPanel.style.display = signPanel.style.display === 'block' ? 'none' : 'block';
+            signPanel.style.display = signPanel.style.display === "block" ? "none" : "block";
         });
-        document.addEventListener('click',function(e){
-            if(!signPanel.contains(e.target) && e.target!==signToggleBtn){
+        document.addEventListener("click", function(e){
+            if(!signPanel.contains(e.target) && e.target !== signToggleBtn){
                 signPanel.style.display = "none";
             }
         });
-        confirmSignBtn.addEventListener('click', function() {
-            let nickname = nicknameInput.value.trim();
-            if (!nickname) {alert('请输入群昵称');return;}
-            let signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            if(signData.some(x=>x.name===nickname)){alert('你今天已经签过到了');return;}
-            let now = new Date();
-            let timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            signData.push({name:nickname,time:timeStr});
-            localStorage.setItem(STORAGE_KEY,JSON.stringify(signData));
+
+        $("confirmSignBtn").addEventListener("click", function(){
+            const nickname = $("nicknameInput").value.trim();
+            if(!nickname){ alert("请输入群昵称"); return; }
+            const signData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            if(signData.some(x => x.name === nickname)){ alert("你今天已经签过到了"); return; }
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+            signData.push({name: nickname, time: timeStr});
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(signData));
             renderSignList();
-            confirmSignBtn.disabled=true;
-            confirmSignBtn.textContent='签到成功';
-            nicknameInput.value='';
+            this.disabled = true;
+            this.textContent = "签到成功";
+            $("nicknameInput").value = "";
         });
-        clearSignBtn.addEventListener('click',()=>{
-            if(!confirm('确定清空今日签到？'))return;
+
+        $("clearSignBtn").addEventListener("click", () => {
+            if(!confirm("确定清空今日签到？")) return;
             localStorage.removeItem(STORAGE_KEY);
             renderSignList();
         });
 
-        // 公告模块
-        noticeToggleBtn.addEventListener('click', e=>{
-            e.preventDefault();
-            noticeModalMask.style.display='flex';
-            loadNotice();
-        });
-        noticeCloseBtn.addEventListener('click',()=>noticeModalMask.style.display='none');
-        noticeModalMask.addEventListener('click',e=>{
-            if(e.target === noticeModalMask){
-                noticeModalMask.style.display='none';
-            }
-        });
-        saveNoticeBtn.addEventListener("click",async ()=>{
-            if(!isAdmin){ alert("无管理员权限"); return; }
-            try{
-                const j = await safeFetchJson(`${API_BASE}/api/edit-notice`,{
-                    method:"POST",
-                    headers:{"Content-Type":"application/json"},
-                    body:JSON.stringify({notice:noticeEditInput.value, adminSecret:ADMIN_PWD})
-                })
-                if(!j.ok) throw new Error(j.msg);
-                alert("✅公告已保存云端");
-                loadNotice();
-            }catch(err){
-                alert("保存失败："+err.message);
-            }
-        });
-        clearNoticeBtn.addEventListener("click",async ()=>{
+        /* ---- 公告保存 / 清空 ---- */
+        $("saveNoticeBtn").addEventListener("click", () => submitNotice($("noticeEditInput").value, "✅公告已保存云端", "保存失败："));
+        $("clearNoticeBtn").addEventListener("click", () => {
             if(!isAdmin){ alert("无管理员权限"); return; }
             if(!confirm("确定清空公告，不可恢复？")) return;
-            try{
-                const j = await safeFetchJson(`${API_BASE}/api/edit-notice`,{
-                    method:"POST",
-                    headers:{"Content-Type":"application/json"},
-                    body:JSON.stringify({notice:"", adminSecret:ADMIN_PWD})
-                })
-                if(!j.ok) throw new Error(j.msg);
-                alert("✅公告已清空");
-                loadNotice();
-            }catch(err){
-                alert("清空失败："+err.message);
-            }
+            submitNotice("", "✅公告已清空", "清空失败：");
         });
 
-        // 投票弹窗
-        pollToggleBtn.addEventListener("click",async e=>{
-            e.preventDefault();
-            pollMask.style.display="flex";
-            await renderPoll();
-        })
-        pollMask.addEventListener("click",e=>{
-            if(e.target===pollMask){
-                pollMask.style.display="none";
-            }
-        });
-
-        // 小游戏弹窗
-        gameToggleBtn.addEventListener("click", e=>{
-            e.preventDefault();
-            gameModalMask.style.display = "flex";
-        });
-        gameModalClose.addEventListener("click", ()=>gameModalMask.style.display="none");
-        gameModalMask.addEventListener("click", e=>{
-            if(e.target === gameModalMask){
-                gameModalMask.style.display = "none";
-            }
-        });
-        // 海龟汤点击占位
-        document.getElementById("turtleSoupCard").addEventListener("click", ()=>{
-            // 同文件夹跳转到 game1.html
-            window.location.href = "./game1.html";
-        });
-
-        // 切换小秘密显示
-        toggleSecretBtn.addEventListener("click", toggleSecretStatus);
-
-        // 复制群号
-        document.getElementById("copyGroupBtn").onclick=async ()=>{
-            await navigator.clipboard.writeText("618984365");
+        /* ---- 小秘密显示切换 / 复制群号 ---- */
+        $("toggleSecretBtn").addEventListener("click", toggleSecretStatus);
+        $("copyGroupBtn").addEventListener("click", async () => {
+            await navigator.clipboard.writeText("1067387860");
             alert("已复制QQ群号");
-        };
+        });
 
-        // 初始化
-        await fetchSecretStatus();
+        /* ---- 初始化 ---- */
+        fetchSecretStatus();
         renderSignList();
-    }
+    };
 </script>
 </body>
 </html>

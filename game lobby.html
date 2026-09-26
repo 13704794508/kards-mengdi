@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏大厅</title>
+<style>
+:root{
+  --ink:#26261e;
+  --paper:#f6efdd;
+  --paper-2:#efe6cf;
+  --olive:#3f4433;
+  --olive-dark:#2c3123;
+  --brass:#c9a227;
+  --brass-bright:#e6c35c;
+  --red:#a63d2f;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+  color:var(--ink);background:#24281d;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+button{font-family:inherit;user-select:none}
+::selection{background:var(--brass);color:#1f2218}
+
+/* ================= 顶部导航栏：高 1/9 ================= */
+.topbar{
+  height:calc(100% / 9);min-height:52px;flex-shrink:0;
+  display:flex;position:relative;z-index:30;
+  background:linear-gradient(180deg,#3c4130,#2c3123);
+  border-bottom:3px solid #191c12;
+  box-shadow:inset 0 -3px 0 rgba(201,162,39,.55),0 4px 18px rgba(0,0,0,.35);
+  color:var(--paper);
+}
+.topbar .cell{display:flex;align-items:center}
+.back-home{
+  width:12.5%;justify-content:center;
+  text-decoration:none;color:var(--paper);
+  font-size:clamp(14px,1.5vw,21px);font-weight:800;letter-spacing:2px;
+  border-right:1px solid rgba(246,239,221,.22);transition:.18s;
+}
+.back-home:hover{background:var(--brass);color:#1f2218}
+
+/* ★ 个人资料：资源区左面 */
+.profile-cell{
+  flex-shrink:0;display:flex;align-items:center;gap:10px;
+  padding:0 clamp(10px,1.4vw,22px);cursor:pointer;transition:.15s;
+  border-right:1px solid rgba(246,239,221,.22);
+}
+.profile-cell:hover{background:rgba(201,162,39,.16)}
+.p-avatar{
+  width:clamp(30px,2.6vw,40px);height:clamp(30px,2.6vw,40px);border-radius:50%;
+  background:var(--olive-dark);border:2px solid var(--brass);
+  display:grid;place-items:center;font-weight:900;color:var(--brass-bright);
+  font-size:clamp(13px,1.2vw,17px);flex-shrink:0;
+}
+.p-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.p-name{font-size:clamp(12px,1.15vw,16px);font-weight:800;color:var(--paper);letter-spacing:1px;white-space:nowrap}
+.p-id-row{display:flex;align-items:center;gap:7px}
+.p-id{font-size:clamp(10px,.85vw,12px);color:var(--brass-bright);font-family:Consolas,monospace;letter-spacing:.5px;white-space:nowrap}
+.p-copy{
+  font-size:clamp(9px,.8vw,11px);font-weight:800;color:#1f2218;background:var(--brass);
+  border-radius:999px;padding:1px 8px;cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.p-copy:hover{background:var(--brass-bright)}
+
+/* 资源区 */
+.resources{
+  flex:1;min-width:0;justify-content:center;gap:clamp(8px,1.6vw,24px);
+  flex-wrap:wrap;padding:0 10px;overflow:hidden;
+}
+.res-item{
+  display:flex;align-items:center;gap:8px;white-space:nowrap;
+  font-size:clamp(12px,1.25vw,18px);font-weight:800;letter-spacing:1px;
+  background:rgba(246,239,221,.07);
+  border:1px solid rgba(246,239,221,.22);
+  border-radius:999px;padding:5px 15px;
+}
+.res-item svg{width:clamp(15px,1.5vw,20px);height:clamp(15px,1.5vw,20px);display:block}
+#coinsNum,#diamondsNum,#wildcardsNum{color:var(--brass-bright);font-variant-numeric:tabular-nums}
+.joker-ico{font-size:clamp(14px,1.4vw,18px);line-height:1}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#26c26a;
+  box-shadow:0 0 6px #26c26a;animation:pulse 2s infinite;flex-shrink:0}
+.sync-dot.off{background:#e05555;box-shadow:0 0 6px #e05555;animation:none}
+@keyframes pulse{50%{opacity:.3}}
+.redeem-cell{width:25%;border-left:1px solid rgba(246,239,221,.22)}
+.redeem-btn{
+  width:100%;height:100%;border:none;background:transparent;cursor:pointer;
+  font-size:clamp(14px,1.5vw,21px);font-weight:800;letter-spacing:4px;
+  color:var(--paper);transition:.18s;
+}
+.redeem-btn:hover{background:var(--brass);color:#1f2218}
+
+/* ================= 主舞台 ================= */
+.stage{
+  flex:1;position:relative;overflow:hidden;
+  background:#3a3e2e;
+}
+.bg-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:block;
+  pointer-events:none;user-select:none;z-index:0;
+  filter:saturate(1.05);
+}
+.stage::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(120% 95% at 50% 38%,transparent 55%,rgba(22,18,8,.40) 100%),
+    linear-gradient(180deg,rgba(22,18,8,.22) 0%,rgba(0,0,0,0) 18%,rgba(0,0,0,0) 80%,rgba(22,18,8,.30) 100%);
+}
+
+/* ★ 二维码：完整显示不裁剪（原图 1044×1323） */
+.qr-corner{
+  position:absolute;top:14px;right:14px;
+  width:clamp(150px,11.5vw,180px);
+  background:#fff;border:1px solid #d6cdb4;padding:6px;
+  z-index:7;box-shadow:0 4px 14px rgba(20,16,6,.28);
+  overflow:hidden;
+}
+.qr-corner img{
+  width:100%;height:auto;max-height:34vh;
+  object-fit:contain;object-position:top center;display:block;
+  position:relative;z-index:1;opacity:0;
+}
+.qr-corner img.ok{opacity:1}
+.qr-fallback{
+  position:absolute;inset:6px;display:grid;place-items:center;
+  color:#bbb;font-size:13px;background:#f6f5f1;
+}
+
+/* 切换游戏按钮：宽 1/16 · 高 3/8 */
+.switch-btn{
+  position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:6.25%;min-width:56px;height:37.5%;
+  background:var(--paper);color:var(--ink);
+  border:2px solid var(--ink);border-left:none;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  font-weight:800;font-size:clamp(12px,1.1vw,16px);line-height:1.6;letter-spacing:2px;
+  transition:.18s;z-index:6;box-shadow:6px 6px 0 rgba(24,20,8,.35);
+}
+.switch-btn .arr{font-size:clamp(14px,1.3vw,19px);font-weight:900;transition:.18s}
+.switch-btn:hover{background:var(--olive);color:var(--paper)}
+.switch-btn:hover .arr{color:var(--brass-bright)}
+.switch-btn:active{transform:translateY(-50%) scale(.96)}
+
+/* 信息面板：宽 4/16 · 高 7/8 */
+.info-panel{
+  position:absolute;left:6.25%;top:50%;transform:translateY(-50%);
+  width:25%;min-width:280px;height:87.5%;
+  background:var(--paper);border:2px solid var(--ink);
+  box-shadow:10px 10px 0 rgba(24,20,8,.35);
+  display:flex;flex-direction:column;z-index:5;overflow:hidden;
+}
+.info-panel::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:7px;z-index:4;pointer-events:none;
+  background:repeating-linear-gradient(-45deg,var(--brass) 0 10px,#8f731b 10px 20px);
+}
+.panel-stamp{
+  position:absolute;top:16px;right:12px;width:74px;height:74px;z-index:4;
+  display:grid;place-items:center;text-align:center;
+  border:2px solid rgba(166,61,47,.85);border-radius:50%;
+  box-shadow:inset 0 0 0 2px rgba(166,61,47,.35);
+  color:rgba(166,61,47,.92);font-weight:900;font-size:12px;
+  letter-spacing:3px;line-height:1.5;
+  transform:rotate(12deg);pointer-events:none;
+  background:rgba(246,239,221,.15);
+}
+.info-panel.slide{animation:slideIn .38s ease}
+@keyframes slideIn{from{opacity:.25;transform:translateY(-50%) translateX(-14px)}to{opacity:1;transform:translateY(-50%)}}
+.panel-img{
+  height:33.34%;position:relative;
+  border-bottom:1px dashed rgba(38,38,30,.35);
+  display:block;text-decoration:none;cursor:pointer;overflow:hidden;background:#e9e0c8;
+}
+.panel-img img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:block;transition:transform .45s ease,opacity .3s ease;
+}
+.panel-img:hover img{transform:scale(1.06)}
+.img-fallback{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-size:clamp(40px,4.5vw,64px);
+  background:linear-gradient(135deg,#e9e0c8,#d8cba8);
+}
+.enter-hint{
+  position:absolute;left:0;right:0;bottom:0;padding:6px 0;text-align:center;
+  font-size:clamp(11px,1vw,13px);font-weight:700;letter-spacing:2px;color:#f3e9c8;
+  background:linear-gradient(transparent,rgba(24,20,8,.78));
+  opacity:0;transition:.25s;pointer-events:none;
+}
+.panel-img:hover .enter-hint{opacity:1}
+.panel-name{
+  height:33.33%;border-bottom:1px dashed rgba(38,38,30,.35);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:4%;
+}
+.game-name{
+  font-size:clamp(22px,2.3vw,34px);font-weight:900;letter-spacing:8px;padding-left:8px;
+  color:var(--ink);
+}
+.dots{display:flex;gap:8px}
+.dots .dot{width:9px;height:9px;border-radius:50%;background:#d8cdae;transition:.2s}
+.dots .dot.on{background:var(--brass);transform:scale(1.2)}
+.match-count{font-size:clamp(11px,1vw,13px);color:#8a7c5c}
+.match-count b{color:#a3831b}
+.panel-desc{height:33.33%;padding:5% 8%;overflow:auto}
+.desc-label{
+  display:inline-block;font-size:clamp(11px,1vw,13px);font-weight:800;letter-spacing:3px;
+  color:var(--paper);background:var(--olive);padding:4px 12px;margin-bottom:10px;
+  box-shadow:3px 3px 0 rgba(24,20,8,.25);
+}
+.panel-desc p{font-size:clamp(12px,1vw,15px);line-height:1.95;color:#4a4535;text-align:justify}
+.panel-desc::-webkit-scrollbar,.modal-body::-webkit-scrollbar{width:8px}
+.panel-desc::-webkit-scrollbar-track,.modal-body::-webkit-scrollbar-track{background:transparent}
+.panel-desc::-webkit-scrollbar-thumb,.modal-body::-webkit-scrollbar-thumb{background:#b9a86f;border-radius:4px}
+.panel-desc::-webkit-scrollbar-thumb:hover,.modal-body::-webkit-scrollbar-thumb:hover{background:#8f731b}
+
+/* 任务按钮：宽 1/16 · 高 2/8 */
+.task-btn{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:6.25%;min-width:64px;height:25%;
+  background:var(--paper);color:var(--ink);
+  border:2px solid var(--ink);border-right:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:clamp(13px,1.2vw,18px);letter-spacing:4px;
+  transition:.18s;z-index:6;box-shadow:-6px 6px 0 rgba(24,20,8,.35);
+}
+.task-btn:hover{background:var(--olive);color:var(--paper)}
+.badge{
+  position:absolute;top:7px;right:9px;min-width:18px;height:18px;padding:0 5px;
+  border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:800;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--paper);box-shadow:0 2px 6px rgba(0,0,0,.35);
+}
+.badge[hidden]{display:none}
+
+/* ================= 弹窗通用 ================= */
+.mask{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(22,19,10,.55);
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  opacity:0;pointer-events:none;transition:.22s;
+}
+.mask.show{opacity:1;pointer-events:auto}
+.modal{
+  background:var(--paper);border:2px solid var(--ink);
+  box-shadow:12px 12px 0 rgba(20,17,8,.4);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;border-bottom:2px solid var(--ink);
+  background:var(--olive-dark);flex-shrink:0;
+}
+.modal-title{font-size:17px;font-weight:900;letter-spacing:3px;color:var(--paper);display:flex;align-items:center;gap:10px}
+.modal-title::before{content:"";width:7px;height:16px;background:var(--brass);flex-shrink:0}
+.close-btn{
+  width:28px;height:28px;border:1.5px solid rgba(246,239,221,.6);background:transparent;cursor:pointer;
+  font-size:13px;font-weight:800;color:var(--paper);transition:.15s;
+}
+.close-btn:hover{background:var(--brass);border-color:var(--brass);color:#1f2218}
+.modal-sub{
+  padding:9px 18px;font-size:12px;color:#8a7c5c;
+  border-bottom:1px dashed #cfc3a4;background:rgba(63,68,51,.05);flex-shrink:0;
+}
+.modal-body{padding:12px 14px;overflow:auto}
+
+.task-modal{
+  position:absolute;right:6.25%;top:50%;transform:translateY(-50%) scale(.97);
+  width:clamp(320px,25vw,440px);max-height:calc(100vh * 5 / 9);transition:.22s;
+}
+.mask.show .task-modal{transform:translateY(-50%) scale(1)}
+
+.redeem-modal{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.97);
+  width:min(420px,90vw);transition:.22s;
+}
+.mask.show .redeem-modal{transform:translate(-50%,-50%) scale(1)}
+.redeem-box{display:flex;gap:10px;padding:16px 18px 4px}
+.redeem-box input{
+  flex:1;min-width:0;padding:11px 13px;background:#fffdf6;
+  border:1.5px solid var(--ink);font-size:14px;outline:none;
+}
+.redeem-box input:focus{box-shadow:0 0 0 3px rgba(201,162,39,.28)}
+.redeem-go{
+  padding:11px 24px;border:1.5px solid var(--ink);background:var(--olive);color:var(--paper);
+  font-size:14px;font-weight:800;cursor:pointer;transition:.15s;letter-spacing:2px;
+  box-shadow:3px 3px 0 rgba(24,20,8,.3);
+}
+.redeem-go:hover{background:var(--brass);color:#1f2218}
+.redeem-tip{padding:12px 18px 16px;font-size:12px;color:#8a7c5c;line-height:1.9}
+
+.pwd-modal{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);
+  width:min(340px,90vw);transition:.22s;
+}
+.mask.show .pwd-modal{transform:translate(-50%,-50%) scale(1)}
+.pwd-box{display:flex;gap:10px;padding:18px}
+.pwd-box input{
+  flex:1;min-width:0;padding:11px 13px;background:#fffdf6;
+  border:1.5px solid var(--ink);font-size:14px;outline:none;letter-spacing:1px;
+}
+.pwd-box input:focus{box-shadow:0 0 0 3px rgba(201,162,39,.28)}
+.pwd-go{
+  padding:11px 20px;border:1.5px solid var(--ink);background:var(--olive);color:var(--paper);
+  font-size:14px;font-weight:800;cursor:pointer;transition:.15s;
+  box-shadow:3px 3px 0 rgba(24,20,8,.3);
+}
+.pwd-go:hover{background:var(--brass);color:#1f2218}
+
+/* ★ 个人资料弹窗 */
+.profile-modal{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);
+  width:min(440px,92vw);transition:.22s;
+}
+.mask.show .profile-modal{transform:translate(-50%,-50%) scale(1)}
+.pf-form{display:grid;grid-template-columns:auto 1fr;gap:12px 14px;align-items:center;padding:16px 18px 6px}
+.pf-form label{font-size:13px;font-weight:800;white-space:nowrap}
+.pf-form input{
+  padding:10px 12px;background:#fffdf6;border:1.5px solid var(--ink);
+  font-size:14px;outline:none;width:100%;box-sizing:border-box;
+}
+.pf-form input:focus{box-shadow:0 0 0 3px rgba(201,162,39,.28)}
+.pf-id-row{display:flex;gap:8px}
+.pf-id-row input{flex:1;min-width:0;font-family:Consolas,monospace;letter-spacing:1px}
+.pf-tip{grid-column:1/-1;font-size:12px;color:#8a7c5c;line-height:1.8;padding:2px 2px 6px}
+.pf-form .add-btn{grid-column:1/-1}
+
+.admin-modal{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);
+  width:min(560px,94vw);max-height:88vh;transition:.22s;
+}
+.mask.show .admin-modal{transform:translate(-50%,-50%) scale(1)}
+.adm-form{display:grid;grid-template-columns:auto 1fr;gap:12px 14px;align-items:center;padding:16px 18px;border-bottom:2px dashed #cfc3a4;background:#fbf6e9}
+.adm-form label{font-size:13px;font-weight:800;white-space:nowrap}
+.adm-inline{display:flex;gap:8px}
+.adm-inline input{
+  flex:1;min-width:0;padding:9px 11px;background:#fffdf6;
+  border:1.5px solid var(--ink);font-size:14px;outline:none;
+  font-family:Consolas,monospace;letter-spacing:1px;
+}
+.adm-inline input:focus{box-shadow:0 0 0 3px rgba(201,162,39,.28)}
+.gen-btn{
+  padding:9px 14px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);
+  font-size:12px;font-weight:800;cursor:pointer;transition:.15s;white-space:nowrap;
+  box-shadow:2px 2px 0 rgba(24,20,8,.25);
+}
+.gen-btn:hover{background:var(--olive);color:var(--paper)}
+.radio-row{display:flex;gap:16px;flex-wrap:wrap;font-size:13px}
+.radio-row label{display:flex;align-items:center;gap:6px;font-weight:600;cursor:pointer}
+.adm-rewards{display:flex;gap:14px;flex-wrap:wrap}
+.adm-rewards .fld{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.adm-rewards input{width:72px;padding:8px 10px;background:#fffdf6;border:1.5px solid var(--ink);font-size:14px;outline:none}
+.adm-rewards input:focus{box-shadow:0 0 0 3px rgba(201,162,39,.28)}
+.add-btn{
+  grid-column:1 / -1;justify-self:end;
+  padding:11px 26px;border:1.5px solid var(--ink);background:var(--olive);color:var(--paper);
+  font-size:14px;font-weight:800;cursor:pointer;transition:.15s;letter-spacing:2px;
+  box-shadow:3px 3px 0 rgba(24,20,8,.3);
+}
+.add-btn:hover{background:var(--brass);color:#1f2218}
+.code-list{padding:10px 14px 16px}
+.code-empty{padding:18px 6px;font-size:13px;color:#a89e83;text-align:center}
+.code-row{
+  display:flex;align-items:center;gap:12px;
+  border:1px solid #d8cdb2;background:#fbf6e9;padding:9px 12px;margin-bottom:8px;transition:.15s;
+}
+.code-row:hover{border-color:var(--ink)}
+.c-code{font-weight:900;font-family:Consolas,monospace;font-size:15px;letter-spacing:1px;white-space:nowrap;color:var(--ink)}
+.c-meta{flex:1;font-size:12px;color:#8a7c5c;line-height:1.6}
+.c-meta b{color:#a3831b}
+.c-ops{display:flex;gap:6px;flex-shrink:0}
+.mini-btn{
+  padding:6px 11px;border:1.5px solid #9a8f6e;background:transparent;color:#6d6448;
+  font-size:12px;font-weight:800;cursor:pointer;transition:.15s;
+}
+.mini-btn:hover{border-color:var(--ink);color:var(--ink)}
+.del-btn{
+  padding:6px 11px;border:1.5px solid var(--red);background:transparent;color:var(--red);
+  font-size:12px;font-weight:800;cursor:pointer;transition:.15s;
+}
+.del-btn:hover{background:var(--red);color:#fff}
+
+.task-row{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 12px;border:1px solid #d8cdb2;background:#fbf6e9;margin-bottom:10px;transition:.15s;
+}
+.task-row:hover{border-color:var(--ink)}
+.task-ico{
+  width:42px;height:42px;flex-shrink:0;display:grid;place-items:center;
+  font-size:20px;background:var(--paper-2);border:1px solid #d8cdb2;
+}
+.task-mid{flex:1;min-width:0}
+.task-name{font-size:14px;font-weight:800}
+.task-prog{font-size:12px;color:#8a7c5c;margin-top:3px}
+.task-prog b{color:#a3831b}
+.claim-btn{
+  flex-shrink:0;padding:8px 16px;border:1.5px solid var(--ink);background:var(--olive);color:var(--paper);
+  font-size:13px;font-weight:800;cursor:pointer;transition:.15s;letter-spacing:1px;
+  box-shadow:3px 3px 0 rgba(24,20,8,.3);
+}
+.claim-btn:hover{background:var(--brass);color:#1f2218}
+.claim-btn.pulse{animation:glow 1.6s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 4px rgba(201,162,39,.30)}}
+.claim-btn.locked{background:#e7dfc9;color:#a89e83;border-color:#d5caa9;box-shadow:none;cursor:default}
+.claim-btn.locked:hover{background:#e7dfc9;color:#a89e83}
+.claim-btn.done{background:transparent;color:#3f8f4f;border-color:#3f8f4f;box-shadow:none;cursor:default}
+.claim-btn.done:hover{background:transparent;color:#3f8f4f}
+
+#toast{
+  position:fixed;left:50%;bottom:5%;z-index:300;transform:translateX(-50%) translateY(14px);
+  padding:11px 22px;background:var(--olive-dark);color:var(--paper);
+  font-size:14px;font-weight:700;letter-spacing:1px;
+  border:1.5px solid var(--brass);box-shadow:0 10px 26px rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;transition:.28s;max-width:86vw;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:900px){
+  .p-info{display:none}
+  .resources{gap:8px}
+  .res-item{padding:4px 10px;font-size:12px}
+  .info-panel{width:min(70%,420px);left:12%}
+  .switch-btn,.task-btn{min-width:52px}
+  .task-modal{right:4%;width:min(86vw,420px)}
+  .adm-form,.pf-form{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f5a623"/>
+    </linearGradient>
+    <linearGradient id="gemGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b8f3ff"/><stop offset="1" stop-color="#2fa8f2"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- ============ 顶部导航栏 ============ -->
+<header class="topbar">
+  <a class="back-home cell" href="index.html">返回首页</a>
+
+  <!-- ★ 个人资料（资源区左面）：点击编辑，⧉ 复制 ID -->
+  <div class="profile-cell" onclick="openProfile()" title="点击编辑资料">
+    <div class="p-avatar" id="pfAvatar">名</div>
+    <div class="p-info">
+      <div class="p-name" id="pfNameText">无名旅人</div>
+      <div class="p-id-row">
+        <span class="p-id" id="pfIdText">ID:--------</span>
+        <span class="p-copy" onclick="event.stopPropagation();copyId()" title="复制 ID">⧉ 复制</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="resources cell">
+    <span class="res-item" title="金币">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" fill="url(#goldGrad)"/>
+        <circle cx="12" cy="12" r="7" fill="none" stroke="rgba(140,90,0,.55)" stroke-width="1.6"/>
+        <text x="12" y="15.6" text-anchor="middle" font-size="9" font-weight="900" fill="#8a5500">G</text>
+      </svg>
+      金币：<span id="coinsNum">0</span>
+    </span>
+    <span class="res-item" title="钻石">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2 L19.5 9 L12 22 L4.5 9 Z" fill="url(#gemGrad)"/>
+        <path d="M4.5 9 H19.5 L12 22 Z" fill="#8fdcff" opacity=".55"/>
+      </svg>
+      钻石：<span id="diamondsNum">0</span>
+    </span>
+    <span class="res-item" title="万能牌">
+      <span class="joker-ico">🃏</span>
+      万能牌：<span id="wildcardsNum">0</span>
+    </span>
+    <span class="sync-dot" id="syncDot" title="云端连接状态"></span>
+  </div>
+
+  <div class="redeem-cell cell">
+    <button class="redeem-btn" onclick="openModal('redeemModal')">兑换码</button>
+  </div>
+</header>
+
+<!-- ============ 主舞台 ============ -->
+<div class="stage">
+
+  <img class="bg-img" src="picture/game lobby background .png" alt=""
+       onerror="bgFallback(this)">
+
+  <div class="qr-corner" onclick="qrClick()">
+    <div class="qr-fallback">二维码</div>
+    <img src="picture/erweima.png" alt="二维码"
+         onload="this.classList.add('ok')" onerror="this.style.display='none'">
+  </div>
+
+  <button class="switch-btn" onclick="swClick()" title="切换游戏">
+    <span class="arr">⇄</span>
+    <span>切换<br>游戏</span>
+  </button>
+
+  <div class="info-panel" id="infoPanel">
+    <div class="panel-stamp">作战<br>指挥部</div>
+    <a class="panel-img" id="gameLink" href="game1.html" onclick="enterGame()" title="点击进入游戏">
+      <div class="img-fallback" id="imgFallback">🐢</div>
+      <img id="gameImg" src="picture/game1.png" alt="海龟汤"
+           onload="this.style.opacity=1" onerror="this.style.opacity=0">
+      <span class="enter-hint">▶ 点击进入 · 计 1 场对局</span>
+    </a>
+    <div class="panel-name">
+      <div class="game-name" id="gameName">海龟汤</div>
+      <div class="dots"><span class="dot on"></span><span class="dot"></span></div>
+      <div class="match-count">今日对局：<b id="matchNum">0</b> 场</div>
+    </div>
+    <div class="panel-desc">
+      <span class="desc-label">主要玩法</span>
+      <p id="gameDesc"></p>
+    </div>
+  </div>
+
+  <button class="task-btn" onclick="openTasks()" title="任务">
+    任务
+    <span class="badge" id="taskBadge" hidden></span>
+  </button>
+</div>
+
+<!-- ============ 任务弹窗 ============ -->
+<div class="mask" id="taskModal" onclick="maskClose(event,'taskModal')">
+  <div class="modal task-modal">
+    <div class="modal-head">
+      <span class="modal-title">任务</span>
+      <button class="close-btn" onclick="closeModal('taskModal')">✕</button>
+    </div>
+    <div class="modal-sub">点击游戏进入即算参与 1 场对局 · 每日 0 点刷新 · 云端同步</div>
+    <div class="modal-body" id="taskList"></div>
+  </div>
+</div>
+
+<!-- ============ 个人资料弹窗 ============ -->
+<div class="mask" id="profileModal" onclick="maskClose(event,'profileModal')">
+  <div class="modal profile-modal">
+    <div class="modal-head">
+      <span class="modal-title">个人资料</span>
+      <button class="close-btn" onclick="closeModal('profileModal')">✕</button>
+    </div>
+    <div class="pf-form">
+      <label>昵称</label>
+      <input id="pfName" maxlength="12" placeholder="1~12 个字符，可以重复">
+      <label>ID</label>
+      <div class="pf-id-row">
+        <input id="pfId" maxlength="16" placeholder="3~16 位：字母/数字/_/-" autocomplete="off">
+        <button class="gen-btn" onclick="copyId()">⧉ 复制</button>
+      </div>
+      <div class="pf-tip">· ID 全局唯一，被占用时无法使用<br>· 昵称仅作展示，可以重复<br>· 修改 ID 后，当前账户数据会一并迁移到新 ID</div>
+      <button class="add-btn" onclick="saveProfile()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 兑换码弹窗 ============ -->
+<div class="mask" id="redeemModal" onclick="maskClose(event,'redeemModal')">
+  <div class="modal redeem-modal">
+    <div class="modal-head">
+      <span class="modal-title">兑换码</span>
+      <button class="close-btn" onclick="closeModal('redeemModal')">✕</button>
+    </div>
+    <div class="redeem-box">
+      <input id="codeInput" type="text" placeholder="请输入兑换码" maxlength="20">
+      <button class="redeem-go" onclick="doRedeem()">兑换</button>
+    </div>
+    <div class="redeem-tip">· 请输入管理员发放的兑换码（云端验证，全设备同步）<br>· 奖励自动同步到你的账户</div>
+  </div>
+</div>
+
+<!-- ============ 密码弹窗 ============ -->
+<div class="mask" id="pwdModal" onclick="maskClose(event,'pwdModal')">
+  <div class="modal pwd-modal">
+    <div class="modal-head">
+      <span class="modal-title">请输入密码</span>
+      <button class="close-btn" onclick="closeModal('pwdModal')">✕</button>
+    </div>
+    <div class="pwd-box">
+      <input id="pwdInput" type="password" placeholder="密码" autocomplete="off">
+      <button class="pwd-go" onclick="checkPwd()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 管理员界面 ============ -->
+<div class="mask" id="adminModal" onclick="maskClose(event,'adminModal')">
+  <div class="modal admin-modal">
+    <div class="modal-head">
+      <span class="modal-title">管理员界面 · 兑换码管理（云端）</span>
+      <button class="close-btn" onclick="closeModal('adminModal')">✕</button>
+    </div>
+
+    <div class="adm-form">
+      <label>兑换码</label>
+      <div class="adm-inline">
+        <input id="admCode" type="text" placeholder="输入号码或点击右侧随机生成" maxlength="16">
+        <button class="gen-btn" onclick="genCode()">🎲 随机生成</button>
+      </div>
+
+      <label>领取限制</label>
+      <div class="radio-row">
+        <label><input type="radio" name="admType" value="once" checked> 仅限 1 人领取一次</label>
+        <label><input type="radio" name="admType" value="everyone"> 所有人各能领取一次</label>
+      </div>
+
+      <label>奖励内容</label>
+      <div class="adm-rewards">
+        <span class="fld">金币 <input id="admCoins" type="number" min="0" step="1" value="0"></span>
+        <span class="fld">钻石 <input id="admDiamonds" type="number" min="0" step="1" value="0"></span>
+        <span class="fld">万能牌 <input id="admWild" type="number" min="0" step="1" value="0"></span>
+      </div>
+
+      <button class="add-btn" onclick="addCode()">＋ 添加兑换码</button>
+    </div>
+
+    <div class="modal-sub" style="border-bottom:1px dashed #cfc3a4">已有兑换码（存于云端 · 所有设备立即生效）</div>
+    <div class="modal-body code-list" id="codeList"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =====================================================
+   ★★ 云端配置 ★★
+   ===================================================== */
+const API_URL = 'https://game.mengdi.de5.net';
+
+/* 背景图兜底 */
+function bgFallback(img){
+  if(!img.dataset.tried){
+    img.dataset.tried='1';
+    img.src='picture/game lobby background.png';
+  }else{
+    img.style.display='none';
+  }
+}
+
+/* =====================================================
+   账号 ID / 设备指纹 / 昵称
+   ===================================================== */
+function userId(){
+  let id=localStorage.getItem('gameUserIdV1');
+  if(!id){id='P'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('gameUserIdV1',id);}
+  return id;
+}
+const DEV_KEY='gameDeviceKeyV1';
+function deviceKey(){
+  let k=localStorage.getItem(DEV_KEY);
+  if(!k){k='d_'+Math.random().toString(36).slice(2,12);localStorage.setItem(DEV_KEY,k);}
+  return k;
+}
+
+/* =====================================================
+   云端通信
+   ===================================================== */
+async function api(path,data,opts={}){
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),8000);
+  try{
+    const res=await fetch(API_URL+path,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data),
+      signal:ctrl.signal,
+      keepalive:!!opts.keepalive,
+    });
+    return await res.json();
+  }finally{clearTimeout(t);}
+}
+
+/* =====================================================
+   账户数据：本地缓存 + 云端为准
+   ===================================================== */
+const ACC_KEY='gameAccountV1';
+const todayStr=()=>new Date().toDateString();
+function defaultAccount(){
+  return {name:'',coins:0,diamonds:0,wildcards:0,usedCodes:[],
+          taskDate:todayStr(),checkinClaimed:false,dailyMatches:0,
+          claimed:{m1:false,m3:false,m5:false}};
+}
+function normalize(a){
+  a=Object.assign(defaultAccount(),a||{});
+  a.claimed=Object.assign({m1:false,m3:false,m5:false},a.claimed||{});
+  if(!a._dev)a._dev=deviceKey();       // 绑定设备指纹（用于认领自己的 ID）
+  const t=todayStr();
+  if(a.taskDate!==t){
+    a.taskDate=t;a.checkinClaimed=false;a.dailyMatches=0;
+    a.claimed={m1:false,m3:false,m5:false};
+  }
+  return a;
+}
+function loadLocal(){
+  try{return normalize(JSON.parse(localStorage.getItem(ACC_KEY)));}
+  catch(e){return defaultAccount();}
+}
+function saveLocal(){localStorage.setItem(ACC_KEY,JSON.stringify(account));}
+
+let account=loadLocal();
+let cloudOK=false;
+let adminPwd='';
+let codesCache=[];
+
+function commit(mut,opts={}){
+  mut(account);
+  account=normalize(account);
+  saveLocal();
+  renderAccount();renderTasks(account);renderProfile();
+  if(API_URL){
+    api('/account/save',{userId:userId(),account},{keepalive:opts.keepalive})
+      .then(()=>{cloudOK=true;updateSync();})
+      .catch(()=>{cloudOK=false;updateSync();if(!opts.silent)toast('云端同步失败，已暂存本机');});
+  }
+}
+window.GameAPI={
+  get:()=>account,
+  addCoins:n=>commit(a=>a.coins=Math.max(0,(a.coins||0)+n)),
+  addDiamonds:n=>commit(a=>a.diamonds=Math.max(0,(a.diamonds||0)+n)),
+  addWildcards:n=>commit(a=>a.wildcards=Math.max(0,(a.wildcards||0)+n)),
+  addMatch:(n=1)=>commit(a=>a.dailyMatches=(a.dailyMatches||0)+n),
+};
+
+async function initAccount(){
+  if(!API_URL){cloudOK=false;updateSync();renderAccount();renderTasks(account);renderProfile();return;}
+  try{
+    const r=await api('/account/get',{userId:userId()});
+    if(r&&r.account){
+      const needDev=!r.account._dev;          // 旧数据补写设备指纹
+      account=normalize(r.account);saveLocal();
+      if(needDev)api('/account/save',{userId:userId(),account}).catch(()=>{});
+    }else if(r){await api('/account/save',{userId:userId(),account});}
+    cloudOK=true;
+  }catch(e){cloudOK=false;}
+  updateSync();renderAccount();renderTasks(account);renderProfile();
+}
+function updateSync(){
+  const d=document.getElementById('syncDot');
+  d.classList.toggle('off',!cloudOK);
+  d.title=cloudOK?'云端已连接，数据全设备同步':'云端未连接（检查 API_URL / 网络）';
+}
+
+/* ---------- 顶栏数字 ---------- */
+const $=id=>document.getElementById(id);
+function renderAccount(){
+  $('coinsNum').textContent=(account.coins||0).toLocaleString();
+  $('diamondsNum').textContent=(account.diamonds||0).toLocaleString();
+  $('wildcardsNum').textContent=(account.wildcards||0).toLocaleString();
+  $('matchNum').textContent=account.dailyMatches||0;
+}
+
+/* =====================================================
+   ★ 个人资料：展示 / 复制 ID / 编辑（昵称可重复，ID 唯一）
+   ===================================================== */
+function renderProfile(){
+  const name=(account&&account.name)?account.name:'无名旅人';
+  $('pfNameText').textContent=name;
+  $('pfAvatar').textContent=name.trim().charAt(0)||'名';
+  $('pfIdText').textContent='ID:'+userId();
+}
+function copyId(){
+  const id=userId();
+  const done=()=>toast('已复制 ID：'+id);
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(id).then(done).catch(()=>fallbackCopy(id,done));
+  }else fallbackCopy(id,done);
+}
+function fallbackCopy(txt,cb){
+  const ta=document.createElement('textarea');
+  ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');cb();}
+  catch(e){toast('复制失败，ID：'+txt);}
+  document.body.removeChild(ta);
+}
+function openProfile(){
+  $('pfName').value=(account&&account.name)?account.name:'';
+  $('pfId').value=userId();
+  openModal('profileModal');
+  setTimeout(()=>$('pfName').focus(),120);
+}
+/* 检查 ID 是否可用：true=可用 false=被占用 null=云端连不上无法验证 */
+async function isIdAvailable(id){
+  if(!API_URL)return null;
+  try{
+    const r=await api('/account/get',{userId:id});
+    if(r&&r.account){
+      // 云上已有该 ID：若设备指纹一致（本机旧数据）视为自己的，可认领
+      if(r.account._dev&&r.account._dev===deviceKey())return true;
+      return false;
+    }
+    return true;
+  }catch(e){return null;}
+}
+async function saveProfile(){
+  const newName=$('pfName').value.trim();
+  const newId=$('pfId').value.trim();
+  if(!newName){toast('昵称不能为空');return;}
+  if(newName.length>12){toast('昵称最多 12 个字符');return;}
+  if(!/^[A-Za-z0-9_-]{3,16}$/.test(newId)){toast('ID 需 3~16 位，仅限字母 / 数字 / _ / -');return;}
+  const oldId=userId();
+  if(newId!==oldId){
+    const avail=await isIdAvailable(newId);
+    if(avail===false){toast('该 ID 已被占用 ❌ 换一个吧');return;}
+    if(avail===null&&!confirm('云端未连接，无法验证 ID 唯一性。\n仍要使用该 ID 吗？'))return;
+    localStorage.setItem('gameUserIdV1',newId);
+  }
+  commit(a=>{a.name=newName;});
+  closeModal('profileModal');
+  toast(newId!==oldId?('资料已保存，ID 更新为：'+newId):'资料已保存 ✅');
+}
+ $('pfId').addEventListener('keydown',e=>{if(e.key==='Enter')saveProfile();});
+ $('pfName').addEventListener('keydown',e=>{if(e.key==='Enter')saveProfile();});
+
+/* ---------- 游戏切换 ---------- */
+const GAMES=[
+  {name:'海龟汤', img:'picture/game1.png', link:'game1.html', emoji:'🐢',
+   desc:'情境推理：主持人给出一段离奇的“汤面”（结果），你通过提出只能回答“是 / 否 / 无关”的问题，层层逼近真相，还原事件背后的“汤底”。考验脑洞与逻辑。'},
+  {name:'列车作战', img:'picture/game2.png', link:'game2.html', emoji:'🚄',
+   desc:'策略对战：在疾驰的列车上布置兵力与火力，抵御沿途敌人的轮番进攻。合理分配资源、强化车厢防御，守住列车，抵达终点！'}
+];
+let cur=0;
+function renderGame(anim=true){
+  const g=GAMES[cur];
+  const panel=$('infoPanel');
+  if(anim){panel.classList.remove('slide');void panel.offsetWidth;panel.classList.add('slide');}
+  $('gameImg').style.opacity=0;
+  $('gameImg').src=g.img;
+  $('gameImg').alt=g.name;
+  $('imgFallback').textContent=g.emoji;
+  $('gameName').textContent=g.name;
+  $('gameDesc').textContent=g.desc;
+  $('gameLink').href=g.link;
+  document.querySelectorAll('.dots .dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+}
+function switchGame(){cur=(cur+1)%GAMES.length;renderGame();}
+
+/* 点击游戏图片 = 参与 1 场对局 */
+function enterGame(){
+  commit(a=>{a.dailyMatches=(a.dailyMatches||0)+1;},{keepalive:true,silent:true});
+}
+
+/* =====================================================
+   隐藏管理员入口（固定顺序）：
+   连点二维码 5 次 → 再连点切换游戏 6 次 → 弹密码框
+   ===================================================== */
+let qrClicks=0, swClicks=0;
+let qrTimer=null, swTimer=null, armedTimer=null;
+let armed=false;
+
+function qrClick(){
+  if(armed)return;
+  qrClicks++;
+  clearTimeout(qrTimer);
+  qrTimer=setTimeout(()=>qrClicks=0,5000);
+  if(qrClicks>=5){
+    qrClicks=0;
+    armed=true;
+    clearTimeout(armedTimer);
+    armedTimer=setTimeout(()=>{armed=false;},20000);
+  }
+}
+function swClick(){
+  switchGame();
+  if(!armed)return;
+  swClicks++;
+  clearTimeout(swTimer);
+  swTimer=setTimeout(()=>swClicks=0,5000);
+  if(swClicks>=6){
+    swClicks=0;armed=false;
+    clearTimeout(armedTimer);
+    $('pwdInput').value='';
+    openModal('pwdModal');
+    setTimeout(()=>$('pwdInput').focus(),120);
+  }
+}
+async function checkPwd(){
+  const pwd=$('pwdInput').value;
+  if(!API_URL){toast('未配置服务器地址（API_URL），无法进入管理员界面');return;}
+  try{
+    const r=await api('/admin/list',{password:pwd});
+    if(r.error==='bad_password'){toast('密码错误 ❌');$('pwdInput').value='';return;}
+    if(r.error){toast('服务器错误：'+r.error);return;}
+    adminPwd=pwd;codesCache=r.codes||[];
+    closeModal('pwdModal');openModal('adminModal');renderAdminList();
+    toast('验证成功，已进入管理员界面 🔧');
+  }catch(e){toast('连接服务器失败');}
+}
+ $('pwdInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
+
+/* =====================================================
+   管理员：兑换码增删查重置（云端）
+   ===================================================== */
+function genCode(){
+  const chars='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let s='';
+  for(let i=0;i<8;i++)s+=chars[Math.floor(Math.random()*chars.length)];
+  $('admCode').value=s;
+}
+async function addCode(){
+  const code=$('admCode').value.trim().toUpperCase();
+  if(!code){toast('请输入或随机生成兑换码');return;}
+  const coins=Math.max(0,parseInt($('admCoins').value)||0);
+  const diamonds=Math.max(0,parseInt($('admDiamonds').value)||0);
+  const wildcards=Math.max(0,parseInt($('admWild').value)||0);
+  if(coins+diamonds+wildcards===0){toast('请至少设置一种奖励（当前全部为 0）');return;}
+  const type=document.querySelector('input[name="admType"]:checked').value;
+  try{
+    const r=await api('/admin/add',{password:adminPwd,code,type,coins,diamonds,wildcards});
+    if(r.error){
+      const m={bad_password:'密码已失效，请重新验证',duplicate:'该兑换码已存在',no_reward:'奖励不能全为 0'}[r.error]||'添加失败';
+      toast(m);return;
+    }
+    codesCache=r.codes;
+    $('admCode').value='';$('admCoins').value=0;$('admDiamonds').value=0;$('admWild').value=0;
+    renderAdminList();
+    toast('兑换码 '+code+' 已生效（云端）✅');
+  }catch(e){toast('连接服务器失败');}
+}
+async function delCode(code){
+  if(!confirm('确定删除兑换码 '+code+'？删除后所有玩家都无法再兑换。'))return;
+  try{
+    const r=await api('/admin/delete',{password:adminPwd,code});
+    if(r.error){toast('操作失败：'+r.error);return;}
+    codesCache=r.codes;renderAdminList();toast('已删除');
+  }catch(e){toast('连接服务器失败');}
+}
+async function resetCode(code){
+  if(!confirm('重置 '+code+' 的领取状态？（所有人可重新领取）'))return;
+  try{
+    const r=await api('/admin/reset',{password:adminPwd,code});
+    if(r.error){toast('操作失败：'+r.error);return;}
+    codesCache=r.codes;renderAdminList();toast('已重置');
+  }catch(e){toast('连接服务器失败');}
+}
+function renderAdminList(){
+  const wrap=$('codeList');
+  if(!codesCache.length){
+    wrap.innerHTML='<div class="code-empty">暂无兑换码，请使用上方表单添加</div>';
+    return;
+  }
+  wrap.innerHTML=codesCache.map(c=>{
+    const typeTxt=c.type==='once'?'仅限 1 人领取一次':'所有人各领一次';
+    const rw=[
+      c.coins?'<b>金币+'+c.coins+'</b>':'',
+      c.diamonds?'<b>钻石+'+c.diamonds+'</b>':'',
+      c.wildcards?'<b>万能牌+'+c.wildcards+'</b>':''
+    ].filter(Boolean).join(' · ')||'无奖励';
+    const status=c.type==='once'
+      ?(c.used?'<span style="color:#a63d2f">已被领取</span>':'未被领取')
+      :'已领 '+((c.claimedBy||[]).length)+' 人';
+    return '<div class="code-row">'+
+      '<span class="c-code">'+c.code+'</span>'+
+      '<span class="c-meta">'+typeTxt+' · '+rw+'<br>状态：'+status+'</span>'+
+      '<span class="c-ops">'+
+        '<button class="mini-btn" onclick="resetCode(\''+c.code+'\')">重置</button>'+
+        '<button class="del-btn" onclick="delCode(\''+c.code+'\')">删除</button>'+
+      '</span></div>';
+  }).join('');
+}
+
+/* ---------- 玩家兑换（云端验证） ---------- */
+async function doRedeem(){
+  const input=$('codeInput');
+  const code=input.value.trim().toUpperCase();
+  if(!code){toast('请先输入兑换码');return;}
+  if(!API_URL){toast('未配置服务器地址（API_URL），无法兑换');return;}
+  try{
+    const r=await api('/redeem',{userId:userId(),code});
+    if(r.error){
+      const m={bad_code:'兑换码无效 ❌',used_once:'该兑换码已被使用',
+               already_claimed:'你已领取过该兑换码',kv_not_bound:'服务器未绑定 KV 存储'}[r.error]||'兑换失败';
+      toast(m);return;
+    }
+    account=normalize(r.account);saveLocal();
+    renderAccount();renderTasks(account);renderProfile();
+    input.value='';closeModal('redeemModal');
+    const p=r.rewards||{},parts=[];
+    if(p.coins)parts.push('金币 +'+p.coins);
+    if(p.diamonds)parts.push('钻石 +'+p.diamonds);
+    if(p.wildcards)parts.push('万能牌 +'+p.wildcards);
+    toast('兑换成功！'+parts.join('，')+' 🎉');
+  }catch(e){toast('连接服务器失败，请检查网络');}
+}
+ $('codeInput').addEventListener('keydown',e=>{if(e.key==='Enter')doRedeem();});
+
+/* ---------- 任务系统 ---------- */
+const TASKS=[
+  {id:'checkin',icon:'📅',name:'每日签到',      type:'checkin',reward:20},
+  {id:'m1',     icon:'🎮',name:'参与 1 场对局', type:'match',  need:1,reward:40},
+  {id:'m3',     icon:'⚔️',name:'参与 3 场对局', type:'match',  need:3,reward:80},
+  {id:'m5',     icon:'🏆',name:'参与 5 场对局', type:'match',  need:5,reward:160},
+];
+function renderTasks(a){
+  const list=$('taskList');
+  list.innerHTML='';
+  let claimable=0;
+  TASKS.forEach(t=>{
+    const row=document.createElement('div');
+    row.className='task-row';
+    let info='',btn='';
+    if(t.type==='checkin'){
+      info=`奖励 <b>+${t.reward}</b> 金币`;
+      if(a.checkinClaimed){btn='<button class="claim-btn done" disabled>已签到 ✓</button>';}
+      else{claimable++;btn=`<button class="claim-btn pulse" onclick="claimTask('checkin')">签到</button>`;}
+    }else{
+      const prog=Math.min(a.dailyMatches||0,t.need);
+      info=`进度 ${prog}/${t.need} · 奖励 <b>+${t.reward}</b> 金币`;
+      if(a.claimed[t.id]){btn='<button class="claim-btn done" disabled>已领取 ✓</button>';}
+      else if(prog>=t.need){claimable++;btn=`<button class="claim-btn pulse" onclick="claimTask('${t.id}')">领取</button>`;}
+      else{btn='<button class="claim-btn locked" disabled>未完成</button>';}
+    }
+    row.innerHTML=`<div class="task-ico">${t.icon}</div>
+                   <div class="task-mid"><div class="task-name">${t.name}</div>
+                   <div class="task-prog">${info}</div></div>${btn}`;
+    list.appendChild(row);
+  });
+  const badge=$('taskBadge');
+  badge.hidden=claimable===0;
+  badge.textContent=claimable;
+}
+function claimTask(id){
+  if(id==='checkin'){
+    if(account.checkinClaimed)return;
+    commit(a=>{a.checkinClaimed=true;a.coins+=20;});
+    toast('签到成功，金币 +20 🪙');
+  }else{
+    if(account.claimed[id])return;
+    const need=+id.slice(1),reward={1:40,3:80,5:160}[need];
+    if((account.dailyMatches||0)<need){toast('对局次数还不够，先去打一局吧！');return;}
+    commit(a=>{a.claimed[id]=true;a.coins+=reward;});
+    toast(`领取成功，金币 +${reward} 🪙`);
+  }
+}
+function openTasks(){renderTasks(account);openModal('taskModal');}
+
+/* ---------- 弹窗 & Toast ---------- */
+function openModal(id){$(id).classList.add('show');}
+function closeModal(id){$(id).classList.remove('show');}
+function maskClose(e,id){if(e.target.classList.contains('mask'))closeModal(id);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal('taskModal');closeModal('redeemModal');closeModal('pwdModal');closeModal('adminModal');closeModal('profileModal');}
+});
+let toastTimer;
+function toast(msg){
+  const t=$('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+window.addEventListener('storage',e=>{
+  if(e.key===ACC_KEY){account=loadLocal();renderAccount();renderTasks(account);renderProfile();}
+});
+window.addEventListener('pageshow',e=>{if(e.persisted)initAccount();});
+
+/* ---------- 初始化 ---------- */
+renderAccount();
+renderTasks(account);
+renderGame(false);
+renderProfile();
+initAccount();
+</script>
+</body>
+</html>
