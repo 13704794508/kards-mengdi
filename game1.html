@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>海龟汤 - 卡牌猜猜猜</title>
     <style>
-        /* ==========================================================
-           配色：取自《装甲列车》的米色羊皮纸风
-           深色外框 + 米色舞台 + 棕色描边 + 金色点缀 + 蓝色功能键
-           ========================================================== */
+        /* ========================================================== */
         :root {
             /* 背景（对应装甲列车：#101014 / #f3ecd9 / #f7f1e1 / #fffdf2） */
             --bg-page:  #101014;
@@ -16,31 +13,25 @@
             --bg-panel: #f7f1e1;
             --bg-card:  #fffdf2;
             --bg-btn:   #efe6cf;
-
             /* 文字四级（对应 #3a3226 / #4a4030 / #7a6f56 / #8a8069） */
             --text-1: #3a3226;
             --text-2: #4a4030;
             --text-3: #7a6f56;
             --text-4: #8a8069;
-
             /* 边框（对应 #b9ad8e / #6b5b45） */
             --border:        #b9ad8e;
             --border-strong: #6b5b45;
-
             /* 金色主色（对应选中高亮 #d3a013 / #a67c00） */
-            --gold:      #d3a013;
+            --gold:     #d3a013;
             --gold-deep: #a67c00;
             --gold-soft: rgba(211, 160, 19, .25);
-
             /* 功能色（对应蓝色功能键 / 绿色可出牌 / 红色系） */
             --blue: #2f6fd3;  --blue-deep: #245bb3;  --blue-border: #1d4f9e;
             --green: #3fa34d; --green-deep: #2a6e35; --green-bg: #e4f1e4;
             --red: #c0392b;   --red-deep: #7a2c20;   --red-border: #8c3b2e; --red-bg: #f3d9cf;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         ::selection { background: var(--gold-soft); }
-
         body {
             font-family: "Microsoft YaHei", sans-serif;
             background: var(--bg-page);
@@ -51,7 +42,6 @@
             align-items: flex-start;
             padding: 30px 16px 48px;
         }
-
         /* ===== 米色舞台（对应装甲列车的 #stage） ===== */
         .stage {
             position: relative;
@@ -63,7 +53,6 @@
             box-shadow: 0 0 40px #000;
             padding: 30px 30px 34px;
         }
-
         /* ===== 按钮系统（对应 .gbtn） ===== */
         .gbtn {
             display: inline-block;
@@ -84,7 +73,6 @@
         .gbtn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--border-strong); }
         .gbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
         .gbtn:disabled { opacity: .45; cursor: default; transform: none; }
-
         /* 金色主按钮：开始 / 再来一局 */
         .gbtn.primary {
             background: linear-gradient(180deg, #e9b92e, var(--gold));
@@ -99,14 +87,12 @@
             box-shadow: 0 3px 0 var(--blue-border);
         }
         .gbtn.action:hover:not(:disabled) { background: var(--blue-deep); }
-
         .corner { position: absolute; left: 16px; top: 14px; z-index: 10; }
         .btn-start   { font-size: 20px; padding: 13px 56px; letter-spacing: 4px; text-indent: 4px; }
         .btn-submit  { padding: 11px 26px; }
         .btn-restart { display: none; width: 100%; font-size: 17px; }
         .btn-restart.show { display: block; }
         .modal-btn   { width: 100%; }
-
         /* ===== 标题（对应装甲列车初始界面大标题风格） ===== */
         .title-block { text-align: center; margin-bottom: 26px; }
         h1 {
@@ -123,7 +109,6 @@
             text-indent: 5px;
             color: var(--text-4);
         }
-
         /* ===== 进度条 ===== */
         .progress-wrapper { margin-bottom: 22px; }
         .progress-label {
@@ -149,7 +134,6 @@
         }
         /* 机会吃紧时进度条变红 */
         .progress-fill.danger { background: linear-gradient(90deg, #e0654f, var(--red)); }
-
         /* ===== 提示区（对应格子卡片风格） ===== */
         .hint-area { margin-bottom: 20px; min-height: 130px; }
         .hint-title { font-size: 14px; font-weight: bold; color: var(--text-3); margin-bottom: 10px; }
@@ -190,12 +174,10 @@
             border: 1.5px solid var(--gold-deep);
             border-radius: 5px;
         }
-
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(6px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-
         /* ===== 消息：三种状态三种配色（均取自装甲列车） ===== */
         .message {
             display: none;
@@ -228,7 +210,6 @@
             border: 2px solid #8c3b2e;
             color: #e05545;
         }
-
         /* ===== 输入区 ===== */
         .input-area { display: flex; gap: 10px; margin-bottom: 16px; }
         #guessInput {
@@ -250,7 +231,6 @@
             box-shadow: 0 0 0 3px var(--gold-soft);
         }
         #guessInput:disabled { opacity: .55; }
-
         /* ===== 开始界面 ===== */
         .start-screen { text-align: center; padding: 34px 0 30px; }
         .start-icon { font-size: 52px; margin-bottom: 14px; }
@@ -260,10 +240,8 @@
             font-size: 15px;
             line-height: 1.9;
         }
-
         .game-screen { display: none; }
         .game-screen.active { display: block; animation: slideIn .3s ease; }
-
         /* ===== 规则弹窗（对应 .ov + .panel） ===== */
         .modal-overlay {
             position: fixed;
@@ -279,7 +257,6 @@
             transition: opacity .25s, visibility .25s;
         }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-
         .modal {
             background: var(--bg-panel);
             border: 3px solid var(--border-strong);
@@ -292,7 +269,6 @@
             transition: transform .25s;
         }
         .modal-overlay.active .modal { transform: none; }
-
         .modal h2 {
             text-align: center;
             color: var(--text-2);
@@ -310,7 +286,6 @@
             color: var(--text-2);
         }
         .modal li:last-child { border-bottom: none; }
-
         /* ===== 响应式 ===== */
         @media (max-width: 480px) {
             body { padding: 14px 10px 28px; }
@@ -324,19 +299,16 @@
 <body>
 <div class="stage">
     <a href="game lobby.html" class="gbtn corner">返 回</a>
-
     <div class="title-block">
         <h1>海龟汤</h1>
         <div class="subtitle">—— 卡牌猜猜猜 ——</div>
     </div>
-
     <!-- 开始界面 -->
     <div class="start-screen" id="startScreen">
         <div class="start-icon">🃏</div>
         <p>系统随机抽取一张神秘卡牌<br>10 次机会内，根据提示猜出它的名字</p>
         <button class="gbtn primary btn-start" id="startBtn">开始游戏</button>
     </div>
-
     <!-- 游戏界面 -->
     <div class="game-screen" id="gameScreen">
         <div class="progress-wrapper">
@@ -348,23 +320,18 @@
                 <div class="progress-fill" id="progressFill"></div>
             </div>
         </div>
-
         <div class="hint-area">
             <div class="hint-title" id="hintTitle">已获得的提示：</div>
             <ul class="hint-list" id="hintList"></ul>
         </div>
-
         <div class="message" id="message"></div>
-
         <div class="input-area">
             <input type="text" id="guessInput" placeholder="输入你猜测的卡牌名称..." autocomplete="off">
             <button class="gbtn action btn-submit" id="submitBtn">提 交</button>
         </div>
-
         <button class="gbtn primary btn-restart" id="restartBtn">再来一局</button>
     </div>
 </div>
-
 <!-- 规则弹窗 -->
 <div class="modal-overlay" id="rulesModal">
     <div class="modal" role="dialog" aria-modal="true">
@@ -381,13 +348,51 @@
     </div>
 </div>
 
+<!-- ========== 账户桥接脚本（放在游戏逻辑前面，先初始化GameAPI） ========== -->
+<script>
+/* ★ 海龟汤账户桥接（与大厅/列车作战共用） */
+const G1_API='https://game.mengdi.de5.net';
+const g1Today=()=>new Date().toDateString();
+function g1Uid(){let id=localStorage.getItem('gameUserIdV1');
+if(!id){id='P'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('gameUserIdV1',id);}return id;}
+function g1Dev(){let k=localStorage.getItem('gameDeviceKeyV1');
+if(!k){k='d_'+Math.random().toString(36).slice(2,12);localStorage.setItem('gameDeviceKeyV1',k);}return k;}
+function g1Def(){return{name:'',coins:0,diamonds:0,wildcards:0,usedCodes:[],taskDate:g1Today(),
+checkinClaimed:false,dailyMatches:0,dailyWins:0,claimed:{m1:false,m3:false,m5:false,w1:false,w3:false}};}
+function g1Norm(a){a=Object.assign(g1Def(),a||{});
+a.claimed=Object.assign({m1:false,m3:false,m5:false,w1:false,w3:false},a.claimed||{});
+if(!a._dev)a._dev=g1Dev();
+const t=g1Today();
+if(a.taskDate!==t){a.taskDate=t;a.checkinClaimed=false;a.dailyMatches=0;a.dailyWins=0;
+a.claimed={m1:false,m3:false,m5:false,w1:false,w3:false};}
+return a;}
+let g1Acc=(()=>{try{return g1Norm(JSON.parse(localStorage.getItem('gameAccountV1')));}catch(e){return g1Norm(null);}})();
+function g1Save(){localStorage.setItem('gameAccountV1',JSON.stringify(g1Acc));}
+async function g1Api(p,d){try{
+const c=new AbortController();const t=setTimeout(()=>c.abort(),8000);
+const r=await fetch(G1_API+p,{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify(d),signal:c.signal,keepalive:true});
+clearTimeout(t);return await r.json();}catch(e){return null;}}
+function g1Commit(m){m(g1Acc);g1Acc=g1Norm(g1Acc);g1Save();
+if(G1_API)g1Api('/account/save',{userId:g1Uid(),account:g1Acc});}
+(async function(){if(!G1_API)return;
+const r=await g1Api('/account/get',{userId:g1Uid()});
+if(r&&r.account){g1Acc=g1Norm(r.account);g1Save();g1Api('/account/save',{userId:g1Uid(),account:g1Acc});}
+else if(r){g1Api('/account/save',{userId:g1Uid(),account:g1Acc});}})();
+window.GameAPI={get:()=>g1Acc,
+addCoins:n=>g1Commit(a=>a.coins=Math.max(0,(a.coins||0)+n)),
+addDiamonds:n=>g1Commit(a=>a.diamonds=Math.max(0,(a.diamonds||0)+n)),
+addWildcards:n=>g1Commit(a=>a.wildcards=Math.max(0,(a.wildcards||0)+n)),
+addMatch:(n=1)=>g1Commit(a=>a.dailyMatches=(a.dailyMatches||0)+n),
+addWin:(n=1)=>g1Commit(a=>a.dailyWins=(a.dailyWins||0)+n)};
+</script>
+
+<!-- ========== 海龟汤游戏逻辑脚本 ========== -->
 <script>
 (() => {
     'use strict';
-
     /* ================= 配置常量 ================= */
     const MAX_CHANCES = 10;
-
     const DIMENSIONS = [
         { key: 'country',    label: '国家' },
         { key: 'quality',    label: '品质' },
@@ -397,7 +402,6 @@
         { key: 'nameLength', label: '名称字数' },
         { key: 'effect',     label: '功能/作用' }
     ];
-
     /* ================= 卡牌数据（nameLength 自动计算） ================= */
     const CARDS = [
         { name: "曼彻斯特", country: "英国", quality: "金", type: "轰炸机", cost: 7, pool: "活跃", effect: "站解一体" },
@@ -441,7 +445,6 @@
         { name: "M4谢尔曼", country: "美国", quality: "铁", type: "坦克", cost: 4, pool: "活跃", effect: "过牌，站场" },
         { name: "供应链", country: "美国", quality: "铁", type: "指令", cost: 2, pool: "预备", effect: "过牌" }
     ].map(card => ({ ...card, nameLength: card.name.replace(/\s/g, "").length }));
-
     /* ================= DOM 引用缓存 ================= */
     const $ = (id) => document.getElementById(id);
     const dom = {
@@ -457,7 +460,6 @@
         chanceText:   $('chanceText'),
         rulesModal:   $('rulesModal')
     };
-
     /* ================= 游戏状态 ================= */
     const state = {
         targetCard: null,
@@ -465,7 +467,6 @@
         remaining: MAX_CHANCES,
         ended: false
     };
-
     /* ================= 工具函数 ================= */
     const shuffle = (arr) => {
         const a = [...arr];
@@ -477,22 +478,18 @@
     };
     // 忽略空格 + 大小写（支持输 hs129 猜中 Hs 129）
     const normalize = (str) => str.replace(/\s+/g, "").toLowerCase();
-
     /* ================= 游戏流程 ================= */
     function showRules() {
         dom.rulesModal.classList.add('active');
     }
-
     function startGame() {
         dom.rulesModal.classList.remove('active');
         dom.startScreen.style.display = 'none';
         dom.gameScreen.classList.add('active');
-
         state.targetCard = CARDS[Math.floor(Math.random() * CARDS.length)];
         state.hintQueue = shuffle(DIMENSIONS.map((_, i) => i));
         state.remaining = MAX_CHANCES;
         state.ended = false;
-
         dom.hintList.innerHTML = '';
         dom.message.className = 'message';
         dom.message.textContent = '';
@@ -500,25 +497,20 @@
         dom.guessInput.disabled = false;
         dom.submitBtn.disabled = false;
         dom.restartBtn.classList.remove('show');
-
         giveHint();
         updateProgress();
         dom.guessInput.focus();
     }
-
     function giveHint() {
         if (!state.hintQueue.length) return;
-
         const dim = DIMENSIONS[state.hintQueue.pop()];
         const li = document.createElement('li');
         li.className = 'hint-item';
         li.textContent = `【${dim.label}】${state.targetCard[dim.key]}`;
         dom.hintList.appendChild(li);
-
         const given = DIMENSIONS.length - state.hintQueue.length;
         dom.hintTitle.innerHTML = `已获得的提示 <b>（${given}/${DIMENSIONS.length}）</b>：`;
     }
-
     function updateProgress() {
         const used = MAX_CHANCES - state.remaining;
         const pct = (used / MAX_CHANCES) * 100;
@@ -526,23 +518,22 @@
         dom.progressFill.classList.toggle('danger', pct >= 60);
         dom.chanceText.textContent = `剩余 ${state.remaining} / ${MAX_CHANCES}`;
     }
-
     function submitGuess() {
         if (state.ended) return;
-
         const input = dom.guessInput.value.trim();
         if (!input) {
             showMessage('请输入卡牌名称', 'error');
             return;
         }
-
         if (normalize(input) === normalize(state.targetCard.name)) {
+            try{GameAPI.addWin()}catch(e){}   /* ★ 猜对 = 赢得 1 场对局 */
+            try{GameAPI.addMatch()}catch(e){}/* ★ 同时计入对局总数 */
             endGame(`🎉 恭喜猜对了！答案就是「${state.targetCard.name}」`, 'success');
         } else {
             state.remaining--;
             updateProgress();
-
             if (state.remaining <= 0) {
+                try{GameAPI.addMatch()}catch(e){}/* 猜错耗尽机会，也算1局对局 */
                 endGame(`💀 机会用完了！正确答案是「${state.targetCard.name}」`, 'gameover');
             } else {
                 const hasNewHint = state.hintQueue.length > 0;
@@ -555,11 +546,9 @@
                 );
             }
         }
-
         dom.guessInput.value = '';
         if (!state.ended) dom.guessInput.focus();
     }
-
     function endGame(text, type) {
         state.ended = true;
         showMessage(text, type);
@@ -567,22 +556,18 @@
         dom.submitBtn.disabled = true;
         dom.restartBtn.classList.add('show');
     }
-
     function showMessage(text, type) {
         dom.message.textContent = text;
         dom.message.className = `message ${type}`;
     }
-
     /* ================= 事件绑定 ================= */
     $('startBtn').addEventListener('click', showRules);
     $('rulesConfirmBtn').addEventListener('click', startGame);
     dom.submitBtn.addEventListener('click', submitGuess);
     dom.restartBtn.addEventListener('click', startGame);
-
     dom.guessInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') submitGuess();
     });
-
     // 点击遮罩空白处关闭规则弹窗
     dom.rulesModal.addEventListener('click', (e) => {
         if (e.target === dom.rulesModal) dom.rulesModal.classList.remove('active');

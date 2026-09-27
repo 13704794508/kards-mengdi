@@ -27,6 +27,18 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 #btn-start{position:absolute;left:100px;top:480px;font-size:32px;padding:16px 60px}
 #init-tip{position:absolute;left:104px;top:600px;font-size:17px;color:#7d7660}
 
+/* ★ 账户徽章（初始界面右上角） */
+#acc-chip{position:absolute;right:16px;top:14px;z-index:10;display:flex;align-items:center;gap:10px;
+background:rgba(23,26,33,.55);border:2px solid #6b5b45;border-radius:999px;padding:6px 16px 6px 8px;cursor:pointer;color:#e8e0c8;transition:.15s}
+#acc-chip:hover{border-color:#d3a013;background:rgba(23,26,33,.78)}
+#acc-ava{width:36px;height:36px;border-radius:50%;background:#171a21;border:2px solid #d3a013;
+display:grid;place-items:center;font-weight:bold;font-size:17px;color:#ffd76a;flex-shrink:0}
+#acc-txt{display:flex;flex-direction:column;line-height:1.3;text-align:left}
+#acc-name{font-size:17px;font-weight:bold}
+#acc-id{font-size:12px;color:#b9ae8d;font-family:Consolas,monospace}
+#acc-copy{font-size:12px;background:#d3a013;color:#221a05;border-radius:999px;padding:3px 10px;font-weight:bold;flex-shrink:0}
+#acc-copy:hover{background:#ffd76a}
+
 /* 预备 */
 #scr-prep{background:radial-gradient(1200px 700px at 50% 30%,#fbf6e7,#e8dfc6)}
 #prep-title{position:absolute;width:100%;top:60px;text-align:center;font-size:42px;font-weight:bold;color:#4a4030;letter-spacing:8px}
@@ -100,6 +112,9 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 #trainsel .picw{width:112px;height:158px;border:4px solid #b9ad8e;border-radius:6px;cursor:pointer;background:#fff}
 #trainsel .picw.on{border-color:#d3a013}
 .mrow2{display:flex;gap:20px;justify-content:center;margin-top:16px}
+/* ★ 账户弹窗输入框 */
+.mrow input[type=text]{flex:1;font-size:20px;padding:8px 10px;border:2px solid #6b5b45;border-radius:6px;background:#fffdf2;color:#3a3226;outline:none;user-select:text;-webkit-user-select:text}
+.mrow input[type=text]:focus{border-color:#d3a013}
 /* 菜单加大 */
 #menu-ov .panel{min-width:680px;padding:36px 48px}
 #menu-ov .ptitle{font-size:40px;margin-bottom:24px}
@@ -133,12 +148,21 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 
   <!-- 初始界面 -->
   <div class="screen active" id="scr-init" style="display:block">
-    <button class="gbtn corner" onclick="location.href='index.html'">返 回</button>
+    <button class="gbtn corner" onclick="location.href='game lobby.html'">返 回</button>
     <div id="init-title">装甲列车</div>
     <div id="init-sub">—— 卡牌对战 · 第二部 ——</div>
     <div id="init-train" class="picw"><img draggable="false"><div class="fb">达努塔装甲列车</div></div>
     <button class="gbtn" id="btn-start">开始游戏</button>
     <div id="init-tip">目标：在 12 回合内将敌方总部血量打到 0（初始 30，上限 99）</div>
+    <!-- ★ 账户徽章 -->
+    <div id="acc-chip" title="点击编辑账户 / 输入 ID 登录同步">
+      <div id="acc-ava">名</div>
+      <div id="acc-txt">
+        <div id="acc-name">无名旅人</div>
+        <div id="acc-id">ID:--------</div>
+      </div>
+      <div id="acc-copy">复制ID</div>
+    </div>
   </div>
 
   <!-- 预备界面 -->
@@ -178,7 +202,7 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
   <!-- 菜单 -->
   <div class="ov" id="menu-ov"><div class="panel">
     <div class="ptitle">菜 单</div>
-    <div class="mrow"><span>音　量</span><input id="vol" type="range" min="0" max="100" value="70"><span id="volv">70</span></div>
+    <div class="mrow"><span>音　量</span><input id="vol" type="range" min="0" max="100" value="25"><span id="volv">25</span></div>
     <div class="mrow"><span>更换列车</span><div id="trainsel"></div></div>
     <button class="gbtn" id="m-resume" style="width:100%">继 续</button>
     <div class="mrow2"><button class="gbtn" id="m-restart">重新开始</button><button class="gbtn" id="m-exit">退　出</button></div>
@@ -186,6 +210,23 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
 
   <!-- 教程 -->
   <div class="ov" id="tut-ov"><div class="panel" id="tut"></div></div>
+
+  <!-- ★ 账户弹窗 -->
+  <div class="ov" id="acc-ov"><div class="panel">
+    <div class="ptitle">账 户</div>
+    <div class="mrow"><span>昵　称</span><input id="acc-name-in" type="text" maxlength="12" placeholder="1~12 字，可重复"></div>
+    <div class="mrow"><span>　ID　</span><input id="acc-id-in" type="text" maxlength="16" placeholder="3~16 位：字母/数字/_/-"></div>
+    <div style="font-size:15px;color:#7a6f56;line-height:1.8;margin:4px 0 8px">
+    · ID 全局唯一：输入一个已存在的 ID ＝ 登录并同步该账户<br>
+    · 在其他设备输入相同 ID，金币与资料自动同步<br>
+    · 昵称仅作展示，可以重复
+    </div>
+    <div class="mrow2">
+      <button class="gbtn" id="acc-copy2">复制 ID</button>
+      <button class="gbtn red" id="acc-save">保 存</button>
+      <button class="gbtn" id="acc-close">关 闭</button>
+    </div>
+  </div></div>
 
   <!-- 询问 -->
   <div class="ov" id="confirm"><div class="panel">
@@ -196,7 +237,7 @@ html,body{width:100%;height:100%;background:#101014;overflow:hidden;font-family:
   <!-- 失败动画 -->
   <div id="video-ov"><video id="fvid" playsinline></video></div>
 
-  <div id="ver">版本：v3.0.0</div>
+  <div id="ver">版本：v3.1.0</div>
   <div class="author">作者：生而峥嵘</div>
 </div>
 
@@ -224,6 +265,95 @@ let SKIP=false,lastTap=0;
 document.getElementById('stage').addEventListener('pointerdown',()=>{
 const n=Date.now();if(n-lastTap<350)SKIP=true;lastTap=n;});
 const wait=ms=>SKIP?Promise.resolve():sleep(ms);
+
+/* =====================================================
+   ★ 账户同步（与大厅共用同一套数据 & Worker）
+   ===================================================== */
+const API_URL='https://game.mengdi.de5.net';
+const ACC_KEY='gameAccountV1';
+const DEV_KEY='gameDeviceKeyV1';
+const REWARD={win:50,lose:10};   // ★ 胜/负金币奖励，想改就改这里
+function userId(){let id=localStorage.getItem('gameUserIdV1');
+if(!id){id='P'+Math.random().toString(36).slice(2,8).toUpperCase();localStorage.setItem('gameUserIdV1',id);}return id;}
+function deviceKey(){let k=localStorage.getItem(DEV_KEY);
+if(!k){k='d_'+Math.random().toString(36).slice(2,12);localStorage.setItem(DEV_KEY,k);}return k;}
+const gToday=()=>new Date().toDateString();
+function defaultAccount(){return{name:'',coins:0,diamonds:0,wildcards:0,usedCodes:[],
+taskDate:gToday(),checkinClaimed:false,dailyMatches:0,claimed:{m1:false,m3:false,m5:false}};}
+function accNorm(a){a=Object.assign(defaultAccount(),a||{});
+a.claimed=Object.assign({m1:false,m3:false,m5:false},a.claimed||{});
+if(!a._dev)a._dev=deviceKey();
+const t=gToday();
+if(a.taskDate!==t){a.taskDate=t;a.checkinClaimed=false;a.dailyMatches=0;
+a.claimed={m1:false,m3:false,m5:false};}
+return a;}
+let account=(()=>{try{return accNorm(JSON.parse(localStorage.getItem(ACC_KEY)));}catch(e){return accNorm(null);}})();
+function saveLocal(){localStorage.setItem(ACC_KEY,JSON.stringify(account));}
+async function gApi(path,data){try{
+const c=new AbortController();const t=setTimeout(()=>c.abort(),8000);
+const r=await fetch(API_URL+path,{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify(data),signal:c.signal});
+clearTimeout(t);return await r.json();}catch(e){return null;}}
+function commitAcc(mut){mut(account);account=accNorm(account);saveLocal();renderAccChip();
+if(API_URL)gApi('/account/save',{userId:userId(),account});}
+async function initAcc(){
+if(!API_URL){renderAccChip();return;}
+const r=await gApi('/account/get',{userId:userId()});
+if(r&&r.account){account=accNorm(r.account);
+  if(!r.account._dev)account._dev=deviceKey();
+  saveLocal();gApi('/account/save',{userId:userId(),account});}
+else if(r){gApi('/account/save',{userId:userId(),account});}
+renderAccChip();}
+function renderAccChip(){
+const n=(account&&account.name)?account.name:'无名旅人';
+ $('#acc-ava').textContent=n.trim().charAt(0)||'名';
+ $('#acc-name').textContent=n;
+ $('#acc-id').textContent='ID:'+userId();}
+function openAcc(){$('#acc-name-in').value=(account&&account.name)?account.name:'';
+ $('#acc-id-in').value=userId();$('#acc-ov').classList.add('on');}
+function fbCopyG(txt,cb){const ta=document.createElement('textarea');ta.value=txt;
+ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();
+try{document.execCommand('copy');cb();}catch(e){toast('复制失败');}ta.remove();}
+function copyIdG(){const id=userId();const done=()=>toast('已复制 ID：'+id);
+if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(id).then(done).catch(()=>fbCopyG(id,done));
+else fbCopyG(id,done);}
+/* 保存资料 / 输入已有 ID = 登录同步（与大厅同规则） */
+async function saveAcc(){
+const newName=$('#acc-name-in').value.trim();
+const newId=$('#acc-id-in').value.trim();
+if(!newName){toast('昵称不能为空');return;}
+if(!/^[A-Za-z0-9_-]{3,16}$/.test(newId)){toast('ID 需 3~16 位：字母/数字/_/-');return;}
+const oldId=userId();let login=false;
+if(newId!==oldId){
+  let remote=null,netErr=false;
+  if(API_URL){const r=await gApi('/account/get',{userId:newId});
+    if(r&&r.account)remote=r.account;else if(r===null)netErr=true;}
+  if(remote){
+    const mine=remote._dev&&remote._dev===deviceKey();
+    if(!mine&&!confirm('ID「'+newId+'」已有云端账户。\n确定登录并同步该账户吗？\n（将载入它的金币与资料）'))return;
+    login=true;
+    localStorage.setItem('gameUserIdV1',newId);
+    account=accNorm(remote);account._dev=deviceKey();saveLocal();
+    gApi('/account/save',{userId:newId,account});
+  }else{
+    if(netErr&&!confirm('云端未连接，无法验证 ID 唯一性。\n仍要使用该 ID 吗？'))return;
+    localStorage.setItem('gameUserIdV1',newId);
+  }
+}
+commitAcc(a=>{a.name=newName;});
+ $('#acc-ov').classList.remove('on');
+toast(login?('已登录账户：'+newId+'，数据已同步'):'资料已保存 ✅');}
+/* 对局结算奖励 */
+function awardBattle(win){
+const got=win?REWARD.win:REWARD.lose;
+commitAcc(a=>{a.coins+=got;});
+return got;}
+ $('#acc-chip').onclick=openAcc;
+ $('#acc-copy').onclick=e=>{e.stopPropagation();copyIdG();};
+ $('#acc-copy2').onclick=copyIdG;
+ $('#acc-save').onclick=saveAcc;
+ $('#acc-close').onclick=()=>$('#acc-ov').classList.remove('on');
+ $('#acc-ov').onclick=e=>{if(e.target.id==='acc-ov')$('#acc-ov').classList.remove('on');};
 
 /* ============ 数据 ============ */
 const HAND={
@@ -473,16 +603,17 @@ setTimeout(()=>showSettle(false,'卡组已被抽空'),700);}
 async function doFailVideo(){if(S.ended)return;S.ended=true;music.pause();setHint('');
 await sleep(500);await playFailVideo();showSettle(false,'回合数达到 12');}
 function showSettle(win,reason){Q.length=0;
+const got=awardBattle(win);
 const t=$('#settle-title');t.textContent=win?'胜 利':'失 败';t.className=win?'win':'lose';
  $('#settle-reason').textContent=reason;
- $('#settle-stats').innerHTML=`历经回合：${Math.min(S.turn,12)} ｜ 造成总伤害：${S.totalDmg}<br>使用卡牌：${S.used} 张 ｜ 弃掉敌方场上卡：${S.removed} 张 ｜ 剩余卡组：${S.deck.length}`;
+ $('#settle-stats').innerHTML=`历经回合：${Math.min(S.turn,12)} ｜ 造成总伤害：${S.totalDmg}<br>使用卡牌：${S.used} 张 ｜ 弃掉敌方场上卡：${S.removed} 张 ｜ 剩余卡组：${S.deck.length}<br><span style="color:#ffd76a">⚔ 对局奖励：金币 +${got}（已存入账户 · 云端同步）</span>`;
 showScreen('settle');}
 
 /* ============ 界面 ============ */
 function showScreen(n){S.screen=n;
 document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
 const el=$('#scr-'+n);el.classList.add('active');el.style.display='block';
-if(n!=='battle'){['#reveal','#menu-ov','#tut-ov','#confirm','#video-ov'].forEach(s=>$(s).classList.remove('on'));}}
+if(n!=='battle'){['#reveal','#menu-ov','#tut-ov','#confirm','#video-ov','#acc-ov'].forEach(s=>$(s).classList.remove('on'));}}
 function startBattle(){
 Q.length=0;Object.assign(S,{enemyHP:30,turn:1,slots:1,points:1,armyBuff:false,he162:false,b29:false,
   me163Turn:false,totalDmg:0,used:0,removed:0,ended:false,sel:-1,kongding:false,kongSel:null});
@@ -569,6 +700,7 @@ addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeo
 buildBoard();
 setImg($('#init-train').querySelector('img'),CARS.car1.img,()=>{});
 fit();
+initAcc();
 </script>
 </body>
 </html>
